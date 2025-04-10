@@ -1,0 +1,31 @@
+﻿@model SDMNG.Models.Stop
+
+@{
+    ViewData["Title"] = "Modify Stop Details";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="card shadow p-4">
+    <form asp-action="Modify" method="post">
+        <div class="mb-3">
+            <label asp-for="StopName" class="form-label">Stop Name</label>
+            <input asp-for="StopName" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Latitude" class="form-label">Latitude</label>
+            <input asp-for="Latitude" type="number" step="any" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Longitude" class="form-label">Longitude</label>
+            <input asp-for="Longitude" type="number" step="any" class="form-control" required />
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+    </form>
+</div>

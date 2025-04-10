@@ -1,0 +1,33 @@
+﻿@model SDMNG.Models.TransportRoute
+
+@{
+    ViewData["Title"] = "Create Transport Route";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="card shadow p-4">
+    <form asp-action="Create" method="post">
+        <div class="mb-3">
+            <label asp-for="TransportRoutesName" class="form-label">Route Name</label>
+            <input asp-for="TransportRoutesName" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="StartLocation" class="form-label">Start Location</label>
+            <input asp-for="StartLocation" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="EndLocation" class="form-label">End Location</label>
+            <input asp-for="EndLocation" class="form-control" required />
+        </div>
+
+ 
+
+        <div class="d-flex justify-content-between">
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Create Route</button>
+        </div>
+    </form>
+</div>

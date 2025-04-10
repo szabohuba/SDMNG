@@ -1,0 +1,55 @@
+﻿@model SDMNG.Models.Attachment
+
+@{
+    ViewData["Title"] = "Modify Attachment Details";
+}
+
+<h2>Modify Attachment Detail</h2>
+
+<form asp-action="Modify" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label asp-for="FileName" class="control-label"></label>
+        <input asp-for="FileName" class="form-control" />
+        <span asp-validation-for="FileName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="FileType" class="control-label"></label>
+        <input asp-for="FileType" class="form-control" />
+        <span asp-validation-for="FileType" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="UploadDate" class="control-label"></label>
+        <input asp-for="UploadDate" class="form-control" type="datetime-local" />
+        <span asp-validation-for="UploadDate" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="FilePath" class="control-label">Attachment File</label>
+        <input type="file" class="form-control" name="AttachmentFile" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ContactId" class="control-label">Assigned Contact</label>
+        <input asp-for="ContactId" class="form-control" />
+        <span asp-validation-for="ContactId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="BusId" class="control-label">Assigned Bus</label>
+        <input asp-for="BusId" class="form-control" />
+        <span asp-validation-for="BusId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mt-3">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a asp-action="Index" asp-controller="Attachment" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

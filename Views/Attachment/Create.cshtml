@@ -1,0 +1,59 @@
+﻿@model SDMNG.Models.Attachment
+
+@{
+    ViewData["Title"] = "Create Attachment";
+}
+
+<h2>Create Attachment</h2>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label asp-for="FileName" class="control-label"></label>
+        <input asp-for="FileName" class="form-control" />
+        <span asp-validation-for="FileName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="FileType" class="control-label"></label>
+        <input asp-for="FileType" class="form-control" />
+        <span asp-validation-for="FileType" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="UploadDate" class="control-label"></label>
+        <input asp-for="UploadDate" class="form-control" type="datetime-local" />
+        <span asp-validation-for="UploadDate" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="FilePath" class="control-label">Attachment File</label>
+        <input type="file" class="form-control" name="AttachmentFile" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ContactId" class="control-label">Assigned Contact</label>
+        <select asp-for="ContactId" class="form-control" asp-items="@(new SelectList(ViewBag.Contacts, "Id", "FullName"))">
+            <option value="">Select Contact</option>
+        </select>
+        <span asp-validation-for="ContactId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="BusId" class="control-label">Assigned Bus</label>
+        <select asp-for="BusId" class="form-control" asp-items="@(new SelectList(ViewBag.Buses, "Id", "BusNumber"))">
+            <option value="">Select Bus</option>
+        </select>
+        <span asp-validation-for="BusId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mt-3">
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a asp-action="Index" asp-controller="Attachment" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

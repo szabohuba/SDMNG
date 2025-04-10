@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35919.96 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDMNG", "SDMNG.csproj", "{1C9DF4B7-8807-45D3-9788-7B5A420D589B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1C9DF4B7-8807-45D3-9788-7B5A420D589B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C9DF4B7-8807-45D3-9788-7B5A420D589B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C9DF4B7-8807-45D3-9788-7B5A420D589B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C9DF4B7-8807-45D3-9788-7B5A420D589B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FFBA6398-11E7-4C3F-8943-31A9CB557F20}
+	EndGlobalSection
+EndGlobal

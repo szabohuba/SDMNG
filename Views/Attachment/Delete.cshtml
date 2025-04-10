@@ -1,0 +1,50 @@
+﻿@model SDMNG.Models.Attachment
+
+@{
+    ViewData["Title"] = "Delete Attachment";
+}
+
+<h2>Delete Attachment</h2>
+
+<form asp-action="Delete" method="post">
+    <div class="form-group">
+        <label asp-for="FileName" class="control-label"></label>
+        <input asp-for="FileName" class="form-control" readonly />
+        <span asp-validation-for="FileName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="FileType" class="control-label"></label>
+        <input asp-for="FileType" class="form-control" readonly />
+        <span asp-validation-for="FileType" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="UploadDate" class="control-label"></label>
+        <input asp-for="UploadDate" class="form-control" type="datetime-local" readonly />
+        <span asp-validation-for="UploadDate" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ContactId" class="control-label">Assigned Contact</label>
+        <input asp-for="ContactId" class="form-control" type="text" readonly />
+        <span asp-validation-for="ContactId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="BusId" class="control-label">Assigned Bus</label>
+        <input asp-for="BusId" class="form-control" type="text" readonly />
+        <span asp-validation-for="BusId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mt-3">
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a asp-action="Index" asp-controller="Attachment" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
