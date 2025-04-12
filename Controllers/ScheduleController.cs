@@ -20,6 +20,12 @@ namespace SpeedDiesel.Controllers
             return View(allSchedules);
         }
 
+        public IActionResult UserSchedule()
+        {
+            var allSchedules = _context.Schedules.ToList();
+            return View(allSchedules);
+        }
+
         public IActionResult Create()
         {
             return View();

@@ -19,6 +19,15 @@ namespace SpeedDiesel.Controllers
             return View(allTicket);
         }
 
+
+        public IActionResult UserTickets()
+        {
+            var allTicket = _context.Tickets.ToList();
+            return View(allTicket);
+        }
+
+      
+
         public IActionResult Create()
         {
             return View();

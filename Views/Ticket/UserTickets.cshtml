@@ -1,0 +1,40 @@
+﻿@model IEnumerable<Ticket>
+@{
+    ViewData["Title"] = "My Ticket List";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.TicketId)</th>
+            <th>@Html.DisplayNameFor(model => model.PurchaseDate)</th>
+            <th>@Html.DisplayNameFor(model => model.SeatNumber)</th>
+            <th>@Html.DisplayNameFor(model => model.ContactId)</th>
+            <th>@Html.DisplayNameFor(model => model.ScheduleId)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var ticket in Model)
+        {
+            <tr>
+                <td>@ticket.TicketId</td>
+                <td>@ticket.PurchaseDate.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>@ticket.SeatNumber</td>
+                <td>@ticket.ContactId</td>
+                <td>@ticket.ScheduleId</td>
+                <td>
+                    
+                    <a href="@Url.Action("Detail", "Ticket", new { id = ticket.TicketId })" class="btn btn-info btn-sm">Details</a>
+                   
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<p>
+    <a href="@Url.Action("Create", "Ticket")" class="btn btn-primary">Buy Ticket</a>
+</p>

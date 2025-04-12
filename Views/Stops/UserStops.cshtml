@@ -1,10 +1,12 @@
 ﻿@model IEnumerable<SDMNG.Models.Stop>
 @{
-    ViewData["Title"] = "Stops List";
+    ViewData["Title"] = "Our Stops List";
 }
 
 <h2>@ViewData["Title"]</h2>
 
+
+<!-- TABLE SECTION -->
 <table class="table table-striped">
     <thead>
         <tr>
@@ -22,15 +24,9 @@
                 <td>@stop.Latitude</td>
                 <td>@stop.Longitude</td>
                 <td>
-                    <a href="@Url.Action("Modify", "Stops", new { id = stop.StopId })" class="btn btn-warning btn-sm">Edit</a>
-                    <a href="@Url.Action("Detail", "Stops", new { id = stop.StopId })" class="btn btn-info btn-sm">Details</a>
-                    <a href="@Url.Action("Delete", "Stops", new { id = stop.StopId })" class="btn btn-danger btn-sm">Delete</a>
+                    <a href="@Url.Action("UserDetail", "Stops", new { id = stop.StopId })" class="btn btn-info btn-sm">Details</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
-
-<p>
-    <a href="@Url.Action("Create", "Stops")" class="btn btn-primary">Create New Stop</a>
-</p>

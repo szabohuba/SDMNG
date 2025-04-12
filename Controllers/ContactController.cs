@@ -62,5 +62,12 @@ namespace SDMNG.Controllers
             return View();
         }
 
+      
+
+        public IActionResult MyProfile()
+        {
+            return View(); // returns the view with the form you shared
+        }
+
     }
 }
