@@ -13,20 +13,10 @@ namespace SDMNG.Models
         [StringLength(100)]
         public string TransportRoutesName { get; set; }
 
-        [Required]
-        [StringLength(100)]
-        public string StartLocation { get; set; }
-
-        [Required]
-        [StringLength(100)]
-        public string EndLocation { get; set; }
-
-        //Relationship:
 
         public Schedule Schedule { get; set; }
 
-        public ICollection<Stop> Stops { get; set; }
+        public ICollection<RouteStop> RouteStop { get; set; }
 
-        
     }
 }

@@ -17,6 +17,7 @@ namespace SDMNG.Data
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<Attachment> Attachments { get; set; }
         public DbSet<TransportRoute> TransportRoutes { get; set; }
+        public DbSet<RouteStop> RouteStops { get; set; }
 
 
 
@@ -38,8 +39,31 @@ namespace SDMNG.Data
                 .WithMany(c => c.Tickets)
                 .HasForeignKey(t => t.ContactId)
                 .OnDelete(DeleteBehavior.Restrict);
-        }
-    
 
+            // RouteStop configuration
+            modelBuilder.Entity<RouteStop>()
+                .HasKey(rs => rs.RouteStopId); // Make sure primary key is defined here
+
+            // Additional configuration (your previous setup)
+            modelBuilder.Entity<RouteStop>()
+                .HasIndex(rs => new { rs.TransportRouteId, rs.SequenceNumber })
+                .IsUnique();
+
+            modelBuilder.Entity<RouteStop>()
+                .HasIndex(rs => new { rs.TransportRouteId, rs.StopId })
+                .IsUnique();
+
+            modelBuilder.Entity<RouteStop>()
+                .HasOne(rs => rs.TransportRoute)
+                .WithMany(r => r.RouteStop)
+                .HasForeignKey(rs => rs.TransportRouteId);
+
+            modelBuilder.Entity<RouteStop>()
+                .HasOne(rs => rs.Stop)
+                .WithMany(s => s.RouteStop)
+                .HasForeignKey(rs => rs.StopId);
+
+
+        }
     }
 }

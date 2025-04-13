@@ -20,9 +20,7 @@ namespace SDMNG.Models
         [StringLength(20)]
         public decimal Longitude { get; set; }
 
-        public string TransportRouteId { get; set; }
-        [ForeignKey("TransportRouteId")]
-        public TransportRoute TransportRoute { get; set; }
+        public ICollection<RouteStop> RouteStop { get; set; }
 
     }
 }

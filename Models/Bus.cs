@@ -33,5 +33,7 @@ namespace SDMNG.Models
 
         public ICollection<Attachment> Attachments { get; set; }
 
+        
+
     }
 }

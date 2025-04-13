@@ -9,8 +9,7 @@
     <thead>
         <tr>
             <th>@Html.DisplayNameFor(model => model.TransportRoutesName)</th>
-            <th>@Html.DisplayNameFor(model => model.StartLocation)</th>
-            <th>@Html.DisplayNameFor(model => model.EndLocation)</th>
+            
             <th>Stops Count</th>
             <th>@Html.DisplayNameFor(model => model.Schedule)</th>
             
@@ -22,9 +21,7 @@
         {
             <tr>
                 <td>@route.TransportRoutesName</td>
-                <td>@route.StartLocation</td>
-                <td>@route.EndLocation</td>
-                <td>@route.Stops?.Count</td>
+                
                 <td>@route.Schedule?.DepartureTime.ToString("yyyy-MM-dd HH:mm")</td>
                 
                 <td>
