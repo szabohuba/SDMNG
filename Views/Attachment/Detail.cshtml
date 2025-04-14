@@ -37,13 +37,13 @@
             </div>
 
             <div class="form-group">
-                <label asp-for="ContactId" class="control-label">Assigned Contact</label>
-                <input asp-for="ContactId" class="form-control" type="text" readonly />
+                <label class="control-label">Assigned Contact</label>
+                <input value="@Model.Contact?.FullName" class="form-control" type="text" readonly />
             </div>
 
             <div class="form-group">
-                <label asp-for="BusId" class="control-label">Assigned Bus</label>
-                <input asp-for="BusId" class="form-control" type="text" readonly />
+                <label class="control-label">Assigned Bus</label>
+                <input value="@Model.Bus?.BusNumber" class="form-control" type="text" readonly />
             </div>
         </div>
     </div>
