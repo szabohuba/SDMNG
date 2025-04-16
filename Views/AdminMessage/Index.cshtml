@@ -1,0 +1,36 @@
+﻿@model IEnumerable<SDMNG.Models.AdminMessage>
+
+@{
+    ViewData["Title"] = "User Messages";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.userName)</th>
+            <th>@Html.DisplayNameFor(model => model.userEmail)</th>
+            <th>@Html.DisplayNameFor(model => model.Subject)</th>
+            <th>@Html.DisplayNameFor(model => model.SentAt)</th>
+            <th>@Html.DisplayNameFor(model => model.IsRead)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var message in Model)
+        {
+            <tr>
+                <td>@message.userName</td>
+                <td>@message.userEmail</td>
+                <td>@message.Subject</td>
+                <td>@message.SentAt.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>@(message.IsRead ? "Yes" : "No")</td>
+                <td>
+                <a href="@Url.Action("Detail", "AdminMessage", new { id = message.adminmassegesId })" class="btn btn-info btn-sm">Details</a>
+               
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

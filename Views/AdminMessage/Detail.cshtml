@@ -1,0 +1,27 @@
+﻿@model SDMNG.Models.AdminMessage
+
+@{
+    ViewData["Title"] = "Message Details";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="card">
+    <div class="card-header">
+        <h5>@Model.Subject</h5>
+    </div>
+    <div class="card-body">
+        <p><strong>User Name:</strong> @Model.userName</p>
+        <p><strong>Email:</strong> @Model.userEmail</p>
+        <p><strong>Message:</strong></p>
+        <p>@Model.Message</p>
+        <p><strong>Sent At:</strong> @Model.SentAt.ToString("yyyy-MM-dd HH:mm")</p>
+        <p><strong>Is Read:</strong> @(Model.IsRead ? "Yes" : "No")</p>
+    </div>
+    <div class="card-footer text-muted">
+        Message ID: @Model.adminmassegesId
+    </div>
+</div>
+
+
+<a href="@Url.Action("Index", "AdminMessage")" class="btn btn-secondary mt-3">Back to Messages</a>

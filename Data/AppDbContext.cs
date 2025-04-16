@@ -18,6 +18,7 @@ namespace SDMNG.Data
         public DbSet<Attachment> Attachments { get; set; }
         public DbSet<TransportRoute> TransportRoutes { get; set; }
         public DbSet<RouteStop> RouteStops { get; set; }
+        public DbSet<AdminMessage> AdminMessages { get; set; }
 
 
 
