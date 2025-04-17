@@ -59,21 +59,31 @@ namespace SpeedDiesel.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        //[ValidateAntiForgeryToken]
         public async Task<IActionResult> ContactMe(AdminMessage model)
         {
-            if (ModelState.IsValid)
-            {
-                // Generate new ID and set properties
+            
+            // Log each property value for debugging
+            _logger.LogInformation("Model received:");
+            _logger.LogInformation($"adminmassegesId: {model?.adminmassegesId}");
+            _logger.LogInformation($"userName: {model?.userName}");
+            _logger.LogInformation($"userEmail: {model?.userEmail}");
+            _logger.LogInformation($"Subject: {model?.Subject}");
+            _logger.LogInformation($"Message: {model?.Message}");
+            _logger.LogInformation($"IsRead: {model?.IsRead}");
+            _logger.LogInformation($"SentAt: {model?.SentAt}");
+
+            
+                // Assign generated values
                 model.adminmassegesId = Guid.NewGuid().ToString();
                 model.SentAt = DateTime.UtcNow;
                 model.IsRead = false;
 
-                // Save to database
                 _context.AdminMessages.Add(model);
                 await _context.SaveChangesAsync();
+                _logger.LogInformation("Saved message to DB successfully");
 
-                // Get email settings from configuration
+                // Email
                 var emailSettings = _config.GetSection("EmailSettings");
                 var smtpServer = emailSettings["SmtpServer"];
                 var port = int.Parse(emailSettings["Port"]);
@@ -81,14 +91,13 @@ namespace SpeedDiesel.Controllers
                 var password = emailSettings["Password"];
                 var adminEmail = emailSettings["AdminEmail"];
 
-                // Send email
                 var message = new MailMessage
                 {
                     From = new MailAddress(username),
-                    To = { adminEmail },
                     Subject = $"New Message: {model.Subject}",
                     Body = $"Name: {model.userName}\nEmail: {model.userEmail}\n\nMessage:\n{model.Message}"
                 };
+                message.To.Add(adminEmail);
 
                 using var smtpClient = new SmtpClient(smtpServer)
                 {
@@ -99,11 +108,17 @@ namespace SpeedDiesel.Controllers
                 };
 
                 await smtpClient.SendMailAsync(message);
+                _logger.LogInformation("Email sent successfully");
 
                 return RedirectToAction("MessageSent");
-            }
+            
+        }
 
-            return View(model);
+
+
+        public IActionResult MessageSent()
+        {
+            return View();
         }
 
     }

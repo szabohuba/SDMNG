@@ -1,4 +1,5 @@
 ﻿@model SDMNG.Models.AdminMessage
+@Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
 @{
     ViewData["Title"] = "Send a Message";
@@ -7,29 +8,31 @@
 <h2>@ViewData["Title"]</h2>
 
 <form asp-action="ContactMe" method="post">
-    <div class="form-group">
-        <label for="userName">Your Name</label>
-        <input type="text" class="form-control" id="userName" name="userName" required />
-    </div>
+    @Html.AntiForgeryToken()
 
-    <div class="form-group">
-        <label for="userEmail">Your Email</label>
-        <input type="email" class="form-control" id="userEmail" name="userEmail" required />
-    </div>
+    <input asp-for="adminmassegesId" type="hidden" />
 
-    <div class="form-group">
-        <label for="Subject">Subject</label>
-        <input type="text" class="form-control" id="Subject" name="Subject" required />
-    </div>
+    <label>Name</label>
+    <input asp-for="userName" class="form-control" />
+    <span asp-validation-for="userName" class="text-danger"></span>
 
-    <div class="form-group">
-        <label for="Message">Message</label>
-        <textarea class="form-control" id="Message" name="Message" rows="4" required></textarea>
-    </div>
-    <p>
+    <label>Email</label>
+    <input asp-for="userEmail" class="form-control" />
+    <span asp-validation-for="userEmail" class="text-danger"></span>
 
-    </p>
+    <label>Subject</label>
+    <input asp-for="Subject" class="form-control" />
+    <span asp-validation-for="Subject" class="text-danger"></span>
 
-    <button type="submit" class="btn btn-primary">Send Message</button>
+    <label>Message</label>
+    <textarea asp-for="Message" class="form-control"></textarea>
+    <span asp-validation-for="Message" class="text-danger"></span>
 
+    <button type="submit" class="btn btn-primary">Send</button>
 </form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
