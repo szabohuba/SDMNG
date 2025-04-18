@@ -29,9 +29,9 @@ namespace SDMNG.Models
         public virtual Contact Contact { get; set; }
 
 
-        public ICollection<Schedule> Schedules { get; set; }
+        public ICollection<Schedule>? Schedules { get; set; }
 
-        public ICollection<Attachment> Attachments { get; set; }
+        public ICollection<Attachment>? Attachments { get; set; }
 
         
 
