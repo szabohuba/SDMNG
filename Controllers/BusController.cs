@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using System.Threading.Tasks;
+using static System.Net.WebRequestMethods;
 
 namespace SpeedDiesel.Controllers
 {
@@ -47,61 +48,78 @@ namespace SpeedDiesel.Controllers
             return View();
         }
 
-        // POST: Bus/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Bus bus, IFormFile BusImage)
         {
-            if (ModelState.IsValid)
+            try
             {
-                // Manually set the BusId
-                bus.BusId = Guid.NewGuid().ToString(); // Important: set it manually
-
-                // Log the input values before proceeding with the database operations
-                _logger.LogInformation("Creating Bus:");
-                _logger.LogInformation($"BusId: {bus.BusId}");
-                _logger.LogInformation($"BusNumber: {bus.BusNumber}");
-                _logger.LogInformation($"Capacity: {bus.Capacity}");
-                _logger.LogInformation($"BusType: {bus.BusType}");
-                _logger.LogInformation($"ImageUrl: {bus.ImageUrl}");
-                _logger.LogInformation($"ContactId: {bus.ContactId}");
-
-                // Handle the bus image upload
-                if (BusImage != null)
-                {
-                    var uploadFolder = Path.Combine(@"C:\Users\Szabo Huba\Desktop\SDMNG\wwwroot\images", "bus_images");
-                    var fileName = Path.GetFileName(BusImage.FileName);
-                    var filePath = Path.Combine(uploadFolder, fileName);
-
-                    if (!Directory.Exists(uploadFolder))
+               
+                    // Handle file upload
+                    if (BusImage != null && BusImage.Length > 0)
                     {
-                        Directory.CreateDirectory(uploadFolder);
+                        try
+                        {
+                            // Use the exact path you provided
+                            var uploadFolder = @"C:\Users\Szabo Huba\Desktop\SDMNG\wwwroot\images\bus_images\";
+
+                            // Ensure directory exists
+                            if (!Directory.Exists(uploadFolder))
+                            {
+                                Directory.CreateDirectory(uploadFolder);
+                            }
+
+                            // Create a unique filename to avoid conflicts
+                            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(BusImage.FileName);
+                            var filePath = Path.Combine(uploadFolder, fileName);
+
+                            using (var fileStream = new FileStream(filePath, FileMode.Create))
+                            {
+                            _logger.LogError($"File upload error: FileStream");
+                            await BusImage.CopyToAsync(fileStream);
+                            _logger.LogError($"File upload error: FileStreamEnd");
+
+                        }
+
+                            // Store the relative path in the database
+                            bus.ImageUrl = $"/images/bus_images/{fileName}";
+                        }
+                        catch (Exception fileEx)
+                        {
+                            _logger.LogError($"File upload error: {fileEx.Message}");
+                            // Continue without image
+                            bus.ImageUrl = null;
+                        }
                     }
+                _logger.LogError($"Ready to save changes to db");
 
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await BusImage.CopyToAsync(fileStream);
-                    }
-
-                    // Save the image URL to the Bus instance
-                    bus.ImageUrl = Path.Combine("images", "bus_images", fileName);
-                }
-
-                // Add the Bus object to the database
+                // Save to database
                 _context.Buses.Add(bus);
-                await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync();
 
-                // Log successful creation of the bus
-                _logger.LogInformation($"Bus with BusId {bus.BusId} successfully created.");
-
-                // Redirect to the Detail action (or another appropriate action)
-                return RedirectToAction(nameof(Detail), new { id = bus.BusId });
+                    // Redirect to Index instead of Detail if you're having issues
+                    return RedirectToAction(nameof(Index));
+                
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error creating bus: {ex.Message}");
+                ModelState.AddModelError("", "An error occurred: " + ex.Message);
             }
 
-            // If the model is invalid, repopulate the drivers for the dropdown
-            ViewBag.Drivers = new SelectList(_context.Contacts, "ContactId", "FullName", bus.ContactId);
+            // If we get here, repopulate the drivers dropdown
+            ViewBag.Drivers = _context.Contacts
+                                      .Select(c => new SelectListItem
+                                      {
+                                          Value = c.Id,
+                                          Text = c.FullName,
+                                          Selected = c.Id == bus.ContactId
+                                      })
+                                      .ToList();
+
             return View(bus);
         }
+
 
 
 

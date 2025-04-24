@@ -1,0 +1,77 @@
+[HttpPost]
+//[ValidateAntiForgeryToken]
+public async Task<IActionResult> ContactMe(AdminMessage model)
+{
+    
+    // Log each property value for debugging
+    _logger.LogInformation("Model received:");
+    _logger.LogInformation($"adminmassegesId: {model?.adminmassegesId}");
+    _logger.LogInformation($"userName: {model?.userName}");
+    _logger.LogInformation($"userEmail: {model?.userEmail}");
+    _logger.LogInformation($"Subject: {model?.Subject}");
+    _logger.LogInformation($"Message: {model?.Message}");
+    _logger.LogInformation($"IsRead: {model?.IsRead}");
+    _logger.LogInformation($"SentAt: {model?.SentAt}");
+
+    if (!ModelState.IsValid)
+    {
+        _logger.LogWarning("ModelState is invalid. Logging errors:");
+
+        foreach (var entry in ModelState)
+        {
+            foreach (var error in entry.Value.Errors)
+            {
+                _logger.LogWarning($"Key: {entry.Key}, Error: {error.ErrorMessage}");
+            }
+        }
+
+        return View(model);
+    }
+
+    try
+    {
+        // Assign generated values
+        model.adminmassegesId = Guid.NewGuid().ToString();
+        model.SentAt = DateTime.UtcNow;
+        model.IsRead = false;
+
+        _context.AdminMessages.Add(model);
+        await _context.SaveChangesAsync();
+        _logger.LogInformation("Saved message to DB successfully");
+
+        // Email
+        var emailSettings = _config.GetSection("EmailSettings");
+        var smtpServer = emailSettings["SmtpServer"];
+        var port = int.Parse(emailSettings["Port"]);
+        var username = emailSettings["Username"];
+        var password = emailSettings["Password"];
+        var adminEmail = emailSettings["AdminEmail"];
+
+        var message = new MailMessage
+        {
+            From = new MailAddress(username),
+            Subject = $"New Message: {model.Subject}",
+            Body = $"Name: {model.userName}\nEmail: {model.userEmail}\n\nMessage:\n{model.Message}"
+        };
+        message.To.Add(adminEmail);
+
+        using var smtpClient = new SmtpClient(smtpServer)
+        {
+            Port = port,
+            Credentials = new NetworkCredential(username, password),
+            EnableSsl = true,
+            DeliveryMethod = SmtpDeliveryMethod.Network
+        };
+
+        await smtpClient.SendMailAsync(message);
+        _logger.LogInformation("Email sent successfully");
+
+        return RedirectToAction("MessageSent");
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Exception occurred while saving or sending email.");
+        ModelState.AddModelError("", "Something went wrong while sending your message.");
+        return View(model);
+    }
+}
