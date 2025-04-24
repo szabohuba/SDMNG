@@ -169,50 +169,75 @@ namespace SpeedDiesel.Controllers
         // GET: Bus/Detail/{id}
         public async Task<IActionResult> Detail(string id)
         {
-            if (string.IsNullOrEmpty(id)) return NotFound();
+            if (string.IsNullOrEmpty(id))
+                return NotFound();
 
-            var bus = await _context.Buses
-                .FirstOrDefaultAsync(b => b.BusId == id);
+            var bus = await _context.Buses.FindAsync(id);
+            if (bus == null)
+                return NotFound();
 
-            if (bus == null) return NotFound();
+            // Get driver name from Contacts table
+            var driver = await _context.Contacts
+                .Where(c => c.Id == bus.ContactId)
+                .Select(c => c.FullName)
+                .FirstOrDefaultAsync();
+
+            ViewBag.DriverName = driver ?? "Unassigned";
 
             return View(bus);
         }
 
-        // GET: Bus/Delete/{id}
+
         public async Task<IActionResult> Delete(string id)
         {
-            if (string.IsNullOrEmpty(id)) return NotFound();
+            if (id == null)
+                return NotFound();
 
-            var bus = await _context.Buses
-                .FirstOrDefaultAsync(b => b.BusId == id);
+            var bus = await _context.Buses.FindAsync(id);
+            if (bus == null)
+                return NotFound();
 
-            if (bus == null) return NotFound();
+            var driverName = await _context.Contacts
+                .Where(c => c.Id == bus.ContactId)
+                .Select(c => c.FullName)
+                .FirstOrDefaultAsync();
+
+            ViewBag.DriverName = driverName ?? "Unassigned";
 
             return View(bus);
         }
 
 
-        // POST: Bus/DeleteConfirmed
+
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var bus = await _context.Buses.FindAsync(id);
+            var bus = await _context.Buses
+                .Include(b => b.Schedules) // Assuming navigation property
+                .FirstOrDefaultAsync(b => b.BusId == id);
 
-            if (bus != null)
+            if (bus == null)
+                return NotFound();
+
+            if (bus.Schedules != null && bus.Schedules.Any())
             {
-                _context.Buses.Remove(bus);
-                await _context.SaveChangesAsync();
+                ModelState.AddModelError("", "Cannot delete this bus because it has associated schedules.");
+                var driverName = await _context.Contacts
+                    .Where(c => c.Id == bus.ContactId)
+                    .Select(c => c.FullName)
+                    .FirstOrDefaultAsync();
+                ViewBag.DriverName = driverName ?? "Unassigned";
+                return View(bus);
             }
+
+            _context.Buses.Remove(bus);
+            await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
 
 
-       
-
-       
 
     }
 }
