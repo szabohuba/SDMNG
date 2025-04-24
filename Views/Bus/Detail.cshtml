@@ -35,7 +35,6 @@
 
         <!-- Second Column -->
         <div class="col-md-6">
-            <div class="col-md-6">
                 <div class="form-group">
                     <label class="control-label">Bus Image</label>
                     @if (!string.IsNullOrEmpty(Model.ImageUrl))
@@ -59,10 +58,25 @@
 
         </div>
     </div>
+    <p>
+
+    </p>
 
     <div class="form-group mt-3">
         <a asp-action="Index" asp-controller="Bus" class="btn btn-secondary">Cancel</a>
     </div>
+    <p>
+
+    </p>
+     <div class="form-group mt-3">
+            <a asp-action="CreateBusAttachment"
+               asp-controller="Attachment"
+               asp-route-busId="@Model.BusId"
+               class="btn btn-primary">
+                Add Attachment
+            </a>
+     </div>
+
 </form>
 
 @section Scripts {

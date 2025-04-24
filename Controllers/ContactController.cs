@@ -50,11 +50,22 @@ namespace SDMNG.Controllers
             return View();
         }
 
-        public IActionResult Detail()
+        public async Task<IActionResult> Detail(string id)
         {
+            if (string.IsNullOrEmpty(id))
+            {
+                return NotFound();
+            }
 
-            return View();
+            var contact = await _context.Contacts.FindAsync(id);
+            if (contact == null)
+            {
+                return NotFound();
+            }
+
+            return View(contact);
         }
+
 
         public IActionResult Delete()
         {

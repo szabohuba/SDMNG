@@ -236,8 +236,5 @@ namespace SpeedDiesel.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-
-
-
     }
 }
