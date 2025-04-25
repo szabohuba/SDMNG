@@ -1,0 +1,24 @@
+﻿@model SDMNG.Models.TransportRoute
+
+@{
+    ViewData["Title"] = "Create Transport Route";
+}
+
+<h2>Create Transport Route</h2>
+
+<form asp-action="Create">
+    <div class="form-group">
+        <label asp-for="TransportRoutesName" class="control-label"></label>
+        <input asp-for="TransportRoutesName" class="form-control" />
+        <span asp-validation-for="TransportRoutesName" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Create</button>
+    <a asp-action="Index" class="btn btn-secondary mt-3">Back to List</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

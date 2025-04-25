@@ -1,23 +1,65 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using SDMNG.Data;
-using System.Linq;
+using SDMNG.Models;
 
-namespace SpeedDiesel.Controllers
+namespace SDMNG.Controllers
 {
-    public class TransportRoutesController : Controller
+    public class TransportRouteController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly IWebHostEnvironment _env;
+        private readonly ILogger<AdminMessage> _logger;
 
-        public TransportRoutesController(AppDbContext context)
+        public TransportRouteController(AppDbContext context, IWebHostEnvironment env, ILogger<AdminMessage> logger)
         {
             _context = context;
+            _env = env;
+            _logger = logger;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var allRoutes = _context.TransportRoutes.ToList();
-            return View(allRoutes);
+            var routes = await _context.TransportRoutes
+                .Include(r => r.RouteStop)
+                .ToListAsync();
+            return View(routes);
+        }
+
+        public async Task<IActionResult> IndexUser()
+        {
+            var routes = await _context.TransportRoutes
+                .Include(r => r.RouteStop)
+                .ToListAsync();
+            return View(routes);
+        }
+
+        public async Task<IActionResult> Detail(string id)
+        {
+            if (id == null) return NotFound();
+
+            var route = await _context.TransportRoutes
+                .Include(r => r.RouteStop)
+                    .ThenInclude(rs => rs.Stop)
+                .FirstOrDefaultAsync(r => r.TransportRoutesId == id);
+
+            if (route == null) return NotFound();
+
+            return View(route);
+        }
+
+        public async Task<IActionResult> DetailUser(string id)
+        {
+            if (id == null) return NotFound();
+
+            var route = await _context.TransportRoutes
+                .Include(r => r.RouteStop)
+                    .ThenInclude(rs => rs.Stop)
+                .FirstOrDefaultAsync(r => r.TransportRoutesId == id);
+
+            if (route == null) return NotFound();
+
+            return View(route);
         }
 
         public IActionResult Create()
@@ -25,22 +67,61 @@ namespace SpeedDiesel.Controllers
             return View();
         }
 
-        public IActionResult Modify()
+        [HttpPost]
+        public async Task<IActionResult> Create(TransportRoute route)
         {
+            if (ModelState.IsValid)
+            {
+                _context.Add(route);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
 
-            return View();
+            return View(route);
         }
 
-        public IActionResult Detail()
+        public async Task<IActionResult> Modify(string id)
         {
+            if (id == null) return NotFound();
 
-            return View();
+            var route = await _context.TransportRoutes.FindAsync(id);
+            if (route == null) return NotFound();
+
+            return View(route);
         }
 
-        public IActionResult Delete()
+        [HttpPost]
+        public async Task<IActionResult> Modify(string id, TransportRoute route)
         {
+            if (id != route.TransportRoutesId) return NotFound();
 
-            return View();
+            if (ModelState.IsValid)
+            {
+                _context.Update(route);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(route);
+        }
+
+        public async Task<IActionResult> Delete(string id)
+        {
+            var route = await _context.TransportRoutes.FindAsync(id);
+            return View(route);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        public async Task<IActionResult> DeleteConfirmed(string id)
+        {
+            var route = await _context.TransportRoutes.FindAsync(id);
+            if (route != null)
+            {
+                _context.TransportRoutes.Remove(route);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

@@ -1,0 +1,37 @@
+﻿@model IEnumerable<SDMNG.Models.TransportRoute>
+
+@{
+    ViewData["Title"] = "Transport Routes";
+}
+<p>
+
+</p>
+<h2>Transport Routes</h2>
+<p>
+
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Stops</th>
+            <th></th>
+        </tr>
+    </thead>
+    <p>
+
+    </p>
+    <tbody>
+        @foreach (var route in Model)
+        {
+            <tr>
+                <td>@route.TransportRoutesName</td>
+                <td>@(route.RouteStop?.Count ?? 0)</td>
+                <td>
+                    <a asp-action="DetailUser" asp-route-id="@route.TransportRoutesId" class="btn btn-info">Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

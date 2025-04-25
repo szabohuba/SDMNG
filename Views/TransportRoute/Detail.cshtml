@@ -1,0 +1,56 @@
+﻿@model SDMNG.Models.TransportRoute
+
+@{
+    ViewData["Title"] = "Route Details";
+}
+
+<h2>@Model.TransportRoutesName</h2>
+
+<div>
+    <h4>Route Information</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">Route ID</dt>
+        <dd class="col-sm-10">@Model.TransportRoutesId</dd>
+
+        <dt class="col-sm-2">Name</dt>
+        <dd class="col-sm-10">@Model.TransportRoutesName</dd>
+    </dl>
+</div>
+
+<div>
+    <a asp-controller="RouteStop" asp-action="Create" class="btn btn-sm btn-primary">Add Stop to This Route</a>
+</div>
+
+@if (Model.RouteStop != null && Model.RouteStop.Any())
+{
+    <h4>Stops in Order</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Sequence</th>
+                <th>Stop Name</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var stop in Model.RouteStop.OrderBy(rs => rs.SequenceNumber))
+            {
+                <tr>
+                    <td>@stop.SequenceNumber</td>
+                    <td>@stop.Stop?.StopName</td>
+                    <td>@stop.Stop?.Latitude</td>
+                    <td>@stop.Stop?.Longitude</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}
+else
+{
+    <p>No stops assigned to this route.</p>
+}
+
+<a asp-action="Index" class="btn btn-secondary">Back to List</a>

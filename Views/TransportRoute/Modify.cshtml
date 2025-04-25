@@ -1,13 +1,13 @@
 ﻿@model SDMNG.Models.TransportRoute
 
 @{
-    ViewData["Title"] = "Transport Route Details";
+    ViewData["Title"] = "Modify Transport Route Details";
 }
 
 <h2>@ViewData["Title"]</h2>
 
 <div class="card shadow p-4">
-    <form asp-action="Detail" method="post">
+    <form asp-action="Modify" method="post">
         <div class="mb-3">
             <label asp-for="TransportRoutesName" class="form-label">Route Name</label>
             <input asp-for="TransportRoutesName" class="form-control" required />
@@ -15,10 +15,9 @@
 
         
 
-
-
         <div class="d-flex justify-content-between">
             <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
         </div>
     </form>
 </div>

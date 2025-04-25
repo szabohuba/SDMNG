@@ -1,0 +1,46 @@
+﻿@model SDMNG.Models.RouteStop
+
+@{
+    ViewData["Title"] = "Add Stop to Route";
+}
+
+<h2>Add Stop to Route</h2>
+
+<form asp-action="Create">
+    <div class="form-group">
+        <label asp-for="RoutStopName" class="control-label"></label>
+        <input asp-for="RoutStopName" class="form-control" />
+        <span asp-validation-for="RoutStopName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="TransportRouteId" class="control-label">Route</label>
+        <select asp-for="TransportRouteId" class="form-control" asp-items="ViewBag.TransportRouteId">
+            <option value="">-- Select Route --</option>
+        </select>
+        <span asp-validation-for="TransportRouteId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="StopId" class="control-label">Stop</label>
+        <select asp-for="StopId" class="form-control" asp-items="ViewBag.StopId">
+            <option value="">-- Select Stop --</option>
+        </select>
+        <span asp-validation-for="StopId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="SequenceNumber" class="control-label"></label>
+        <input asp-for="SequenceNumber" class="form-control" />
+        <span asp-validation-for="SequenceNumber" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Add Stop</button>
+    <a asp-action="Index" class="btn btn-secondary mt-3">Back to List</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
