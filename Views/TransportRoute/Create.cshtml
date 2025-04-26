@@ -6,7 +6,8 @@
 
 <h2>Create Transport Route</h2>
 
-<form asp-action="Create">
+<form asp-action="Create" method="post">
+
     <div class="form-group">
         <label asp-for="TransportRoutesName" class="control-label"></label>
         <input asp-for="TransportRoutesName" class="form-control" />
@@ -17,8 +18,5 @@
     <a asp-action="Index" class="btn btn-secondary mt-3">Back to List</a>
 </form>
 
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
+
+

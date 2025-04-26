@@ -1,56 +1,60 @@
 ﻿@model SDMNG.Models.TransportRoute
 
-@{
-    ViewData["Title"] = "Route Details";
-}
-
 <h2>@Model.TransportRoutesName</h2>
 
-<div>
-    <h4>Route Information</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">Route ID</dt>
-        <dd class="col-sm-10">@Model.TransportRoutesId</dd>
-
-        <dt class="col-sm-2">Name</dt>
-        <dd class="col-sm-10">@Model.TransportRoutesName</dd>
-    </dl>
-</div>
-
-<div>
-    <a asp-controller="RouteStop" asp-action="Create" class="btn btn-sm btn-primary">Add Stop to This Route</a>
-</div>
-
-@if (Model.RouteStop != null && Model.RouteStop.Any())
-{
-    <h4>Stops in Order</h4>
-    <table class="table">
-        <thead>
+<!-- List existing stops in a table -->
+<h4>Route Stops:</h4>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Stop Name</th>
+            <th>Sequence Number</th>
+            <th>Coordinates (Longitude, Latitude)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var stop in Model.RouteStop.OrderBy(rs => rs.SequenceNumber))
+        {
             <tr>
-                <th>Sequence</th>
-                <th>Stop Name</th>
-                <th>Latitude</th>
-                <th>Longitude</th>
+                <td>@stop.RoutStopName</td>
+                <td>@stop.SequenceNumber</td>
+                <td>
+                    Long: @stop.Stop.Longitude, Lat: @stop.Stop.Latitude
+                </td>
+                <td>
+                    <!-- Delete button for each stop -->
+                    <form asp-action="DeleteStop" method="post" style="display:inline-block;">
+                        <input type="hidden" name="routeStopId" value="@stop.RouteStopId" />
+                        <input type="hidden" name="transportRouteId" value="@Model.TransportRoutesId" />
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this stop?');">
+                            Delete
+                        </button>
+                    </form>
+                </td>
             </tr>
-        </thead>
-        <tbody>
-            @foreach (var stop in Model.RouteStop.OrderBy(rs => rs.SequenceNumber))
+        }
+    </tbody>
+</table>
+
+<!-- Form to add a new stop -->
+<h4>Add Stop to this Route</h4>
+<form asp-action="AddStop" method="post">
+    <input type="hidden" name="TransportRouteId" value="@Model.TransportRoutesId" />
+
+    <div class="form-group">
+        <label>Choose Stop</label>
+        <select name="StopId" class="form-control" required>
+            <option value="">-- Select Stop --</option>
+            @foreach (var stop in ViewBag.Stops as List<SDMNG.Models.Stop>)
             {
-                <tr>
-                    <td>@stop.SequenceNumber</td>
-                    <td>@stop.Stop?.StopName</td>
-                    <td>@stop.Stop?.Latitude</td>
-                    <td>@stop.Stop?.Longitude</td>
-                </tr>
+                <option value="@stop.StopId">@stop.StopName</option>
             }
-        </tbody>
-    </table>
+        </select>
+    </div>
 
-}
-else
-{
-    <p>No stops assigned to this route.</p>
-}
+    <button type="submit" class="btn btn-primary mt-3">Add New Stop To Route</button>
 
-<a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    <p></p>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</form>

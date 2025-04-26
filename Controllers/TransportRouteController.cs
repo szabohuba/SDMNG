@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using SDMNG.Data;
 using SDMNG.Models;
@@ -21,16 +23,21 @@ namespace SDMNG.Controllers
         public async Task<IActionResult> Index()
         {
             var routes = await _context.TransportRoutes
-                .Include(r => r.RouteStop)
-                .ToListAsync();
+            .Include(r => r.RouteStop)
+            .ThenInclude(rs => rs.Stop)
+             .ToListAsync();
+
             return View(routes);
+
         }
 
         public async Task<IActionResult> IndexUser()
         {
             var routes = await _context.TransportRoutes
-                .Include(r => r.RouteStop)
-                .ToListAsync();
+            .Include(r => r.RouteStop)
+            .ThenInclude(rs => rs.Stop)
+             .ToListAsync();
+
             return View(routes);
         }
 
@@ -45,8 +52,89 @@ namespace SDMNG.Controllers
 
             if (route == null) return NotFound();
 
+            // Add this to send stops list to the view
+            ViewBag.Stops = await _context.Stops.ToListAsync();
+
             return View(route);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddStop(string TransportRouteId, string StopId)
+        {
+            if (string.IsNullOrEmpty(TransportRouteId) || string.IsNullOrEmpty(StopId))
+            {
+                TempData["ErrorMessage"] = "Missing TransportRouteId or StopId.";
+                return RedirectToAction(nameof(Detail), new { id = TransportRouteId });
+            }
+
+            // Check if stop already exists in this route
+            bool stopAlreadyExists = await _context.RouteStops
+                .AnyAsync(rs => rs.TransportRouteId == TransportRouteId && rs.StopId == StopId);
+
+            if (stopAlreadyExists)
+            {
+                TempData["ErrorMessage"] = "This stop is already added to this route.";
+                return RedirectToAction(nameof(Detail), new { id = TransportRouteId });
+            }
+
+            // Get the highest SequenceNumber in this route
+            int maxSequence = await _context.RouteStops
+                .Where(rs => rs.TransportRouteId == TransportRouteId)
+                .MaxAsync(rs => (int?)rs.SequenceNumber) ?? 0;
+
+            var stop = await _context.Stops.FirstOrDefaultAsync(s => s.StopId == StopId);
+            if (stop == null)
+            {
+                TempData["ErrorMessage"] = "Selected stop does not exist.";
+                return RedirectToAction(nameof(Detail), new { id = TransportRouteId });
+            }
+
+            var newRouteStop = new RouteStop
+            {
+                RouteStopId = Guid.NewGuid().ToString(),
+                TransportRouteId = TransportRouteId,
+                StopId = StopId,
+                RoutStopName = stop.StopName,
+                SequenceNumber = maxSequence + 1 // <-- Automatically set the next sequence
+            };
+
+            _context.RouteStops.Add(newRouteStop);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Stop added successfully!";
+            }
+            catch (DbUpdateException ex)
+            {
+                TempData["ErrorMessage"] = $"Database error: {ex.InnerException?.Message}";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Unexpected error: {ex.Message}";
+            }
+
+            return RedirectToAction(nameof(Detail), new { id = TransportRouteId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteStop(string routeStopId, string transportRouteId)
+        {
+            var routeStop = await _context.RouteStops
+                .FirstOrDefaultAsync(rs => rs.RouteStopId == routeStopId);
+
+            if (routeStop != null)
+            {
+                _context.RouteStops.Remove(routeStop);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Detail), new { id = transportRouteId });
+        }
+
+
 
         public async Task<IActionResult> DetailUser(string id)
         {
@@ -62,23 +150,32 @@ namespace SDMNG.Controllers
             return View(route);
         }
 
+
         public IActionResult Create()
         {
             return View();
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(TransportRoute route)
         {
             if (ModelState.IsValid)
             {
+                route.TransportRoutesId = Guid.NewGuid().ToString();
                 _context.Add(route);
                 await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
 
             return View(route);
         }
+
+
+
+
+
 
         public async Task<IActionResult> Modify(string id)
         {
