@@ -4,30 +4,51 @@
     ViewData["Title"] = "Create Schedule";
 }
 
-<h2>@ViewData["Title"]</h2>
+<h2>Create Schedule</h2>
 
-<div class="card shadow p-4">
-    <form asp-action="Create" method="post">
-        <div class="mb-3">
-            <label asp-for="DepartureTime" class="form-label">Departure Time</label>
-            <input asp-for="DepartureTime" type="datetime-local" class="form-control" required />
-        </div>
+<form asp-action="Create" method="post">
+    <div class="form-group mb-3">
+        <label asp-for="Name" class="form-label">Schedule Name</label>
+        <input asp-for="Name" class="form-control" required />
+    </div>
 
-        <div class="mb-3">
-            <label asp-for="ArrivalTime" class="form-label">Arrival Time</label>
-            <input asp-for="ArrivalTime" type="datetime-local" class="form-control" required />
-        </div>
+    <div class="form-group mb-3">
+        <label asp-for="DepartureTime" class="form-label">Departure Time</label>
+        <input asp-for="DepartureTime" class="form-control" type="datetime-local" required />
+    </div>
 
-        <div class="mb-3">
-            <label asp-for="BusId" class="form-label">Bus</label>
-            <select asp-for="BusId" asp-items="ViewBag.Buses" class="form-control" required>
-                <option value="">Select a Bus</option>
-            </select>
-        </div>
+    <div class="form-group mb-3">
+        <label asp-for="ArrivalTime" class="form-label">Arrival Time</label>
+        <input asp-for="ArrivalTime" class="form-control" type="datetime-local" required />
+    </div>
 
-        <div class="d-flex justify-content-between">
-            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-            <button type="submit" class="btn btn-primary">Create Schedule</button>
-        </div>
-    </form>
-</div>
+    <div class="form-group mb-3">
+        <label>Transport Route</label>
+        <select asp-for="TransportRouteId" class="form-control" required>
+            <option value="">-- Select a Route --</option>
+            @foreach (var route in ViewBag.TransportRoutes as List<SDMNG.Models.TransportRoute>)
+            {
+                <option value="@route.TransportRoutesId">@route.TransportRoutesName</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Bus (optional)</label>
+        <select asp-for="BusId" class="form-control">
+            <option value="">-- Select a Bus (optional) --</option>
+            @foreach (var bus in ViewBag.Buses as List<SDMNG.Models.Bus>)
+            {
+                <option value="@bus.BusId">@bus.BusNumber</option> <!-- Adjust property names -->
+            }
+        </select>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="IsCompleted" class="form-check-input" type="checkbox" />
+        <label asp-for="IsCompleted" class="form-check-label">Is Completed?</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Schedule</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

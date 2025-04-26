@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using SDMNG.Data;
 using SDMNG.Models;
@@ -10,25 +8,25 @@ namespace SDMNG.Controllers
     public class TransportRouteController : Controller
     {
         private readonly AppDbContext _context;
-        private readonly IWebHostEnvironment _env;
-        private readonly ILogger<AdminMessage> _logger;
+        private readonly ILogger<TransportRouteController> _logger;
 
-        public TransportRouteController(AppDbContext context, IWebHostEnvironment env, ILogger<AdminMessage> logger)
+        public TransportRouteController(AppDbContext context, ILogger<TransportRouteController> logger)
         {
             _context = context;
-            _env = env;
             _logger = logger;
         }
 
+        
+
+        // GET: TransportRoute/Index
         public async Task<IActionResult> Index()
         {
             var routes = await _context.TransportRoutes
-            .Include(r => r.RouteStop)
-            .ThenInclude(rs => rs.Stop)
-             .ToListAsync();
+                .Include(r => r.RouteStop)
+                .ThenInclude(rs => rs.Stop)
+                .ToListAsync();
 
             return View(routes);
-
         }
 
         public async Task<IActionResult> IndexUser()
@@ -41,7 +39,120 @@ namespace SDMNG.Controllers
             return View(routes);
         }
 
+
+        // GET: TransportRoute/Create
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: TransportRoute/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(TransportRoute route)
+        {
+           
+                route.TransportRoutesId = Guid.NewGuid().ToString();
+                _context.Add(route);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+           
+        }
+
+        // GET: TransportRoute/Modify/5
+        public async Task<IActionResult> Modify(string id)
+        {
+            if (id == null) return NotFound();
+
+            var route = await _context.TransportRoutes.FindAsync(id);
+            if (route == null) return NotFound();
+
+            return View(route);
+        }
+
+        // POST: TransportRoute/Modify/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Modify(string id, TransportRoute route)
+        {
+            if (id != route.TransportRoutesId) return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                _context.Update(route);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(route);
+        }
+
+        // GET: TransportRoute/Delete/5
+        public async Task<IActionResult> Delete(string id)
+        {
+            var route = await _context.TransportRoutes
+                .Include(r => r.RouteStop)  // Include RouteStops for deletion
+                .FirstOrDefaultAsync(r => r.TransportRoutesId == id);
+
+            if (route == null)
+            {
+                return NotFound();
+            }
+
+            return View(route);
+        }
+
+        // POST: TransportRoute/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(string id)
+        {
+            var route = await _context.TransportRoutes
+                .Include(r => r.RouteStop)  // Include RouteStops for deletion
+                .FirstOrDefaultAsync(r => r.TransportRoutesId == id);
+
+            if (route != null)
+            {
+                // First delete the associated RouteStops
+                _context.RouteStops.RemoveRange(route.RouteStop);
+
+                // Then delete the TransportRoute
+                _context.TransportRoutes.Remove(route);
+
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Transport route and associated stops deleted successfully!";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Transport route not found.";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+
+
+
+        // GET: TransportRoute/Detail/5
         public async Task<IActionResult> Detail(string id)
+        {
+            if (id == null) return NotFound();
+
+            var route = await _context.TransportRoutes
+                .Include(r => r.RouteStop)
+                    .ThenInclude(rs => rs.Stop)
+                .FirstOrDefaultAsync(r => r.TransportRoutesId == id);
+
+            if (route == null) return NotFound();
+
+            // Send stops list to the view for dropdown
+            ViewBag.Stops = await _context.Stops.ToListAsync();
+
+            return View(route);
+        }
+
+        public async Task<IActionResult> DetailUser(string id)
         {
             if (id == null) return NotFound();
 
@@ -58,6 +169,7 @@ namespace SDMNG.Controllers
             return View(route);
         }
 
+        // POST: TransportRoute/AddStop
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddStop(string TransportRouteId, string StopId)
@@ -118,6 +230,7 @@ namespace SDMNG.Controllers
             return RedirectToAction(nameof(Detail), new { id = TransportRouteId });
         }
 
+        // POST: TransportRoute/DeleteStop
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteStop(string routeStopId, string transportRouteId)
@@ -134,91 +247,6 @@ namespace SDMNG.Controllers
             return RedirectToAction(nameof(Detail), new { id = transportRouteId });
         }
 
-
-
-        public async Task<IActionResult> DetailUser(string id)
-        {
-            if (id == null) return NotFound();
-
-            var route = await _context.TransportRoutes
-                .Include(r => r.RouteStop)
-                    .ThenInclude(rs => rs.Stop)
-                .FirstOrDefaultAsync(r => r.TransportRoutesId == id);
-
-            if (route == null) return NotFound();
-
-            return View(route);
-        }
-
-
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(TransportRoute route)
-        {
-            if (ModelState.IsValid)
-            {
-                route.TransportRoutesId = Guid.NewGuid().ToString();
-                _context.Add(route);
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction(nameof(Index));
-            }
-
-            return View(route);
-        }
-
-
-
-
-
-
-        public async Task<IActionResult> Modify(string id)
-        {
-            if (id == null) return NotFound();
-
-            var route = await _context.TransportRoutes.FindAsync(id);
-            if (route == null) return NotFound();
-
-            return View(route);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Modify(string id, TransportRoute route)
-        {
-            if (id != route.TransportRoutesId) return NotFound();
-
-            if (ModelState.IsValid)
-            {
-                _context.Update(route);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-
-            return View(route);
-        }
-
-        public async Task<IActionResult> Delete(string id)
-        {
-            var route = await _context.TransportRoutes.FindAsync(id);
-            return View(route);
-        }
-
-        [HttpPost, ActionName("Delete")]
-        public async Task<IActionResult> DeleteConfirmed(string id)
-        {
-            var route = await _context.TransportRoutes.FindAsync(id);
-            if (route != null)
-            {
-                _context.TransportRoutes.Remove(route);
-                await _context.SaveChangesAsync();
-            }
-
-            return RedirectToAction(nameof(Index));
-        }
+        
     }
 }
