@@ -27,15 +27,13 @@
                 <td>@schedule.DepartureTime.ToString("yyyy-MM-dd HH:mm")</td>
                 <td>@schedule.ArrivalTime.ToString("yyyy-MM-dd HH:mm")</td>
                 <td>
-                    <a href="@Url.Action("Modify", "Schedule", new { id = schedule.Id })" class="btn btn-warning btn-sm">Edit</a>
-                    <a href="@Url.Action("Detail", "Schedule", new { id = schedule.Id })" class="btn btn-info btn-sm">Details</a>
-                    <a href="@Url.Action("Delete", "Schedule", new { id = schedule.Id })" class="btn btn-danger btn-sm">Delete</a>
+                    
+                    <a href="@Url.Action("DetailUser", "Schedule", new { id = schedule.Id })" class="btn btn-info btn-sm">Details</a>
+                    
                 </td>
             </tr>
         }
     </tbody>
 </table>
 
-<p>
-    <a href="@Url.Action("Create", "Schedule")" class="btn btn-primary">Create New Schedule</a>
-</p>
+

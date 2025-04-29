@@ -4,51 +4,42 @@
     ViewData["Title"] = "Create Schedule";
 }
 
-<h2>Create Schedule</h2>
+<h2>@ViewData["Title"]</h2>
 
 <form asp-action="Create" method="post">
-    <div class="form-group mb-3">
-        <label asp-for="Name" class="form-label">Schedule Name</label>
-        <input asp-for="Name" class="form-control" required />
+    <div class="form-group">
+        <label asp-for="Name" class="control-label">Schedule Name</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
     </div>
 
-    <div class="form-group mb-3">
-        <label asp-for="DepartureTime" class="form-label">Departure Time</label>
-        <input asp-for="DepartureTime" class="form-control" type="datetime-local" required />
+    <div class="form-group">
+        <label asp-for="DepartureTime" class="control-label">Departure Time</label>
+        <input asp-for="DepartureTime" class="form-control" type="datetime-local" />
+        <span asp-validation-for="DepartureTime" class="text-danger"></span>
     </div>
 
-    <div class="form-group mb-3">
-        <label asp-for="ArrivalTime" class="form-label">Arrival Time</label>
-        <input asp-for="ArrivalTime" class="form-control" type="datetime-local" required />
+    <div class="form-group">
+        <label asp-for="ArrivalTime" class="control-label">Arrival Time</label>
+        <input asp-for="ArrivalTime" class="form-control" type="datetime-local" />
+        <span asp-validation-for="ArrivalTime" class="text-danger"></span>
     </div>
 
-    <div class="form-group mb-3">
-        <label>Transport Route</label>
-        <select asp-for="TransportRouteId" class="form-control" required>
-            <option value="">-- Select a Route --</option>
-            @foreach (var route in ViewBag.TransportRoutes as List<SDMNG.Models.TransportRoute>)
-            {
-                <option value="@route.TransportRoutesId">@route.TransportRoutesName</option>
-            }
+    <div class="form-group">
+        <label asp-for="TransportRouteId" class="control-label"></label>
+        <select asp-for="TransportRouteId" class="form-control" asp-items="@(new SelectList(ViewBag.TransportRoutes, "TransportRoutesId", "TransportRoutesName"))">
+            <option value="">-- Select a route --</option>
         </select>
     </div>
 
-    <div class="form-group mb-3">
-        <label>Bus (optional)</label>
-        <select asp-for="BusId" class="form-control">
-            <option value="">-- Select a Bus (optional) --</option>
-            @foreach (var bus in ViewBag.Buses as List<SDMNG.Models.Bus>)
-            {
-                <option value="@bus.BusId">@bus.BusNumber</option> <!-- Adjust property names -->
-            }
+    <div class="form-group">
+        <label asp-for="BusId" class="control-label"></label>
+        <select asp-for="BusId" class="form-control" asp-items="@(new SelectList(ViewBag.Buses, "BusId", "BusNumber"))">
+            <option value="">-- Select a bus --</option>
         </select>
     </div>
 
-    <div class="form-check mb-3">
-        <input asp-for="IsCompleted" class="form-check-input" type="checkbox" />
-        <label asp-for="IsCompleted" class="form-check-label">Is Completed?</label>
-    </div>
 
-    <button type="submit" class="btn btn-primary">Create Schedule</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    <button type="submit" class="btn btn-primary mt-3">Create Schedule</button>
+    <a asp-action="Index" class="btn btn-secondary mt-3">Back to List</a>
 </form>
