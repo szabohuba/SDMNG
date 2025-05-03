@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SDMNG.ViewModels;
 using SDMNG.Models;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.AspNetCore.Authorization;
 
 namespace UsersApp.Controllers
 {
@@ -63,10 +64,13 @@ namespace UsersApp.Controllers
                     PWString=model.Password
                 };
 
+
                 var result = await userManager.CreateAsync(users, model.Password);
+                
 
                 if (result.Succeeded)
                 {
+                    await userManager.AddToRoleAsync(users, "User");
                     return RedirectToAction("Login", "Account");
                 }
                 else
@@ -159,5 +163,7 @@ namespace UsersApp.Controllers
             await signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
+
+
     }
 }

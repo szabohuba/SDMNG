@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SDMNG.Data;
@@ -73,12 +75,26 @@ namespace SDMNG.Controllers
             return View();
         }
 
-      
 
-        public IActionResult MyProfile()
+        [Authorize]
+        public async Task<IActionResult> MyProfile()
         {
-            return View(); // returns the view with the form you shared
-        }
+            var email = User.Identity?.Name;
 
+            if (string.IsNullOrEmpty(email))
+            {
+                return Unauthorized();
+            }
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Email == email);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return View(user);
+        }
     }
 }

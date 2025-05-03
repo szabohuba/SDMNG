@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@using SDMNG.Models
+@inject SignInManager<Contact> SignInManager
+@inject UserManager<Contact> UserManager
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -24,25 +29,29 @@
 
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between w-100">
                     <ul class="navbar-nav flex-grow-1">
-                        <!-- Dropdown -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-gear"></i> Management
-                            </a>
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" asp-controller="Bus" asp-action="Index"><i class="bi bi-bus-front"></i> Buses</a>
-                                <a class="dropdown-item" asp-controller="Stops" asp-action="Index"><i class="bi bi-sign-stop"></i> Stops</a>
-                                <a class="dropdown-item" asp-controller="Ticket" asp-action="Index"><i class="bi bi-ticket-detailed-fill"></i> Ticket</a>
-                                <a class="dropdown-item" asp-controller="TransportRoute" asp-action="Index"><i class="bi bi-signpost-split"></i> Routes</a>
-                                <a class="dropdown-item" asp-controller="Contact" asp-action=""><i class="bi bi-person-lines-fill"></i> Contacts</a>
-                                <a class="dropdown-item" asp-controller="Schedule" asp-action="Index"><i class="bi bi-calendar-week"></i> Schedules</a>
-                                <a class="dropdown-item" asp-controller="Attachment" asp-action="Index"><i class="bi bi-paperclip"></i> Attachments</a>
-                                <a class="dropdown-item" asp-controller="Role" asp-action="Index"> <i class="<i class="bi bi-people-fill"></i>Roles </a>
-                                <a class="dropdown-item" asp-controller="AdminMessage" asp-action="Index"><i class="bi bi-chat"></i> User messages</a>
-                            </div>
-                        </li>
 
-                        <!-- New Menu Items -->
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <!-- Admin Only Dropdown -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-gear"></i> Management
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" asp-controller="Bus" asp-action="Index"><i class="bi bi-bus-front"></i> Buses</a>
+                                    <a class="dropdown-item" asp-controller="Stops" asp-action="Index"><i class="bi bi-sign-stop"></i> Stops</a>
+                                    <a class="dropdown-item" asp-controller="Ticket" asp-action="Index"><i class="bi bi-ticket-detailed-fill"></i> Ticket</a>
+                                    <a class="dropdown-item" asp-controller="TransportRoute" asp-action="Index"><i class="bi bi-signpost-split"></i> Routes</a>
+                                    <a class="dropdown-item" asp-controller="Contact" asp-action="Index"><i class="bi bi-person-lines-fill"></i> Contacts</a>
+                                    <a class="dropdown-item" asp-controller="Schedule" asp-action="Index"><i class="bi bi-calendar-week"></i> Schedules</a>
+                                    <a class="dropdown-item" asp-controller="Attachment" asp-action="Index"><i class="bi bi-paperclip"></i> Attachments</a>
+                                    <a class="dropdown-item" asp-controller="Role" asp-action="Index"><i class="bi bi-people-fill"></i> Roles</a>
+                                    <a class="dropdown-item" asp-controller="AdminMessage" asp-action="Index"><i class="bi bi-chat"></i> User messages</a>
+                                </div>
+                            </li>
+                        }
+
+                        <!-- Common Menu Items -->
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Stops" asp-action="UserStops">Stations</a>
                         </li>
@@ -58,26 +67,26 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="AdminMessage" asp-action="ContactMe">Contact us</a>
                         </li>
-    
+
                     </ul>
-                     <partial name="_LoginPartial" />
-                   
+                    <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
     </header>
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-
     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2025 - SDMNG - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
