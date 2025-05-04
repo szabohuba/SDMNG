@@ -10,12 +10,15 @@ namespace SDMNG.Controllers
 {
     public class ContactController : Controller
     {
-
         private readonly AppDbContext _context;
+        private readonly UserManager<Contact> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public ContactController(AppDbContext context)
+        public ContactController(UserManager<Contact> userManager, RoleManager<IdentityRole> roleManager, AppDbContext context)
         {
-           _context = context;
+            _userManager = userManager;
+            _roleManager = roleManager;
+            _context = context;
         }
 
         public IActionResult Index()
@@ -45,28 +48,24 @@ namespace SDMNG.Controllers
             return View(contact);
         }
 
-      
-        public IActionResult Modify()
-        {
-         
-            return View();
-        }
+
 
         public async Task<IActionResult> Detail(string id)
         {
-            if (string.IsNullOrEmpty(id))
-            {
-                return NotFound();
-            }
+            if (string.IsNullOrEmpty(id)) return NotFound();
 
-            var contact = await _context.Contacts.FindAsync(id);
-            if (contact == null)
-            {
-                return NotFound();
-            }
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound();
 
-            return View(contact);
+            var roles = await _userManager.GetRolesAsync(user);
+            ViewBag.UserRole = roles.FirstOrDefault() ?? "No role assigned";
+
+            // Optional: if you're using ViewBag.BusNumber as well
+            ViewBag.BusNumber = "N/A"; // Replace with your actual logic
+
+            return View(user);
         }
+
 
 
         public IActionResult Delete()
@@ -96,5 +95,63 @@ namespace SDMNG.Controllers
 
             return View(user);
         }
+
+        // GET: Contacts/Modify/{id}
+        public async Task<IActionResult> Modify(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return NotFound();
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound();
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var allRoles = _roleManager.Roles.Select(r => r.Name).ToList();
+
+            ViewBag.Roles = new SelectList(allRoles);
+            ViewBag.CurrentRole = userRoles.FirstOrDefault();
+
+            return View(user);
+        }
+
+        // POST: Contacts/Modify
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Modify(Contact model, string selectedRole)
+        {
+
+            var user = await _userManager.FindByIdAsync(model.Id);
+            if (user == null) return NotFound();
+
+            // Update user properties
+            user.FullName = model.FullName;
+            user.Email = model.Email;
+            user.UserName = model.Email;
+            user.PhoneNumber = model.PhoneNumber;
+            user.Street = model.Street;
+            user.Zipcode = model.Zipcode;
+            user.Active = model.Active;
+
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                ModelState.AddModelError("", "Failed to update user");
+                return View(model);
+            }
+
+            // Update role
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            if (currentRoles.Any())
+            {
+                await _userManager.RemoveFromRolesAsync(user, currentRoles);
+            }
+
+            if (!string.IsNullOrEmpty(selectedRole) && await _roleManager.RoleExistsAsync(selectedRole))
+            {
+                await _userManager.AddToRoleAsync(user, selectedRole);
+            }
+
+            return RedirectToAction("Index");
+        }
+
     }
 }

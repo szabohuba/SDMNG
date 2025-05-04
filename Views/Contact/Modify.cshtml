@@ -51,6 +51,13 @@
                     <input type="checkbox" asp-for="Active" class="form-check-input" />
                     <label asp-for="Active" class="form-check-label">Active</label>
                 </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Role</label>
+                    <select name="SelectedRole" class="form-control" asp-items="ViewBag.Roles">
+                        <option value="">-- Select Role --</option>
+                    </select>
+                </div>
             </div>
         </div>
 
