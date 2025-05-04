@@ -1,5 +1,30 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model SDMNG.Models.Ticket
 @{
+    ViewData["Title"] = "Buy Ticket";
+}
+
+<h2>Buy Ticket</h2>
+
+<form asp-action="BuyTicket" method="post">
+    <div class="mb-3">
+        <label asp-for="SeatNumber" class="form-label"></label>
+        <input asp-for="SeatNumber" class="form-control" />
+        <span asp-validation-for="SeatNumber" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ScheduleId" class="form-label">Schedule</label>
+        <select asp-for="ScheduleId" class="form-control" asp-items="ViewBag.ScheduleList">
+            <option value="">-- Select Schedule --</option>
+        </select>
+        <span asp-validation-for="ScheduleId" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Buy</button>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
