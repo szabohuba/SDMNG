@@ -1,0 +1,39 @@
+﻿@model List<SDMNG.Models.AdminTask>
+
+@{
+    ViewData["Title"] = "Admin Tasks";
+}
+
+<h2>Admin Tasks</h2>
+
+<a asp-action="Create" class="btn btn-primary mb-3">+ New Task</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>✔</th>
+            <th>Title</th>
+            <th>Due</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var task in Model)
+        {
+            <tr class="@(task.IsResolved ? "table-success" : "")">
+                <td>
+                    @if (task.IsResolved)
+                    {
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                    }
+                </td>
+                <td>@task.Title</td>
+                <td>@task.DueUntil.ToShortDateString()</td>
+                <td>
+                    <a asp-action="Detail" asp-route-id="@task.Id" class="btn btn-info btn-sm">Details</a>
+                    <a asp-action="Modify" asp-route-id="@task.Id" class="btn btn-secondary btn-sm">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

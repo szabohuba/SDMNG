@@ -59,9 +59,8 @@ namespace SDMNG.Controllers
 
             var roles = await _userManager.GetRolesAsync(user);
             ViewBag.UserRole = roles.FirstOrDefault() ?? "No role assigned";
-
-            // Optional: if you're using ViewBag.BusNumber as well
-            ViewBag.BusNumber = "N/A"; // Replace with your actual logic
+  
+            ViewBag.BusNumber = "N/A"; 
 
             return View(user);
         }
@@ -122,7 +121,7 @@ namespace SDMNG.Controllers
             var user = await _userManager.FindByIdAsync(model.Id);
             if (user == null) return NotFound();
 
-            // Update user properties
+            
             user.FullName = model.FullName;
             user.Email = model.Email;
             user.UserName = model.Email;
@@ -138,7 +137,7 @@ namespace SDMNG.Controllers
                 return View(model);
             }
 
-            // Update role
+            
             var currentRoles = await _userManager.GetRolesAsync(user);
             if (currentRoles.Any())
             {

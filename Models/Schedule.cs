@@ -12,6 +12,9 @@ namespace SDMNG.Models
         public DateTime DepartureTime { get; set; }
         public DateTime ArrivalTime { get; set; }
 
+        [Required]
+        public int TicketLeft { get; set; }
+
         public bool IsCompleted { get; set; }
 
 

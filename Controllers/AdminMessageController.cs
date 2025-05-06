@@ -28,7 +28,6 @@ namespace SpeedDiesel.Controllers
         }
         
 
-
         public async Task<IActionResult> Detail(string id)
         {
             if (id == null)
