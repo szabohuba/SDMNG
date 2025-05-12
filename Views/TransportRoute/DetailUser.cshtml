@@ -4,50 +4,111 @@
     ViewData["Title"] = "Route Details";
 }
 
-<h2>@Model.TransportRoutesName</h2>
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
 
-<div>
-    <h4>Route Information</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">Route ID</dt>
-        <dd class="col-sm-10">@Model.TransportRoutesId</dd>
-
-        <dt class="col-sm-2">Name</dt>
-        <dd class="col-sm-10">@Model.TransportRoutesName</dd>
-    </dl>
-</div>
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
 
 
-@if (Model.RouteStop != null && Model.RouteStop.Any())
-{
-    <h4>Stops in Order</h4>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Sequence</th>
-                <th>Stop Name</th>
-                <th>Latitude</th>
-                <th>Longitude</th>
-            </tr>
-        </thead>
-        <tbody>
+
+<div class="container mt-4">
+    <h2>@Model.TransportRoutesName</h2>
+
+    <div>
+        <h4>Route Information</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-2">Route ID</dt>
+            <dd class="col-sm-10">@Model.TransportRoutesId</dd>
+
+            <dt class="col-sm-2">Name</dt>
+            <dd class="col-sm-10">@Model.TransportRoutesName</dd>
+        </dl>
+    </div>
+
+    @if (Model.RouteStop != null && Model.RouteStop.Any())
+    {
+        <h4>Stops in Order</h4>
+
+        <!-- Map -->
+        <div id="map"></div>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Sequence</th>
+                    <th>Stop Name</th>
+                    <th>Latitude</th>
+                    <th>Longitude</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var stop in Model.RouteStop.OrderBy(rs => rs.SequenceNumber))
+                {
+                    <tr>
+                        <td>@stop.SequenceNumber</td>
+                        <td>@stop.Stop?.StopName</td>
+                        <td>@stop.Stop?.Latitude</td>
+                        <td>@stop.Stop?.Longitude</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- Leaflet Map Script -->
+        <script>
+            var map = L.map('map').setView([0, 0], 13);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19
+            }).addTo(map);
+
+            var waypoints = [];
+
             @foreach (var stop in Model.RouteStop.OrderBy(rs => rs.SequenceNumber))
             {
-                <tr>
-                    <td>@stop.SequenceNumber</td>
-                    <td>@stop.Stop?.StopName</td>
-                    <td>@stop.Stop?.Latitude</td>
-                    <td>@stop.Stop?.Longitude</td>
-                </tr>
+                if (stop.Stop != null)
+                {
+                    <text>
+                                var lat = @stop.Stop.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                                var lng = @stop.Stop.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                                var name = "@stop.Stop.StopName";
+
+                                L.marker([lat, lng]).addTo(map).bindPopup(name);
+                                waypoints.push(L.latLng(lat, lng));
+                    </text>
+                }
             }
-        </tbody>
-    </table>
 
-}
-else
-{
-    <p>No stops assigned to this route.</p>
-}
+            if (waypoints.length > 1) {
+                L.Routing.control({
+                    waypoints: waypoints,
+                    routeWhileDragging: false,
+                    addWaypoints: false,
+                    draggableWaypoints: false,
+                    show: false,
+                                lineOptions: {
+                styles: [
+                    { color: '#FF1493', weight: 6, opacity: 0.95 }, // vibrant pink
+                    { color: '#FFFFFF', weight: 2, opacity: 1 }     // white center line
+                ]
+            }
 
-<a asp-action="IndexUser" class="btn btn-secondary">Back to List</a>
+                }).addTo(map);
+            }
+
+            setTimeout(function () {
+                map.invalidateSize();
+            }, 100);
+        </script>
+    }
+    else
+    {
+        <p>No stops assigned to this route.</p>
+    }
+
+    <a asp-action="IndexUser" class="btn btn-secondary mt-4">Back to List</a>
+</div>
