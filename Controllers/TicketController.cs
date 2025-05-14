@@ -126,52 +126,58 @@ namespace SpeedDiesel.Controllers
                 ticket.SeatNumber = GenerateSeatNumber();
             }
 
-            
-                _context.Tickets.Add(ticket);
-                await _context.SaveChangesAsync();
+            _context.Tickets.Add(ticket);
+            await _context.SaveChangesAsync();
 
-                // EMAIL SENDING TO USER
-                var emailSettings = _config.GetSection("EmailSettings");
-                var smtpServer = emailSettings["SmtpServer"];
-                var port = int.Parse(emailSettings["Port"]);
-                var username = emailSettings["Username"];
-                var password = emailSettings["Password"];
+            // EMAIL SENDING TO USER
+            var emailSettings = _config.GetSection("EmailSettings");
+            var smtpServer = emailSettings["SmtpServer"];
+            var port = int.Parse(emailSettings["Port"]);
+            var username = emailSettings["Username"];
+            var password = emailSettings["Password"];
 
-                var message = new MailMessage
-                {
-                    From = new MailAddress(username),
-                    Subject = "Your Ticket Confirmation",
-                    Body = $"Thank you for your purchase! Visit our website, login and check for your ticket information! \n\n" +
-                           $"Ticket ID: {ticket.TicketId}\n" +
-                           $"Seat Number: {ticket.SeatNumber}\n" +
-                           $"Date: {ticket.PurchaseDate:yyyy-MM-dd HH:mm}\n" +
-                           $"Thanks for your trust!",
-                    IsBodyHtml = false
-                };
+            var message = new MailMessage
+            {
+                From = new MailAddress(username),
+                Subject = "Your Ticket Confirmation",
+                Body = $"Thank you for your purchase! Visit our website, login and check your ticket information.\n\n" +
+                       $"Ticket ID: {ticket.TicketId}\n" +
+                       $"Seat Number: {ticket.SeatNumber}\n" +
+                       $"Date: {ticket.PurchaseDate:yyyy-MM-dd HH:mm}\n" +
+                       $"Thanks for your trust!",
+                IsBodyHtml = false
+            };
 
-                message.To.Add(user.Email);
+            message.To.Add(user.Email);
 
-                using var smtpClient = new SmtpClient(smtpServer)
-                {
-                    Port = port,
-                    Credentials = new NetworkCredential(username, password),
-                    EnableSsl = true,
-                    DeliveryMethod = SmtpDeliveryMethod.Network
-                };
+            // Generate QR code content
+            var qrText = $"Ticket ID: {ticket.TicketId}\nSeat: {ticket.SeatNumber}\nDate: {ticket.PurchaseDate:yyyy-MM-dd HH:mm}";
+            var qrBytes = GenerateQrCode(qrText);
+            var qrStream = new MemoryStream(qrBytes);
+            var qrAttachment = new System.Net.Mail.Attachment(qrStream, "ticket_qr.png", "image/png");
+            message.Attachments.Add(qrAttachment);
 
-                try
-                {
-                    await smtpClient.SendMailAsync(message);
-                    _logger.LogInformation("Ticket confirmation email sent to user.");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError($"Failed to send ticket confirmation email: {ex.Message}");
-                }
+            using var smtpClient = new SmtpClient(smtpServer)
+            {
+                Port = port,
+                Credentials = new NetworkCredential(username, password),
+                EnableSsl = true,
+                DeliveryMethod = SmtpDeliveryMethod.Network
+            };
 
-                return RedirectToAction("UserTickets");
-            
+            try
+            {
+                await smtpClient.SendMailAsync(message);
+                _logger.LogInformation("Ticket confirmation email with QR code sent to user.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed to send ticket confirmation email: {ex.Message}");
+            }
+
+            return RedirectToAction("UserTickets");
         }
+
 
 
         //Generating seat number
@@ -181,6 +187,16 @@ namespace SpeedDiesel.Controllers
             int seat = random.Next(1, 100); // 1 to 99
             return $"S{seat:D2}"; // e.g., S01, S12, S99
         }
+
+        //Generating QR code
+        private byte[] GenerateQrCode(string qrText)
+        {
+            using var qrGenerator = new QRCoder.QRCodeGenerator();
+            var qrData = qrGenerator.CreateQrCode(qrText, QRCoder.QRCodeGenerator.ECCLevel.Q);
+            var qrCode = new QRCoder.PngByteQRCode(qrData);
+            return qrCode.GetGraphic(20); // 20 = pixel size
+        }
+
 
 
     }
