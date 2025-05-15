@@ -4,9 +4,17 @@
     ViewData["Title"] = "Ticket Details";
 }
 
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+
 <h2>@ViewData["Title"]</h2>
 
-<div class="card shadow p-4">
+<div class="card shadow p-4 mb-4">
     <dl class="row">
         <dt class="col-sm-3">Ticket ID</dt>
         <dd class="col-sm-9">@Model.TicketId</dd>
@@ -28,3 +36,72 @@
         <a asp-action="UserTickets" class="btn btn-secondary">Back to List</a>
     </div>
 </div>
+
+@if (Model.Schedule?.TransportRoute?.RouteStop != null && Model.Schedule.TransportRoute.RouteStop.Any())
+{
+    <div class="card shadow p-4">
+        <h4>Route Map</h4>
+        <div id="map"></div>
+    </div>
+
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+            margin-top: 20px;
+        }
+    </style>
+
+    <script>
+        var map = L.map('map').setView([0, 0], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19
+        }).addTo(map);
+
+        var waypoints = [];
+
+        @foreach (var stop in Model.Schedule.TransportRoute.RouteStop.OrderBy(rs => rs.SequenceNumber))
+        {
+            if (stop.Stop != null)
+            {
+                <text>
+                            var lat = @stop.Stop.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                            var lng = @stop.Stop.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                            var name = "@stop.Stop.StopName";
+
+                            L.marker([lat, lng]).addTo(map).bindPopup(name);
+                            waypoints.push(L.latLng(lat, lng));
+                </text>
+            }
+        }
+
+        if (waypoints.length > 1) {
+            L.Routing.control({
+                waypoints: waypoints,
+                routeWhileDragging: false,
+                addWaypoints: false,
+                draggableWaypoints: false,
+                show: false,
+                lineOptions: {
+                    styles: [
+                        { color: '#FF1493', weight: 6, opacity: 0.95 },
+                        { color: '#FFFFFF', weight: 2, opacity: 1 }
+                    ]
+                }
+            }).addTo(map);
+
+            map.fitBounds(L.latLngBounds(waypoints));
+        } else if (waypoints.length === 1) {
+            map.setView(waypoints[0], 14);
+        }
+
+        setTimeout(function () {
+            map.invalidateSize();
+        }, 100);
+    </script>
+}
+else
+{
+    <div class="alert alert-warning mt-3">No route data available for this ticket.</div>
+}

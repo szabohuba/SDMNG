@@ -12,6 +12,8 @@ namespace SDMNG.Models
         public string FilePath { get; set; }
         public string FileType { get; set; }
         public DateTime UploadDate { get; set; }
+        public DateTime expirationDate { get; set; }
+        
 
         // Foreign key
         public string? ContactId { get; set; }

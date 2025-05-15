@@ -186,15 +186,16 @@ namespace SDMNG.Controllers
                         // Store file information in the Attachment object
                         attachment.FileName = fileName;
                         attachment.FilePath = $"/attachments/{fileName}"; // Relative URL for easy access
-                        attachment.FileType = file.ContentType; // Store the file type (MIME)
+                        attachment.FileType = file.ContentType; // Store the file type 
                         attachment.UploadDate = DateTime.Now;
+                        attachment.expirationDate = DateTime.Now.AddYears(1);
                         attachment.ContactId = null; // You can associate it with the Bus or keep null as required.
 
                         // Save the attachment to the database
                         _context.Attachments.Add(attachment);
                         await _context.SaveChangesAsync();
 
-                        // Redirect back to the bus detail page
+                        
                         return RedirectToAction("Detail", "Bus", new { id = attachment.BusId });
                     }
                     catch (Exception fileEx)
@@ -214,14 +215,13 @@ namespace SDMNG.Controllers
                 ModelState.AddModelError("", "An error occurred: " + ex.Message);
             }
 
-            // Return the view with the model state (so user can fix any errors)
+            
             return View(attachment);
         }
 
 
 
         /// ADD Contact ATTACHMENT
-
 
         [HttpGet]
         public async Task<IActionResult> CreateContactAttachment(string contactId)
@@ -297,7 +297,6 @@ namespace SDMNG.Controllers
             // Return the view with the model state (so user can fix any errors)
             return View(attachment);
         }
-
 
 
     }

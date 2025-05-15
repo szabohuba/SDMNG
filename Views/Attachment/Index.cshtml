@@ -12,9 +12,10 @@
             <th>@Html.DisplayNameFor(model => model.FileName)</th>
             <th>@Html.DisplayNameFor(model => model.FileType)</th>
             <th>@Html.DisplayNameFor(model => model.UploadDate)</th>
+            <th>@Html.DisplayNameFor(model => model.expirationDate)</th>
             <th>@Html.DisplayNameFor(model => model.Contact.FullName)</th>
             <th>@Html.DisplayNameFor(model => model.Bus.BusNumber)</th>
-            <th style="width: 200px">Actions</th>
+            <th style="width: 260px">Actions</th> 
         </tr>
     </thead>
     <tbody>
@@ -23,15 +24,15 @@
             <tr>
                 <td>@attachment.FileName</td>
                 <td>@attachment.FileType</td>
-                <td>@attachment.UploadDate.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>@attachment.UploadDate.ToString("yyyy-MM-dd")</td>
+                <td>@attachment.expirationDate.ToString("yyyy-MM-dd")</td>
                 <td>@(attachment.Contact?.FullName ?? "N/A")</td>
                 <td>@(attachment.Bus?.BusNumber ?? "N/A")</td>
 
                 <td>
-                    <a href="@Url.Action("Modify", "Attachment", new { id = attachment.Id })" class="btn btn-warning btn-sm">Edit</a>
-                    <a href="@Url.Action("Detail", "Attachment", new { id = attachment.Id })" class="btn btn-info btn-sm">Details</a>
+                    <a href="@Url.Action("Modify", "Attachment", new { id = attachment.Id })" class="btn btn-warning btn-sm me-1">Edit</a>
+                    <a href="@Url.Action("Detail", "Attachment", new { id = attachment.Id })" class="btn btn-info btn-sm me-1">Details</a>
                     <a href="@Url.Action("Delete", "Attachment", new { id = attachment.Id })" class="btn btn-danger btn-sm">Delete</a>
-
                 </td>
             </tr>
         }

@@ -4,10 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using SDMNG.Data;
 using SDMNG.Models;
 
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+
 
 builder.Services.Configure<FormOptions>(options =>
 {

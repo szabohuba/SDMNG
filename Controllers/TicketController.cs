@@ -50,15 +50,6 @@ namespace SpeedDiesel.Controllers
         }
 
 
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        public IActionResult Modify()
-        {
-            return View();
-        }
 
         public async Task<IActionResult> Detail(string id)
         {
@@ -70,7 +61,9 @@ namespace SpeedDiesel.Controllers
             var ticket = await _context.Tickets
                 .Include(t => t.Contact)
                 .Include(t => t.Schedule)
-                    .ThenInclude(s => s.TransportRoute) // optional: if you want to show route name
+                    .ThenInclude(s => s.TransportRoute)
+                        .ThenInclude(r => r.RouteStop)
+                            .ThenInclude(rs => rs.Stop)
                 .FirstOrDefaultAsync(t => t.TicketId == id);
 
             if (ticket == null)
@@ -80,6 +73,7 @@ namespace SpeedDiesel.Controllers
 
             return View(ticket);
         }
+
 
         public IActionResult Delete()
         {

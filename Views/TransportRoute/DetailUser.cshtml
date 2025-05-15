@@ -12,8 +12,6 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
 
-
-
 <div class="container mt-4">
     <h2>@Model.TransportRoutesName</h2>
 
@@ -35,6 +33,14 @@
 
         <!-- Map -->
         <div id="map"></div>
+
+        <style>
+            #map {
+                height: 500px;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+        </style>
 
         <table class="table table-striped">
             <thead>
@@ -73,12 +79,12 @@
                 if (stop.Stop != null)
                 {
                     <text>
-                                var lat = @stop.Stop.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture);
-                                var lng = @stop.Stop.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture);
-                                var name = "@stop.Stop.StopName";
+                        var lat = @stop.Stop.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                        var lng = @stop.Stop.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                        var name = "@stop.Stop.StopName";
 
-                                L.marker([lat, lng]).addTo(map).bindPopup(name);
-                                waypoints.push(L.latLng(lat, lng));
+                        var marker = L.marker([lat, lng]).addTo(map).bindPopup(name);
+                        waypoints.push(L.latLng(lat, lng));
                     </text>
                 }
             }
@@ -90,14 +96,17 @@
                     addWaypoints: false,
                     draggableWaypoints: false,
                     show: false,
-                                lineOptions: {
-                styles: [
-                    { color: '#FF1493', weight: 6, opacity: 0.95 }, // vibrant pink
-                    { color: '#FFFFFF', weight: 2, opacity: 1 }     // white center line
-                ]
-            }
-
+                    lineOptions: {
+                        styles: [
+                            { color: '#FF1493', weight: 6, opacity: 0.95 }, // vibrant pink
+                            { color: '#FFFFFF', weight: 2, opacity: 1 }     // white center line
+                        ]
+                    }
                 }).addTo(map);
+
+                map.fitBounds(L.latLngBounds(waypoints));
+            } else if (waypoints.length === 1) {
+                map.setView(waypoints[0], 14);
             }
 
             setTimeout(function () {
@@ -110,5 +119,4 @@
         <p>No stops assigned to this route.</p>
     }
 
-    <a asp-action="IndexUser" class="btn btn-secondary mt-4">Back to List</a>
-</div>
+    <a asp-action="IndexUser" class="btn btn-secondary mt-4"></a>
