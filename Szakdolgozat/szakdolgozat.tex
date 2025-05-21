@@ -1,15 +1,34 @@
 \documentclass{article}
-\usepackage{graphicx} % Required for inserting images
+\usepackage{t1enc}
+\usepackage[hungarian]{babel}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{titling}
+\usepackage{indentfirst}
 
-\title{Államvizsga}
-\author{Huba Szabó}
-\date{May 2025}
+
+
+
+
+
 
 \begin{document}
 
-\maketitle
 
-\section{Introduction}
-\section{Bevezetés}
+
+\include{Fejezetek/Cimoldal}
+\include{Fejezetek/CimlapRoman}
+\include{Fejezetek/Kivonat}
+\include{Fejezetek/KivonatRoman}
+
+\tableofcontents
+\newpage
+\include{Szakdolgozat/Fejezetek/ASPNETMVCarhitektura}
+
+
+
+
+
 
 \end{document}
