@@ -1,11 +1,22 @@
 \documentclass{article}
 \usepackage{t1enc}
+
 \usepackage[hungarian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
 \usepackage{graphicx}
 \usepackage{geometry}
+
 \usepackage{setspace}
+\onehalfspacing
+
 \usepackage{titling}
 \usepackage{indentfirst}
+
+\usepackage{xcolor}
+\usepackage{graphicx} 
+\usepackage{float}
 
 
 
@@ -15,6 +26,7 @@
 
 \begin{document}
 
+\pagestyle{plain}
 
 
 \include{Fejezetek/Cimoldal}
@@ -24,9 +36,15 @@
 
 \tableofcontents
 \newpage
+\include{Szakdolgozat/Fejezetek/Bevezetes}
+\newpage
 \include{Szakdolgozat/Fejezetek/ASPNETMVCarhitektura}
 
+\newpage
+\include{Szakdolgozat/Fejezetek/Rendszerkobetelmenyek}
 
+\newpage
+\include{Szakdolgozat/Fejezetek/TervezesEsArchitektura}
 
 
 

@@ -37,12 +37,11 @@ namespace SpeedDiesel.Controllers
             var drivers = _context.Contacts
                                   .Select(c => new SelectListItem
                                   {
-                                      Value = c.Id, // Assuming ContactId is the key
-                                      Text = c.FullName // Adjust this depending on the Contact model
+                                      Value = c.Id, 
+                                      Text = c.FullName 
                                   })
                                   .ToList();
 
-            // Pass the list to the view via ViewBag
             ViewBag.Drivers = drivers;
 
             return View();
@@ -54,52 +53,45 @@ namespace SpeedDiesel.Controllers
         {
             try
             {
-               
-                    // Handle file upload
-                    if (BusImage != null && BusImage.Length > 0)
+                // Handle file upload
+                if (BusImage != null && BusImage.Length > 0)
+                {
+                    try
                     {
-                        try
+                        // Construct path using the wwwroot path
+                        var uploadFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "bus_images");
+
+                        // Ensure directory exists
+                        if (!Directory.Exists(uploadFolder))
                         {
-                            // Use the exact path you provided
-                            var uploadFolder = @"C:\Users\Szabo Huba\Desktop\SDMNG\wwwroot\images\bus_images\";
+                            Directory.CreateDirectory(uploadFolder);
+                        }
 
-                            // Ensure directory exists
-                            if (!Directory.Exists(uploadFolder))
-                            {
-                                Directory.CreateDirectory(uploadFolder);
-                            }
+                        // Create unique filename
+                        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(BusImage.FileName);
+                        var filePath = Path.Combine(uploadFolder, fileName);
 
-                            // Create a unique filename to avoid conflicts
-                            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(BusImage.FileName);
-                            var filePath = Path.Combine(uploadFolder, fileName);
-
-                            using (var fileStream = new FileStream(filePath, FileMode.Create))
-                            {
-                            _logger.LogError($"File upload error: FileStream");
+                        // Save file
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
                             await BusImage.CopyToAsync(fileStream);
-                            _logger.LogError($"File upload error: FileStreamEnd");
-
                         }
 
-                            // Store the relative path in the database
-                            bus.ImageUrl = $"/images/bus_images/{fileName}";
-                        }
-                        catch (Exception fileEx)
-                        {
-                            _logger.LogError($"File upload error: {fileEx.Message}");
-                            // Continue without image
-                            bus.ImageUrl = null;
-                        }
+                        // Store relative path for frontend use
+                        bus.ImageUrl = $"/images/bus_images/{fileName}";
                     }
-                _logger.LogError($"Ready to save changes to db");
+                    catch (Exception fileEx)
+                    {
+                        _logger.LogError($"File upload error: {fileEx.Message}");
+                        bus.ImageUrl = null; // fallback
+                    }
+                }
 
                 // Save to database
                 _context.Buses.Add(bus);
-                    await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
 
-                    // Redirect to Index instead of Detail if you're having issues
-                    return RedirectToAction(nameof(Index));
-                
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
@@ -107,7 +99,7 @@ namespace SpeedDiesel.Controllers
                 ModelState.AddModelError("", "An error occurred: " + ex.Message);
             }
 
-            // If we get here, repopulate the drivers dropdown
+            // Repopulate dropdown in case of error
             ViewBag.Drivers = _context.Contacts
                                       .Select(c => new SelectListItem
                                       {
@@ -119,8 +111,6 @@ namespace SpeedDiesel.Controllers
 
             return View(bus);
         }
-
-
 
 
 

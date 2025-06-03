@@ -8,6 +8,13 @@ A dolgozat első fejezete a .NET platform által kínált lehetőségekre és az
 
 A következő alfejezetekben bemutatásra kerülnek azok a technológiák, amelyek kiegészítik és támogatják az alkalmazás működését. Az Entity Framework révén az adatbázis-kezelés objektumorientált módon valósul meg, míg a Razor nézetmotor a dinamikus tartalmak hatékony megjelenítését teszi lehetővé. A kliensoldali működéshez elengedhetetlen JavaScript mellett a Leaflet könyvtár térképes vizualizációt biztosít, amely különösen hasznos a szállítási útvonalak megjelenítéséhez. A rendszer részeként implementált e-mail értesítések SMTP protokollon keresztül működnek, míg a QR-kód generálás lehetőséget nyújt például jegyek, csomagazonosítók vagy beléptetési információk digitális tárolására és gyors elérésére.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{Szakdolgozat/Mellekletek/MVCDiagramm.png}
+    \caption{Az MVC (Model–View–Controller) architektúra felépítése. Az ábrán jól látható, hogyan különül el az adatkezelés (Model), a felhasználói felület (View) és az üzleti logikát kezelő vezérlő (Controller). Az egyes rétegek közötti kommunikáció segíti az alkalmazás moduláris, karbantartható és tesztelhető kialakítását.}
+    \label{fig:er-diagram}
+\end{figure}
+
 
 \subsection{A .NET platform és az MVC minta}
 
