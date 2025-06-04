@@ -178,23 +178,112 @@ Fontos megjegyezni, hogy adminisztrátori jogosultság esetén az ugyanilyen ré
 
 \subsubsection{Routes oldal}
 
-A \texttt{Routes} felületen az elérhető útvonalak jelennek meg listázva, a felhasználók számára pedig megtekinthetők az útvonal részletei, beleértve a kiindulási és végállomást, valamint a köztes megállókat. Az adminisztrátorok ezen az oldalon hozzáadhatnak új útvonalakat, módosíthatják a meglévőket, vagy törölhetik azokat. Ezen felül lehetőség van megállók hozzárendelésére az adott útvonalhoz.
+A \texttt{Routes} oldalon a rendszer az adatbázisban szereplő összes elérhető útvonalat listázza. A felhasználói felület célja, hogy a látogatók és regisztrált utasok könnyen áttekintést kapjanak az egyes útvonalakról, míg az adminisztrátorok számára részletes kezelési lehetőségeket is biztosít.
+
+\paragraph{Felhasználói nézet (publikus elérés)}
+
+Amennyiben az oldalt a főmenüből érjük el, a rendszer a látogatók és bejelentkezett utasok számára elérhető nézetet jeleníti meg. A megjelenő táblázat az alábbi oszlopokat tartalmazza: \texttt{Name} (az útvonal megnevezése), \texttt{Stops} (egész számként jelölve, hogy hány megállót tartalmaz az adott útvonal), valamint az \texttt{Actions} oszlop, amely egyetlen \texttt{Details} gombot tartalmaz. A felhasználók ezen keresztül tekinthetik meg az adott útvonal részletes információit.
+
+A \texttt{Details} gombra kattintva a felhasználó egy részletes nézethez jut, amely az adott útvonalra vonatkozó információkat jeleníti meg. Az oldal felső részén látható az útvonal neve, alatta pedig egy térkép, amely vizuálisan ábrázolja a megállókat összekötő vonal mentén az útvonalat. A térképet követően egy táblázat jelenik meg, amely sorolja a megállók sorrendjét (\texttt{Index}), nevét, földrajzi szélességi és hosszúsági koordinátáit. Ez a felület kizárólag az információk megtekintésére szolgál, szerkesztési vagy módosítási lehetőséget nem kínál.
+
+\paragraph{Adminisztrátori nézet}
+
+Amennyiben az oldalt az \texttt{Adminisztráció} menüpont \texttt{Routes} opcióján keresztül nyitjuk meg, a rendszer egy adminisztrátori funkciókkal bővített nézetet tölt be. A megjelenő táblázat szerkezete megegyezik a publikus változattal (\texttt{Name}, \texttt{Stops}, \texttt{Actions}), azonban az \texttt{Actions} oszlopban nemcsak a \texttt{Details}, hanem az \texttt{Edit} és \texttt{Delete} gombok is elérhetők, lehetővé téve az útvonalak módosítását vagy törlését. A táblázat felett egy \texttt{Create New Route} gomb is található, amely új útvonalak létrehozására szolgál.
+
+Az adminisztrátor által megnyitott részletes nézet az útvonalhoz rendelt megállókat egy belső táblázatban sorolja fel. Itt az egyes sorok a megállók sorrendi sorszámát, nevét, valamint földrajzi koordinátáit tartalmazzák. A táblázat ezen felül egy \texttt{Actions} oszlopot is tartalmaz, ahol minden megálló mellett elérhető egy \texttt{Delete} gomb. Ennek segítségével az adott megálló eltávolítható az útvonalból, anélkül hogy maga a megálló törlődne az adatbázisból. A táblázat alatt egy lenyíló mező és egy \texttt{Add Stop to Route} gomb található, amelyek új megálló hozzárendelését teszik lehetővé az adott útvonalhoz.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{Szakdolgozat/Mellekletek/RoutesDetail.PNG}
+    \caption{Útvonal részletes adatlapja felhasználói nézetben, térképes megjelenítéssel}
+    \label{fig:route-detail-user}
+\end{figure}
+
+A \ref{fig:route-detail-user}. ábra egy útvonal részletes adatlapját mutatja be, ahogyan azt egy bejelentkezett felhasználó látja, aki a főmenüből navigált az adott útvonal információihoz. Az adott példában a Nagyenyed–Torda–Marosvásárhely útvonal vizualizációja figyelhető meg.
+
 
 \subsubsection{Schedules oldal}
 
 A \texttt{Schedules} oldalon a felhasználók a menetrendeket böngészhetik, amelyeket dátum, időpont, útvonal és a közlekedő busz szerint csoportosít a rendszer. Amennyiben az adott járaton van szabad ülőhely, lehetőség van jegyvásárlásra is. Az adminisztrátorok teljes körű menetrendkezelést végezhetnek: új menetrendeket adhatnak hozzá, szerkeszthetik vagy törölhetik a meglévőket, valamint hozzárendelhetik a kiválasztott útvonalakat és autóbuszokat.
 
-\subsubsection{Ticket oldal}
+\subsubsection{MyTicket oldal}
 
-A \texttt{Ticket} oldalon a felhasználók áttekinthetik az általuk megvásárolt jegyek listáját, és részletes információt kaphatnak az adott jegyhez tartozó menetrendről, az ülőhely számáról, valamint a QR kódos azonosítóról. Adminisztrátori nézetben az összes felhasználó által vásárolt jegyek megtekinthetők, továbbá lehetőség van keresésre és szűrésre is felhasználók szerint.
+A \texttt{MyTicket} oldal célja a rendszerben rögzített jegyvásárlások megjelenítése és áttekintése. Az oldal két különböző nézetet biztosít a felhasználói szerepkör függvényében: egyet az általános felhasználók (utasok), egy másikat pedig az adminisztrátorok számára. 
+
+\paragraph{Felhasználói nézet (utasok részére)}
+
+Amennyiben egy bejelentkezett felhasználó navigál a \texttt{MyTicket} oldalra, a rendszer kizárólag az adott személyhez tartozó jegyeket jeleníti meg. A felületen egy táblázat látható, amely a következő oszlopokat tartalmazza: \texttt{TicketId}, \texttt{PurchaseDate}, \texttt{SeatNumber}, \texttt{User} (automatikusan az aktuális felhasználó), \texttt{Schedule}, valamint az \texttt{Actions} oszlop. Az \texttt{Actions} oszlopban egyetlen műveletgomb kap helyet: a \texttt{Details}, amely az adott jegy részletes adatlapjára irányít.
+
+A \texttt{Details} nézetben a felhasználó bővebb információkat kap a jegyhez tartozó menetrendről, beleértve az indulási és érkezési állomásokat, a járat buszának rendszámát, illetve megjelenik egy interaktív térkép is, amely az utazás útvonalát vizuálisan ábrázolja. Ez az ábra segíti az utasokat az útvonal pontos áttekintésében, és kiegészíti az egyéb szöveges információkat.
+
+\paragraph{Adminisztrátori nézet}
+
+Az adminisztrátorok számára a \texttt{Tickets} oldal a \texttt{Management} menüponton keresztül érhető el, ahol az összes, a rendszerben rögzített jegy megjelenik, függetlenül attól, hogy mely felhasználó vásárolta meg őket. Az itt található táblázat szerkezete megegyezik a felhasználói nézettel, azzal a különbséggel, hogy a \texttt{User} oszlopban minden jegyhez tartozó felhasználó kiléte is feltüntetésre kerül. Ez lehetővé teszi az adminisztrátorok számára a jegyek teljes körű nyomon követését és kezelését.
+
+A táblázat \texttt{Actions} oszlopában három funkciógomb található: \texttt{Details}, \texttt{Edit} és \texttt{Delete}. A \texttt{Details} gombbal megnyitható a jegy részletes adatlapja, ahol bővebb információk jelennek meg az adott utazásról, míg az \texttt{Edit} és \texttt{Delete} gombokkal az adminisztrátor módosíthatja vagy törölheti az adott jegyet. Ezzel biztosított a teljes adminisztratív kontroll az összes jegy felett.
+
+Az admin nézet részletes felülete struktúrájában hasonló a felhasználói nézethez, azonban itt nem szerepel a térképes útvonalmegjelenítés. A hangsúly inkább az adatok rendszerezett és pontos bemutatásán van: ide tartoznak az indulási és érkezési megállók, a menetrend adatai, a járat azonosítója és a kapcsolódó felhasználói információk.
+
+Ez az oldal különösen informatív és részletes, összevetve más, jelenleg használatban lévő közlekedési rendszerekkel. Míg sok hasonló alkalmazásban a jegykezelés csupán alapinformációkra szorítkozik, itt az adminisztrátorok számára biztosított minden szükséges funkció a hatékony kezeléshez és ellenőrzéshez.
+
+
 
 \subsubsection{Contact Us oldal}
 
-A \texttt{Contact Us} oldal egy kapcsolatfelvételi űrlapot biztosít minden látogató számára, ahol név, e-mail cím és az üzenet szövege adható meg. Az elküldött üzenetek automatikusan elmentődnek az adatbázisba, és a rendszer egyidejűleg értesítést küld az adminisztrátornak e-mailben is.
+A \texttt{Contact Us} oldal elsődleges célja, hogy lehetőséget biztosítson a látogatók számára az adminisztrátorral való közvetlen kapcsolatfelvételre. Ez az oldal nyilvánosan elérhető, így használatához nincs szükség bejelentkezésre, ami különösen fontos szempont volt a tervezés során. A kapcsolatfelvételi felület egy egyszerűen kezelhető űrlapot tartalmaz, amely négy mezőből áll: a feladó neve (\texttt{Name}), e-mail címe (\texttt{Email}), az üzenet tárgya (\texttt{Subject}) és maga az üzenet tartalma (\texttt{Message}).
+
+A felhasználó az űrlap kitöltését követően a \texttt{Send} gomb segítségével tudja elküldeni az üzenetet. A rendszer a beküldött adatokat automatikusan elmenti az adatbázis megfelelő táblájába, így az adminisztrátorok később visszakereshetik azokat. Emellett a rendszer e-mail értesítést is küld az adminisztrátori címre, amely tartalmazza a megadott adatokat, lehetővé téve a gyors reagálást.
+
+Fontos megjegyezni, hogy ez az oldal kizárólag a felhasználói felületen érhető el, és nem része az admin menüpontoknak. Az alkalmazás ezzel a funkcióval lehetőséget biztosít arra, hogy a látogatók közvetlenül visszajelzést küldjenek, kérdéseket tegyenek fel vagy hibát jelentsenek, így támogatva a folyamatos fejlesztést és felhasználói elégedettséget.
 
 \subsubsection{Adminisztrációs oldalak}
 
-Az adminisztrátori jogosultsággal rendelkező felhasználók egy külön \texttt{Adminisztráció} legördülő menü segítségével érhetik el a rendszer admin funkcióit. A \texttt{Bus} menüpont alatt az autóbuszok adatai kezelhetők (például rendszám és kapacitás), míg az \texttt{Attachments} oldalon dokumentumok és egyéb fájlok feltöltésére és listázására van lehetőség. A \texttt{ToDoList} a rendszergazdák saját feladatait tartalmazza, míg az \texttt{Admin Messages} a felhasználóktól érkező üzenetek megtekintésére szolgál. A \texttt{Contact} menüpont alatt a felhasználói profilok érhetők el, és lehetőség van azok módosítására is. Végül a \texttt{Roles} oldalon a különböző szerepkörök – például egyszerű felhasználó vagy adminisztrátor – kezelése történik.
+A rendszer adminisztrátori jogosultságokkal rendelkező felhasználói számára külön menüpontok érhetők el a felhasználói felület felső navigációs sávjában található \texttt{Management} legördülő menüben. Ezek a funkciók kizárólag az adminisztrátorok számára hozzáférhetők, céljuk a rendszer különböző erőforrásainak és entitásainak karbantartása és felügyelete.
+
+A menüpontok közül a \texttt{Contacts} oldal tartalmazza a rendszerbe regisztrált összes felhasználót – ideértve az adminisztrátorokat, munkatársakat és általános felhasználókat egyaránt. Az oldal megnyitásakor egy táblázatos nézet fogadja a felhasználót, amely a következő adatmezőket jeleníti meg: \texttt{FullName}, \texttt{Email}, \texttt{Street}, \texttt{Zipcode}, \texttt{Active}, \texttt{Bus}, valamint az \texttt{Actions} oszlop. Az \texttt{Actions} oszlopban három gomb kapott helyet, amelyek lehetővé teszik a kiválasztott felhasználó adatainak részletes megtekintését, szerkesztését vagy törlését (\texttt{Detail}, \texttt{Edit}, \texttt{Delete}). A táblázat alatt egy külön gomb is található, amely új felhasználó manuális hozzáadását teszi lehetővé, ezáltal bővítve az adminisztrátor lehetőségeit a rendszer kézi karbantartása során.
+
+A három elérhető műveleti gomb mindegyike hasonló szerkezetű oldalra navigál, azonban az adott funkciónak megfelelően eltérő célokat szolgál. A részletes megtekintés során az adminisztrátor az adott felhasználó összes adatát áttekintheti egy jól strukturált nézetben, míg a szerkesztés során ezen adatok módosítására is lehetőség nyílik. A törlés funkció egy megerősítést kérő felületre irányít, ahol a rendszer rákérdez a művelet véglegességére.
+
+Minden nézet tartalmazza azokat az információkat, amelyek az adminisztrációs táblázatban is szerepelnek (név, e-mail, cím stb.), azonban ezeken túl két további mező is megjelenik: a felhasználóhoz rendelt szerepkör (\texttt{Role}), valamint az adott felhasználóhoz társított autóbusz megléte vagy hiánya. Ez utóbbi információ különösen fontos a buszvezetői szerepköröknél, mivel ezek a jogosultságok gyakran kapcsolódnak konkrét járművekhez. Az adminisztrátor így átfogó képet kap a felhasználók státuszáról, jogosultságairól és az esetleges operatív hozzárendelésekről is.
+
+A szerkesztési nézet (\texttt{Edit}) további fontos funkcióval is bővül. Ebben a nézetben ugyanis lehetőség nyílik a kiválasztott felhasználó szerepkörének módosítására egy legördülő menü segítségével. Ezáltal az admin dönthet arról, hogy az adott felhasználó egyszerű felhasználó, adminisztrátor vagy más speciális szerepkört töltsön be a rendszerben. Hasonlóképpen, a rendszer lehetőséget biztosít arra is, hogy az admin egy konkrét autóbuszt rendeljen hozzá a kiválasztott felhasználóhoz, amennyiben az adott szerepkör ezt megengedi. Mindkét funkció csak az admin jogosultsággal rendelkező személyek számára érhető el, az általános felhasználók nem tudják ezeket az attribútumokat módosítani, ezáltal garantálva a rendszer adatainak integritását és a jogosultságkezelés biztonságát.
+
+A \texttt{Buses} oldal az adminisztrátorok számára elérhető felület, amely lehetővé teszi a rendszerben nyilvántartott autóbuszok kezelését. Az oldalra lépve egy áttekinthető táblázat fogadja a felhasználót, amely az egyes járművek legfontosabb adatait sorolja fel: \texttt{BusNumber} (rendszám), \texttt{Capacity} (férőhelyek száma), \texttt{BusType} (járműtípus), \texttt{ImageUrl} (a járműhöz tartozó kép elérési útvonala), valamint az \texttt{Actions} oszlop, ahol a megszokott \texttt{Detail}, \texttt{Edit} és \texttt{Delete} gombok segítségével hajthatók végre a különféle műveletek. Ezek az akciók minden esetben a megfelelő, funkcionálisan elkülönített nézetekre vezetnek, ahol a járműadatok megtekintése, módosítása vagy törlése történik.
+
+A táblázat alján elhelyezett gomb egy új autóbusz hozzáadására szolgál, és a \texttt{Create Bus} oldalra navigál, ahol a felhasználónak lehetősége van megadni az új jármű alapadatait: \texttt{BusNumber}, \texttt{Capacity}, valamint a \texttt{BusType}. Ezen kívül egy speciális kiválasztó mező is elérhető, amelynek segítségével hozzárendelhető egy sofőr az adott buszhoz – ez azonban kizárólag admin jogosultság esetén látható és használható. A kiválasztás csak a rendszerben szereplő, megfelelő szerepkörrel rendelkező felhasználók közül történhet.
+
+Az egyes autóbuszokra kattintva elérhető \texttt{Detail} nézet szintén az említett adatokat jeleníti meg, kiegészítve az adott járműhöz rendelt sofőr nevével is. Ez a megjelenítés nemcsak az adminisztratív nyilvántartást könnyíti meg, hanem átláthatóvá teszi a felelősségi viszonyokat is, amely különösen hasznos lehet nagyobb flotta kezelésekor. Ezen kívül a részletes oldalon található egy \texttt{Add Attachment} gomb is, amely egy külön felületre irányít, ahol az adminisztrátor fájlokat – például műszaki dokumentációt vagy engedélyeket – csatolhat a járműhöz egy kiválasztómező segítségével. Ez a kiegészítő funkció lehetővé teszi a dokumentumkezelés központosítását és rendszerezését a járművekhez kapcsolódóan.
+
+Az \texttt{Attachments} oldal az adminisztrátorok számára biztosít hozzáférést a rendszerben tárolt valamennyi melléklethez. Az oldalon egy áttekintő táblázat található, amelyben minden fájlhoz kapcsolódó alapinformáció megjelenik. A felsorolt adatok a következők: \texttt{FileName} (a fájl neve), \texttt{FileType} (típusa), \texttt{UploadDate} (feltöltés dátuma), \texttt{ExpirationDate} (lejárati dátuma), \texttt{FullName} (a melléklethez kapcsolt felhasználó neve), valamint \texttt{BusNumber} (az érintett jármű rendszáma). A \texttt{UploadDate} mindig a tényleges feltöltési időpontot mutatja, míg az \texttt{ExpirationDate} automatikusan egy évvel későbbre kerül beállításra.
+
+A rendszer biztosítja, hogy minden melléklet vagy egy felhasználóhoz (\texttt{Contact}), vagy egy autóbuszhoz (\texttt{Bus}) legyen hozzárendelve – egyszerre azonban csak az egyikhez. Abban az esetben, ha az egyik kapcsolat nem kerül megadásra, az adott mező \texttt{NA} (Not Assigned) értéket kap a táblázatban, ezzel jelezve a hiányzó kapcsolatot.
+
+A táblázat utolsó oszlopában találhatóak az adminisztrációs műveleteket biztosító gombok, nevezetesen a \texttt{Detail}, \texttt{Edit} és \texttt{Delete} opciók, amelyek lehetőséget nyújtanak az adott melléklet adatainak megtekintésére, módosítására vagy törlésére. Ezek a funkciók az admin felhasználók részére elérhetőek, és minden esetben biztosítják a csatolmányok pontos nyilvántartását.
+
+Új melléklet hozzáadására ezen az oldalon nincs lehetőség, mivel a feltöltési művelet kizárólag az érintett felhasználó vagy autóbusz részletes adatlapjáról indítható. Az ott elhelyezett \texttt{Add Attachment} gomb segítségével lehet kiválasztani és csatolni a kívánt dokumentumot, amely ezáltal automatikusan a megfelelő entitáshoz kerül kapcsolásra. Ez a struktúra lehetővé teszi az adatok pontos szervezését és visszakereshetőségét, miközben kizárólag az adminisztrátorok számára biztosítja a hozzáférést és módosítási jogosultságot.
+
+Az \texttt{User Messages} oldal az adminisztrátorok számára készült, és a felhasználóktól érkező kapcsolatfelvételi üzenetek kezelésére szolgál. Ez az oldal a \texttt{Management} menüpont alól érhető el, és tartalmazza az összes olyan bejegyzést, amely a \texttt{Contact Us} űrlap kitöltésével került rögzítésre a rendszerben. A megjelenített táblázat minden üzenetet listáz, függetlenül attól, hogy azokat már megtekintették-e vagy sem.
+
+A táblázat oszlopai a következő információkat jelenítik meg: \texttt{UserName} (a feladó neve), \texttt{UserEmail} (az e-mail címe), \texttt{Subject} (az üzenet tárgya), \texttt{SentAt} (küldés időpontja), valamint az \texttt{IsRead} mező, amely azt jelzi, hogy az adott üzenetet az admin már megnyitotta-e. A rendszer automatikusan nyomon követi az üzenetek megtekintését: amint az adminisztrátor rákattint a \texttt{Detail} gombra és megnyitja az adott bejegyzést, az \texttt{IsRead} értéke automatikusan \texttt{true}-ra változik, így a későbbiekben is egyértelműen nyomon követhető, mely üzenetek lettek már feldolgozva.
+
+Az \texttt{Actions} oszlop egyetlen gombot tartalmaz, amely a részletek megtekintésére szolgál. A megnyitott nézetben az admin elolvashatja a felhasználó által küldött teljes üzenetet. A rendszer nem biztosít lehetőséget ezen üzenetek szerkesztésére vagy törlésére, hiszen ezek kizárólag tájékoztatási célból kerülnek be az adatbázisba.
+
+Fontos kiemelni, hogy ezen az oldalon nem áll rendelkezésre új üzenet manuális hozzáadására szolgáló funkció, mivel az összes bejegyzés kizárólag a felhasználói űrlap kitöltésével jön létre. Az oldal célja a felhasználói visszajelzések átlátható, hatékony kezelése és archiválása az adminisztráció számára.
+
+A \texttt{ToDoList} menüpont az adminisztrátorok számára elérhető, és a rendszerben végzendő feladatok kezelését teszi lehetővé. Ez az oldal némileg interaktívabb megközelítést alkalmaz, mint a többi adminisztrációs felület, mivel nem csupán adatokat jelenít meg, hanem lehetőséget biztosít az egyéni feladatok nyomon követésére és kezelésére is.
+
+Az oldal betöltésekor egy áttekinthető táblázat jelenik meg, amely minden korábban létrehozott feladatot tartalmaz. A táblázat három fő oszlopból áll: \texttt{Title} (a feladat címe), \texttt{Due} (a határidő), valamint az \texttt{Actions} oszlop, amely két műveleti gombot tartalmaz. Ezek közül a \texttt{Detail} gomb a feladat részleteit jeleníti meg, míg az \texttt{Edit} gomb közvetlenül a szerkesztőfelületre navigál.
+
+A részletes nézet szintén tartalmaz egy \texttt{Szerkesztés} gombot, amely ugyanarra az \texttt{Edit} oldalra visz tovább. Mind a részletes nézetben, mind pedig a szerkesztőfelületen a feladat alábbi mezői jelennek meg: a cím, a határidő és egy jelölőnégyzet, amellyel a feladat státusza állítható be – ez azt mutatja, hogy a feladat elvégzése megtörtént-e. Ennek a mezőnek a bejelölésével a feladat „készre jelenthető”.
+
+A feladatok vizuálisan is jól elkülöníthetők az állapotuk alapján: a már teljesített feladatokat a rendszer zöld háttérrel jeleníti meg, míg a még el nem végzetteket fehéren emeli ki. Ez a színkódolás segíti az adminokat abban, hogy gyorsan átlássák az aktuális teendőket, és azonnal be tudják azonosítani a sürgős feladatokat.
 
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\textwidth]{Szakdolgozat/Mellekletek/admintasks.PNG}
+\caption{Adminisztrátori feladatok listájának látható }
+\label{fig:todo-detail-admin}
+\end{figure}
 
+A \ref{fig:todo-detail-admin}. ábra az adminisztrátorok számára elérhető \texttt{ToDoList} oldal listanézetét szemlélteti, ahol az aktuális feladatok áttekinthető formában jelennek meg.
