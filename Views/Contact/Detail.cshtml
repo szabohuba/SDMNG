@@ -62,7 +62,6 @@
             <input class="form-control" type="text" value="@ViewBag.UserRole" readonly />
         </div>
 
-
         <div class="form-group mt-3">
             <a asp-action="CreateContactAttachment"
                asp-controller="Attachment"
@@ -73,6 +72,41 @@
         </div>
     </div>
 </div>
+
+<hr />
+
+<!-- Attachments Table -->
+@if (Model.Attachments != null && Model.Attachments.Any())
+{
+    <h4>Contact Attachments</h4>
+    <table class="table table-bordered table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Fájlnév</th>
+                <th>Típus</th>
+                <th>Feltöltés dátuma</th>
+                <th>Lejárat dátuma</th>
+                
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var attachment in Model.Attachments)
+            {
+                <tr>
+                    <td>@attachment.FileName</td>
+                    <td>@attachment.FileType</td>
+                    <td>@attachment.UploadDate.ToString("yyyy-MM-dd")</td>
+                    <td>@attachment.expirationDate.ToString("yyyy-MM-dd")</td>
+                  
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p><em>Nincs csatolmány ehhez a kapcsolathoz.</em></p>
+}
 
 @section Scripts {
     @{

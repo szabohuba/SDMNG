@@ -54,16 +54,24 @@ namespace SDMNG.Controllers
         {
             if (string.IsNullOrEmpty(id)) return NotFound();
 
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null) return NotFound();
+            
+            var contact = await _context.Contacts
+                .Include(c => c.Attachments)
+                .Include(c => c.Bus) 
+                .FirstOrDefaultAsync(c => c.Id == id);
 
-            var roles = await _userManager.GetRolesAsync(user);
+            if (contact == null) return NotFound();
+
+          
+            var roles = await _userManager.GetRolesAsync(contact);
             ViewBag.UserRole = roles.FirstOrDefault() ?? "No role assigned";
-  
-            ViewBag.BusNumber = "N/A"; 
 
-            return View(user);
+            
+            ViewBag.BusNumber = contact.Bus?.BusNumber ?? "N/A";
+
+            return View(contact);
         }
+
 
 
 

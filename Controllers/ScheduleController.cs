@@ -54,13 +54,27 @@ namespace SpeedDiesel.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Schedule schedule)
         {
-              schedule.Id = Guid.NewGuid().ToString();
-             _context.Schedules.Add(schedule);
-             await _context.SaveChangesAsync();
+            schedule.Id = Guid.NewGuid().ToString();
 
-             return RedirectToAction("Index", "Schedule"); // you can create an Index later
-            
+            // Fetch the selected bus to get its capacity
+            var bus = await _context.Buses
+                .FirstOrDefaultAsync(b => b.BusId == schedule.BusId);
+
+            if (bus == null)
+            {
+                ModelState.AddModelError("BusId", "Invalid bus selected.");
+                return View(schedule); // Return view with validation message
+            }
+
+            // Set TicketLeft to the capacity of the bus
+            schedule.TicketLeft = bus.Capacity;
+
+            _context.Schedules.Add(schedule);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "Schedule");
         }
+
 
         public IActionResult Modify()
         {

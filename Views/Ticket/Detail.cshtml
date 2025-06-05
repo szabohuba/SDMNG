@@ -30,6 +30,16 @@
 
         <dt class="col-sm-3">Schedule</dt>
         <dd class="col-sm-9">@Model.Schedule?.Name</dd>
+
+        <dt class="col-sm-3">Departure Time</dt>
+        <dd class="col-sm-9">@Model.Schedule?.DepartureTime.ToString("yyyy-MM-dd HH:mm")</dd>
+
+        <dt class="col-sm-3">Arrival Time</dt>
+        <dd class="col-sm-9">@Model.Schedule?.ArrivalTime.ToString("yyyy-MM-dd HH:mm")</dd>
+
+        <dt class="col-sm-3">Bus Number Plate</dt>
+        <dd class="col-sm-9">@Model.Schedule?.Bus?.BusNumber</dd>
+
     </dl>
 
     <div class="mt-4">

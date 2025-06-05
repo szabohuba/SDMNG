@@ -162,7 +162,10 @@ namespace SpeedDiesel.Controllers
             if (string.IsNullOrEmpty(id))
                 return NotFound();
 
-            var bus = await _context.Buses.FindAsync(id);
+            var bus = await _context.Buses
+                .Include(b => b.Attachments)
+                .FirstOrDefaultAsync(b => b.BusId == id);
+
             if (bus == null)
                 return NotFound();
 
@@ -176,6 +179,7 @@ namespace SpeedDiesel.Controllers
 
             return View(bus);
         }
+
 
 
         public async Task<IActionResult> Delete(string id)

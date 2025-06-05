@@ -23,6 +23,13 @@
     <button type="submit" class="btn btn-primary">Buy</button>
 </form>
 
+
+<div class="mt-3">
+    <a asp-action="UserTickets" asp-controller="Ticket" class="btn btn-outline-secondary">
+        ← Back to Tickets
+    </a>
+</div>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");

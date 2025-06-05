@@ -4,13 +4,13 @@ using SDMNG.Models;
 
 namespace SDMNG.Data
 {
-    public class AppDbContext : IdentityDbContext<Contact>  // Make sure Contact inherits from IdentityUser
+    public class AppDbContext : IdentityDbContext<Contact>  
     {
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options) { }
 
         // DbSets for your entities
-        public DbSet<Contact> Contacts { get; set; }  // Added DbSet for Contact
+        public DbSet<Contact> Contacts { get; set; }  
         public DbSet<Bus> Buses { get; set; }
         public DbSet<Stop> Stops { get; set; }
         public DbSet<Schedule> Schedules { get; set; }
@@ -20,10 +20,6 @@ namespace SDMNG.Data
         public DbSet<RouteStop> RouteStops { get; set; }
         public DbSet<AdminMessage> AdminMessages { get; set; }
         public DbSet<AdminTask> AdminTasks { get; set; }
-
-
-
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

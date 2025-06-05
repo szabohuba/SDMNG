@@ -61,6 +61,8 @@ namespace SpeedDiesel.Controllers
             var ticket = await _context.Tickets
                 .Include(t => t.Contact)
                 .Include(t => t.Schedule)
+                    .ThenInclude(s => s.Bus) 
+                .Include(t => t.Schedule)
                     .ThenInclude(s => s.TransportRoute)
                         .ThenInclude(r => r.RouteStop)
                             .ThenInclude(rs => rs.Stop)
@@ -73,6 +75,7 @@ namespace SpeedDiesel.Controllers
 
             return View(ticket);
         }
+
 
 
         public IActionResult Delete()
@@ -115,38 +118,61 @@ namespace SpeedDiesel.Controllers
             ticket.ContactId = user.Id;
             ticket.PurchaseDate = DateTime.Now;
 
+            var schedule = await _context.Schedules
+                .FirstOrDefaultAsync(s => s.Id == ticket.ScheduleId);
+
+            if (schedule == null)
+            {
+                return NotFound("Schedule not found.");
+            }
+
+            if (schedule.TicketLeft <= 0)
+            {
+                TempData["ErrorMessage"] = "Nincs jegy erre a menetrendre!";
+                return RedirectToAction("DetailUser", "Schedule", new { id = ticket.ScheduleId });
+            }
+
+            // Decrease ticket count
+            schedule.TicketLeft -= 1;
+
+            // Generate seat number if not set
             if (string.IsNullOrEmpty(ticket.SeatNumber))
             {
                 ticket.SeatNumber = GenerateSeatNumber();
             }
 
             _context.Tickets.Add(ticket);
+            _context.Schedules.Update(schedule);
             await _context.SaveChangesAsync();
 
-            // EMAIL SENDING TO USER
+            // Email configuration
             var emailSettings = _config.GetSection("EmailSettings");
             var smtpServer = emailSettings["SmtpServer"];
             var port = int.Parse(emailSettings["Port"]);
             var username = emailSettings["Username"];
             var password = emailSettings["Password"];
 
+            // Build absolute URL for QR code that works on Azure or local
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+            var ticketUrl = $"{baseUrl}/Ticket/Detail/{ticket.TicketId}";
+
             var message = new MailMessage
             {
                 From = new MailAddress(username),
                 Subject = "Your Ticket Confirmation",
-                Body = $"Thank you for your purchase! Visit our website, login and check your ticket information.\n\n" +
+                Body = $"Thank you for your purchase! Visit our website to check your ticket:\n\n" +
                        $"Ticket ID: {ticket.TicketId}\n" +
                        $"Seat Number: {ticket.SeatNumber}\n" +
                        $"Date: {ticket.PurchaseDate:yyyy-MM-dd HH:mm}\n" +
+                       $"Ticket details: {ticketUrl}\n\n" +
                        $"Thanks for your trust!",
                 IsBodyHtml = false
             };
 
             message.To.Add(user.Email);
 
-            // Generate QR code content
-            var qrText = $"Ticket ID: {ticket.TicketId}\nSeat: {ticket.SeatNumber}\nDate: {ticket.PurchaseDate:yyyy-MM-dd HH:mm}";
-            var qrBytes = GenerateQrCode(qrText);
+            // Generate QR code with clickable link to ticket details
+            var qrBytes = GenerateQrCode(ticketUrl);
             var qrStream = new MemoryStream(qrBytes);
             var qrAttachment = new System.Net.Mail.Attachment(qrStream, "ticket_qr.png", "image/png");
             message.Attachments.Add(qrAttachment);
@@ -171,6 +197,10 @@ namespace SpeedDiesel.Controllers
 
             return RedirectToAction("UserTickets");
         }
+
+
+
+
 
 
 
