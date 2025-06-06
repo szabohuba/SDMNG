@@ -33,84 +33,92 @@ namespace SpeedDiesel.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            // Fetch the list of contacts (drivers) from your database
-            var drivers = _context.Contacts
-                                  .Select(c => new SelectListItem
-                                  {
-                                      Value = c.Id, 
-                                      Text = c.FullName 
-                                  })
-                                  .ToList();
+            // Get IDs of contacts who are already assigned to a bus
+            var assignedContactIds = _context.Buses
+                                             .Select(b => b.ContactId)
+                                             .ToList();
 
-            ViewBag.Drivers = drivers;
+            // Only include contacts who are NOT already assigned
+            var availableDrivers = _context.Contacts
+                                           .Where(c => !assignedContactIds.Contains(c.Id))
+                                           .Select(c => new SelectListItem
+                                           {
+                                               Value = c.Id,
+                                               Text = c.FullName
+                                           })
+                                           .ToList();
+
+            ViewBag.Drivers = availableDrivers;
 
             return View();
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Bus bus, IFormFile BusImage)
         {
-            try
+            
+
+            if (BusImage == null || BusImage.Length == 0)
             {
-                // Handle file upload
-                if (BusImage != null && BusImage.Length > 0)
+                TempData["ErrorMessage"] = "Please add a bus image!";
+                return RedirectToAction(nameof(Create));
+            }
+
+            bus.BusId = Guid.NewGuid().ToString();
+
+            // Determine base upload path
+            string basePath;
+            if (_webHostEnvironment.IsDevelopment())
+            {
+                basePath = _webHostEnvironment.WebRootPath;
+            }
+            else
+            {
+                // Azure App Service uses this path
+                basePath = Path.Combine(Environment.GetEnvironmentVariable("HOME") ?? "", "site", "wwwroot");
+            }
+
+
+
+            // Handle image upload
+            if (BusImage != null && BusImage.Length > 0)
+            {
+                try
                 {
-                    try
+                    var uploadsFolder = Path.Combine(basePath, "images", "bus_images");
+
+                    if (!Directory.Exists(uploadsFolder))
+                        Directory.CreateDirectory(uploadsFolder);
+
+                    var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(BusImage.FileName);
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
                     {
-                        // Construct path using the wwwroot path
-                        var uploadFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "bus_images");
-
-                        // Ensure directory exists
-                        if (!Directory.Exists(uploadFolder))
-                        {
-                            Directory.CreateDirectory(uploadFolder);
-                        }
-
-                        // Create unique filename
-                        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(BusImage.FileName);
-                        var filePath = Path.Combine(uploadFolder, fileName);
-
-                        // Save file
-                        using (var fileStream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await BusImage.CopyToAsync(fileStream);
-                        }
-
-                        // Store relative path for frontend use
-                        bus.ImageUrl = $"/images/bus_images/{fileName}";
+                        await BusImage.CopyToAsync(stream);
                     }
-                    catch (Exception fileEx)
-                    {
-                        _logger.LogError($"File upload error: {fileEx.Message}");
-                        bus.ImageUrl = null; // fallback
-                    }
+
+                    // Save relative URL path
+                    bus.ImageUrl = $"/images/bus_images/{uniqueFileName}";
                 }
+                catch (Exception fileEx)
+                {
+                    _logger.LogError("Image upload failed: " + fileEx.Message);
+                    ModelState.AddModelError("ImageUrl", "Image upload failed.");
+                }
+            }
+           
 
-                // Save to database
                 _context.Buses.Add(bus);
                 await _context.SaveChangesAsync();
-
                 return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error creating bus: {ex.Message}");
-                ModelState.AddModelError("", "An error occurred: " + ex.Message);
-            }
+            
 
-            // Repopulate dropdown in case of error
-            ViewBag.Drivers = _context.Contacts
-                                      .Select(c => new SelectListItem
-                                      {
-                                          Value = c.Id,
-                                          Text = c.FullName,
-                                          Selected = c.Id == bus.ContactId
-                                      })
-                                      .ToList();
-
-            return View(bus);
         }
+
+
 
 
 

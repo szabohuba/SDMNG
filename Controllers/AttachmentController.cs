@@ -4,6 +4,8 @@ using SDMNG.Data;
 using SDMNG.Models;
 using System.Threading.Tasks;
 using System.Linq;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace SDMNG.Controllers
 {
@@ -154,7 +156,6 @@ namespace SDMNG.Controllers
 
             return View(model);
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateBusAttachment(Attachment attachment, IFormFile file)
@@ -165,37 +166,39 @@ namespace SDMNG.Controllers
                 {
                     try
                     {
-                        // Define your upload folder path
-                        var uploadFolder = @"C:\Users\Szabo Huba\Desktop\SDMNG\wwwroot\attachments\";
+                        // Determine the upload path based on environment (local or Azure)
+                        string basePath = _env.IsDevelopment()
+                            ? Path.Combine(_env.WebRootPath, "attachments")
+                            : Path.Combine(Environment.GetEnvironmentVariable("HOME") ?? "", "site", "wwwroot", "attachments");
 
-                        // Ensure directory exists
-                        if (!Directory.Exists(uploadFolder))
+                        // Ensure the folder exists
+                        if (!Directory.Exists(basePath))
                         {
-                            Directory.CreateDirectory(uploadFolder);
+                            Directory.CreateDirectory(basePath);
                         }
 
-                        // Generate a unique file name to avoid conflicts
+                        // Generate a unique file name
                         var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                        var filePath = Path.Combine(uploadFolder, fileName);
+                        var filePath = Path.Combine(basePath, fileName);
 
+                        // Save the file
                         using (var fileStream = new FileStream(filePath, FileMode.Create))
                         {
                             await file.CopyToAsync(fileStream);
                         }
 
-                        // Store file information in the Attachment object
+                        // Populate the attachment object
                         attachment.FileName = fileName;
-                        attachment.FilePath = $"/attachments/{fileName}"; // Relative URL for easy access
-                        attachment.FileType = file.ContentType; // Store the file type 
+                        attachment.FilePath = "/attachments/" + fileName;
+                        attachment.FileType = file.ContentType;
                         attachment.UploadDate = DateTime.Now;
-                        attachment.expirationDate = DateTime.Now.AddYears(1);
-                        attachment.ContactId = null; // You can associate it with the Bus or keep null as required.
+                        attachment.expirationDate = attachment.UploadDate.AddYears(1);
+                        attachment.ContactId = null; // Since this is a bus attachment
 
-                        // Save the attachment to the database
+                        // Save to database
                         _context.Attachments.Add(attachment);
                         await _context.SaveChangesAsync();
 
-                        
                         return RedirectToAction("Detail", "Bus", new { id = attachment.BusId });
                     }
                     catch (Exception fileEx)
@@ -215,9 +218,10 @@ namespace SDMNG.Controllers
                 ModelState.AddModelError("", "An error occurred: " + ex.Message);
             }
 
-            
+            // On error, return to view with the original model to show validation errors
             return View(attachment);
         }
+
 
 
 
@@ -239,14 +243,17 @@ namespace SDMNG.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateContactAttachment(Attachment attachment, IFormFile file)
         {
+            attachment.Id = Guid.NewGuid().ToString();
             try
             {
                 if (file != null && file.Length > 0)
                 {
                     try
                     {
-                        // Define your upload folder path
-                        var uploadFolder = @"C:\Users\Szabo Huba\Desktop\SDMNG\wwwroot\attachments\";
+                        // Determine upload path (local or Azure)
+                        string uploadFolder = _env.IsDevelopment()
+                            ? Path.Combine(_env.WebRootPath, "attachments")
+                            : Path.Combine(Environment.GetEnvironmentVariable("HOME") ?? "", "site", "wwwroot", "attachments");
 
                         // Ensure directory exists
                         if (!Directory.Exists(uploadFolder))
@@ -254,27 +261,28 @@ namespace SDMNG.Controllers
                             Directory.CreateDirectory(uploadFolder);
                         }
 
-                        // Generate a unique file name to avoid conflicts
-                        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                        // Generate unique filename
+                        var fileName = attachment.Id + Path.GetExtension(file.FileName);
                         var filePath = Path.Combine(uploadFolder, fileName);
 
+                        // Save file to disk
                         using (var fileStream = new FileStream(filePath, FileMode.Create))
                         {
                             await file.CopyToAsync(fileStream);
                         }
 
-                        // Store file information in the Attachment object
+                        // Save metadata to database
                         attachment.FileName = fileName;
-                        attachment.FilePath = $"/attachments/{fileName}"; // Relative URL for easy access
-                        attachment.FileType = file.ContentType; // Store the file type (MIME)
+                        attachment.FilePath = $"/attachments/{fileName}"; // relative URL
+                        attachment.FileType = file.ContentType;
                         attachment.UploadDate = DateTime.Now;
-                        attachment.BusId = null; // You can associate it with the Bus or keep null as required.
+                        attachment.expirationDate = attachment.UploadDate.AddYears(1);
 
-                        // Save the attachment to the database
+                        attachment.BusId = null; // it's a contact attachment
+
                         _context.Attachments.Add(attachment);
                         await _context.SaveChangesAsync();
 
-                        // Redirect back to the contact detail page
                         return RedirectToAction("Detail", "Contact", new { id = attachment.ContactId });
                     }
                     catch (Exception fileEx)
@@ -294,9 +302,10 @@ namespace SDMNG.Controllers
                 ModelState.AddModelError("", "An error occurred: " + ex.Message);
             }
 
-            // Return the view with the model state (so user can fix any errors)
             return View(attachment);
         }
+
+
 
 
     }

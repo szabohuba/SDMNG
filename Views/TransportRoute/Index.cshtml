@@ -26,7 +26,6 @@
                 <td>@(route.RouteStop?.Count ?? 0)</td>
                 <td>
                     <a asp-action="Detail" asp-route-id="@route.TransportRoutesId" class="btn btn-info">Details</a>
-                    <a asp-action="Modify" asp-route-id="@route.TransportRoutesId" class="btn btn-warning">Edit</a>
                     <a asp-action="Delete" asp-route-id="@route.TransportRoutesId" class="btn btn-danger">Delete</a>
                 </td>
             </tr>

@@ -1,10 +1,10 @@
 \section{Tervezés és architektúra}
 
-\indent Az alkalmazás fejlesztése során célkitűzésem az volt, hogy egy jól strukturált, skálázható és hosszú távon is fenntartható rendszert hozzak létre, amely modern fejlesztési elvekre épül. A rendszer célja, hogy egyszerűsítse a buszjáratok kezelését, a menetrendek nyilvántartását, valamint megkönnyítse a jegyvásárlás és adminisztratív tevékenységek lebonyolítását. Ebben a fejezetben bemutatom a rendszer architektúráját, az adatbázis-tervet, az entitások kapcsolatrendszerét, valamint a tervezés során hozott döntéseket.
+\indent Az alkalmazás fejlesztése során a célkitűzésem az volt, hogy egy jól strukturált, skálázható és hosszú távon is fenntartható rendszert tervezzek, illetve hozzak létre, amely modern fejlesztési elvekre, valamint felhasználói fekületre épül. A rendszer célja, hogy egyszerűsítse a buszjáratok kezelését, a menetrendek nyilvántartását, valamint megkönnyítse a jegyvásárlás és adminisztratív folyamatok végbemenetelét. Ebben a fejezetben bemutatom a rendszer architektúráját, az adatbázis-tervet, az entitások kapcsolatrendszerét, valamint a felhasználói felület tervezése során hozott döntéseket.
 
 \subsection{Rendszerarchitektúra}
 
-\indent Az alkalmazás háromrétegű architektúrát követ, amely a prezentációs, alkalmazáslogikai és adatelérési rétegeket világosan elkülöníti. Ez a struktúra lehetővé teszi a moduláris fejlesztést, a különböző rétegek független tesztelhetőségét, valamint az egyszerű jövőbeli módosításokat és bővítéseket.
+\indent Az alkalmazás háromrétegű architektúrát követ, amely a prezentációs, alkalmazáslogikai és adatelérési rétegeket világosan elkülöníti. Ez a struktúra lehetővé teszi a moduláris fejlesztést, a különböző rétegek független tesztelhetőségét, valamint az egyszerű jövőbeli fejlesztésekkel való kibővítést.
 
 \begin{itemize}
     \item \textbf{Prezentációs réteg (View)} – A felhasználói felület ASP.NET MVC technológiával készült, Razor nézetek alkalmazásával. A cél egy átlátható, reszponzív és intuitív felhasználói élmény biztosítása volt. Az oldal struktúrája a Bootstrap keretrendszerre épül, ezzel támogatva a mobileszközökön való megjelenést is.
@@ -28,7 +28,7 @@ A \texttt{Contact} entitás a rendszer regisztrált felhasználóit reprezentál
 
 \paragraph{Contact}
 
-A rendszer felhasználóit reprezentáló alapvető entitás a \texttt{Contact} osztály, amely az ASP.NET Identity infrastruktúrájára épül, pontosabban az \texttt{IdentityUser} osztályból származik. Ez az öröklődés lehetővé teszi a beépített azonosítási és hitelesítési funkciók használatát, például a felhasználónév, az e-mail cím, a jelszótárolás hash formátumban, valamint a különféle biztonsági funkciók – mint például fiókzárolás, e-mail- és telefonszám-ellenőrzés – elérését.
+A rendszer felhasználóit reprezentáló alapvető entitás a \texttt{Contact} osztály, amely az ASP.NET Identity ősosztályára épül, pontosabban az \texttt{IdentityUser} osztályból származik. Ez az öröklődés lehetővé teszi a beépített azonosítási és hitelesítési funkciók használatát, például a felhasználónév, az e-mail cím, a jelszótárolás hash formátumban, valamint a különféle biztonsági funkciók – mint például fiókzárolás, e-mail- és telefonszám-ellenőrzés – elérését.
 
 A projekt specifikus igényeihez igazodva a \texttt{Contact} entitás további mezőkkel került kibővítésre. Minden felhasználó egy egyedi azonosítóval rendelkezik, amely GUID formátumban kerül tárolásra, ez biztosítja az entitás egyértelmű beazonosíthatóságát. A felhasználók teljes neve külön mezőben kap helyet, amely az azonosításon túl a különböző nézetekben és riportokban való megjelenítést is szolgálja. A rendszer az e-mail címet elsődleges kapcsolattartási pontként használja, emellett lehetőség van telefonszám megadására is, amely főként közvetlen kommunikáció esetén hasznos. Az egyes felhasználók szerepköre – legyen az például adminisztrátor, munkatárs vagy ügyfél – szöveges formában kerül rögzítésre, ez határozza meg, hogy milyen jogosultságokkal rendelkeznek a rendszerben. A jelszavak biztonságos tárolását a keretrendszer által biztosított hash-elési mechanizmus kezeli.
 
@@ -144,7 +144,7 @@ A bejelentkezési felületen a felhasználó e-mail címe és jelszava megadás�
 
 \subsubsection{Regisztrációs oldal (Register)}
 
-A regisztrációs oldalon a látogató egy egyszerű űrlap kitöltésével hozhat létre új fiókot. Az űrlap a felhasználó nevét, e-mail címét, jelszavát, valamint annak megerősítését kéri be. A regisztrációt követően a rendszer automatikusan bejelentkezhet az új felhasználóval, vagy átirányíthatja a bejelentkezési oldalra.
+A regisztrációs oldalon a felhasználó egy egyszerű űrlap kitöltésével hozhat létre új fiókot. Az űrlap a felhasználó nevét, e-mail címét, jelszavát, valamint a szándék megerősítését igényli. A regisztrációt követően a rendszer automatikusan átirányíthatja a bejelentkezési oldalra.
 
 \subsubsection{Stations oldal}
 
@@ -178,7 +178,7 @@ Fontos megjegyezni, hogy adminisztrátori jogosultság esetén az ugyanilyen ré
 
 \subsubsection{Routes oldal}
 
-A \texttt{Routes} oldalon a rendszer az adatbázisban szereplő összes elérhető útvonalat listázza. A felhasználói felület célja, hogy a látogatók és regisztrált utasok könnyen áttekintést kapjanak az egyes útvonalakról, míg az adminisztrátorok számára részletes kezelési lehetőségeket is biztosít.
+A \texttt{Routes} oldalon a rendszer az adatbázisban szereplő összes elérhető útvonalat listázza. Ennek a felhasználói felület azért szükséges, hogy a látogatók és regisztrált utasok könnyen áttekintést kapjanak az egyes útvonalakról, míg az adminisztrátorok számára részletes kezelési lehetőségeket is biztosít.
 
 \paragraph{Felhasználói nézet (publikus elérés)}
 
@@ -268,9 +268,9 @@ A táblázat oszlopai a következő információkat jelenítik meg: \texttt{User
 
 Az \texttt{Actions} oszlop egyetlen gombot tartalmaz, amely a részletek megtekintésére szolgál. A megnyitott nézetben az admin elolvashatja a felhasználó által küldött teljes üzenetet. A rendszer nem biztosít lehetőséget ezen üzenetek szerkesztésére vagy törlésére, hiszen ezek kizárólag tájékoztatási célból kerülnek be az adatbázisba.
 
-Fontos kiemelni, hogy ezen az oldalon nem áll rendelkezésre új üzenet manuális hozzáadására szolgáló funkció, mivel az összes bejegyzés kizárólag a felhasználói űrlap kitöltésével jön létre. Az oldal célja a felhasználói visszajelzések átlátható, hatékony kezelése és archiválása az adminisztráció számára.
+Fontos kiemelni, hogy ezen az oldalon nem áll rendelkezésre új üzenet manuális hozzáadására szolgáló funkció, mivel az összes bejegyzés kizárólag a felhasználói űrlap kitöltésével jöhet létre. Az oldal célja a felhasználói visszajelzések átlátható, hatékony kezelése és archiválása az adminisztráció számára.
 
-A \texttt{ToDoList} menüpont az adminisztrátorok számára elérhető, és a rendszerben végzendő feladatok kezelését teszi lehetővé. Ez az oldal némileg interaktívabb megközelítést alkalmaz, mint a többi adminisztrációs felület, mivel nem csupán adatokat jelenít meg, hanem lehetőséget biztosít az egyéni feladatok nyomon követésére és kezelésére is.
+A \texttt{ToDoList} menüpont az adminisztrátorok számára elérhető, és a rendszerben végzendő feladatok kezelését teszi lehetővé. Ez az oldal interaktívabb megközelítést alkalmaz, mint a többi adminisztrációs felület, mivel nem csupán adatokat jelenít meg, hanem lehetőséget biztosít az egyéni feladatok nyomon követésére és kezelésére is.
 
 Az oldal betöltésekor egy áttekinthető táblázat jelenik meg, amely minden korábban létrehozott feladatot tartalmaz. A táblázat három fő oszlopból áll: \texttt{Title} (a feladat címe), \texttt{Due} (a határidő), valamint az \texttt{Actions} oszlop, amely két műveleti gombot tartalmaz. Ezek közül a \texttt{Detail} gomb a feladat részleteit jeleníti meg, míg az \texttt{Edit} gomb közvetlenül a szerkesztőfelületre navigál.
 
@@ -282,8 +282,8 @@ A feladatok vizuálisan is jól elkülöníthetők az állapotuk alapján: a má
 \begin{figure}[H]
 \centering
 \includegraphics[width=1\textwidth]{Szakdolgozat/Mellekletek/admintasks.PNG}
-\caption{Adminisztrátori feladatok listájának látható }
-\label{fig:todo-detail-admin}
+\caption{Adminisztrátori feladatok listája látható }
+\label{fig:todo-admintask}
 \end{figure}
 
-A \ref{fig:todo-detail-admin}. ábra az adminisztrátorok számára elérhető \texttt{ToDoList} oldal listanézetét szemlélteti, ahol az aktuális feladatok áttekinthető formában jelennek meg.
+A \ref{fig:todo-admintask}. ábra az adminisztrátorok számára elérhető \texttt{ToDoList} oldal listanézetét szemlélteti, ahol az aktuális feladatok áttekinthető formában jelennek meg.

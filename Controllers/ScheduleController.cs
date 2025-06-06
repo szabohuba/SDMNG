@@ -44,11 +44,31 @@ namespace SpeedDiesel.Controllers
 
         public async Task<IActionResult> Create()
         {
-            ViewBag.TransportRoutes = await _context.TransportRoutes.ToListAsync();
-            ViewBag.Buses = await _context.Buses.ToListAsync(); // If you want to assign a bus too
+            // Get IDs of buses already used in any schedule
+            var usedBusIds = await _context.Schedules
+                                           .Where(s => s.BusId != null)
+                                           .Select(s => s.BusId)
+                                           .ToListAsync();
+
+            // Get IDs of transport routes already used in any schedule
+            var usedRouteIds = await _context.Schedules
+                                             .Where(s => s.TransportRouteId != null)
+                                             .Select(s => s.TransportRouteId)
+                                             .ToListAsync();
+
+            // Only buses NOT in usedBusIds
+            ViewBag.Buses = await _context.Buses
+                                          .Where(b => !usedBusIds.Contains(b.BusId))
+                                          .ToListAsync();
+
+            // Only routes NOT in usedRouteIds
+            ViewBag.TransportRoutes = await _context.TransportRoutes
+                                                    .Where(r => !usedRouteIds.Contains(r.TransportRoutesId))
+                                                    .ToListAsync();
 
             return View();
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
