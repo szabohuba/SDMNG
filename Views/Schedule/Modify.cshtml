@@ -1,33 +1,48 @@
 ﻿@model SDMNG.Models.Schedule
 
 @{
-    ViewData["Title"] = "Modify Schedule Details";
+    ViewData["Title"] = "Edit Schedule";
 }
 
 <h2>@ViewData["Title"]</h2>
 
-<div class="card shadow p-4">
-    <form asp-action="Detail" method="post">
+<form asp-action="Modify" method="post">
+
+    <input type="hidden" asp-for="Id" />
+
+    <div class="card shadow p-4">
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label">Schedule Name</label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+
         <div class="mb-3">
             <label asp-for="DepartureTime" class="form-label">Departure Time</label>
-            <input asp-for="DepartureTime" type="datetime-local" class="form-control" required />
+            <input asp-for="DepartureTime" type="datetime-local" class="form-control" />
+            <span asp-validation-for="DepartureTime" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
             <label asp-for="ArrivalTime" class="form-label">Arrival Time</label>
-            <input asp-for="ArrivalTime" type="datetime-local" class="form-control" required />
+            <input asp-for="ArrivalTime" type="datetime-local" class="form-control" />
+            <span asp-validation-for="ArrivalTime" class="text-danger"></span>
         </div>
 
-        <div class="mb-3">
-            <label asp-for="BusId" class="form-label">Bus</label>
-            <select asp-for="BusId" asp-items="ViewBag.Buses" class="form-control" required>
-                <option value="">Select a Bus</option>
-            </select>
-        </div>
 
         <div class="d-flex justify-content-between">
             <a asp-action="Index" class="btn btn-secondary">Cancel</a>
             <button type="submit" class="btn btn-primary">Save Changes</button>
         </div>
-    </form>
-</div>
+    </div>
+</form>
+
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}

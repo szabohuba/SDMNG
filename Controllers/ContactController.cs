@@ -23,9 +23,24 @@ namespace SDMNG.Controllers
 
         public IActionResult Index()
         {
-            var allContacts = _context.Contacts.ToList();
+            var activeContacts = _context.Contacts
+                .Include(c => c.Bus) 
+                .Where(c => c.Active)
+                .ToList();
+
+            return View(activeContacts);
+        }
+
+
+        public IActionResult Allcontacts()
+        {
+            var allContacts = _context.Contacts
+                .Include(c => c.Bus)
+                .ToList();
+
             return View(allContacts);
         }
+
 
         public IActionResult Create()
         {
@@ -75,35 +90,73 @@ namespace SDMNG.Controllers
 
 
 
-        public IActionResult Delete()
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(string id)
         {
+            if (string.IsNullOrEmpty(id))
+                return NotFound();
 
-            return View();
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+                return NotFound();
+
+            return View(user);
         }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteConfirmed(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return NotFound();
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+                return NotFound();
+
+           
+            var tickets = _context.Tickets.Where(t => t.ContactId == user.Id).ToList();
+            if (tickets.Any())
+            {
+                _context.Tickets.RemoveRange(tickets);
+            }
+
+
+            
+            var result = await _userManager.DeleteAsync(user);
+
+            if (result.Succeeded)
+            {
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "User deleted successfully.";
+                return RedirectToAction("Index"); 
+            }
+
+            
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            return View("Delete", user); // Return to delete view with error messages
+        }
+
 
 
         [Authorize]
         public async Task<IActionResult> MyProfile()
         {
-            var email = User.Identity?.Name;
+            var userId = _userManager.GetUserId(User);
+            var user = await _context.Contacts.FindAsync(userId);
 
-            if (string.IsNullOrEmpty(email))
-            {
-                return Unauthorized();
-            }
+            if (user == null) return NotFound();
 
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == email);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return View(user);
+            return View(user); 
         }
 
-        // GET: Contacts/Modify/{id}
+       
         public async Task<IActionResult> Modify(string id)
         {
             if (string.IsNullOrEmpty(id)) return NotFound();
@@ -114,22 +167,20 @@ namespace SDMNG.Controllers
             var userRoles = await _userManager.GetRolesAsync(user);
             var allRoles = _roleManager.Roles.Select(r => r.Name).ToList();
 
-            ViewBag.Roles = new SelectList(allRoles);
-            ViewBag.CurrentRole = userRoles.FirstOrDefault();
+            ViewBag.Roles = new SelectList(allRoles); 
+            ViewBag.CurrentRole = userRoles.FirstOrDefault(); 
 
-            return View(user);
+            return View(user); 
         }
 
-        // POST: Contacts/Modify
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Modify(Contact model, string selectedRole)
         {
-
             var user = await _userManager.FindByIdAsync(model.Id);
             if (user == null) return NotFound();
 
-            
             user.FullName = model.FullName;
             user.Email = model.Email;
             user.UserName = model.Email;
@@ -142,23 +193,27 @@ namespace SDMNG.Controllers
             if (!updateResult.Succeeded)
             {
                 ModelState.AddModelError("", "Failed to update user");
-                return View(model);
+                return View(user);
             }
 
-            
-            var currentRoles = await _userManager.GetRolesAsync(user);
-            if (currentRoles.Any())
+            // Only update role if a new one is explicitly selected
+            if (!string.IsNullOrWhiteSpace(selectedRole))
             {
-                await _userManager.RemoveFromRolesAsync(user, currentRoles);
-            }
+                var currentRoles = await _userManager.GetRolesAsync(user);
+                if (currentRoles.Any())
+                {
+                    await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                }
 
-            if (!string.IsNullOrEmpty(selectedRole) && await _roleManager.RoleExistsAsync(selectedRole))
-            {
-                await _userManager.AddToRoleAsync(user, selectedRole);
+                if (await _roleManager.RoleExistsAsync(selectedRole))
+                {
+                    await _userManager.AddToRoleAsync(user, selectedRole);
+                }
             }
 
             return RedirectToAction("Index");
         }
+
 
     }
 }

@@ -52,13 +52,15 @@
                     <label asp-for="Active" class="form-check-label">Active</label>
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Role</label>
-                    <select name="SelectedRole" class="form-control" asp-items="ViewBag.Roles">
-                        <option value="">-- Select Role --</option>
-                    </select>
-                </div>
-            </div>
+                <select name="SelectedRole" class="form-control">
+                    <option value="">-- Select Role --</option>
+                    @foreach (var role in (SelectList)ViewBag.Roles)
+                    {
+                        var selected = role.Text == (string)ViewBag.CurrentRole ? "selected" : "";
+                        <option value="@role.Text" selected="@selected">@role.Text</option>
+                    }
+                </select>
+
         </div>
 
         <div class="d-flex justify-content-between mt-4">

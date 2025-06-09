@@ -23,18 +23,17 @@
                 <td>@ticket.TicketId</td>
                 <td>@ticket.PurchaseDate.ToString("yyyy-MM-dd HH:mm")</td>
                 <td>@ticket.SeatNumber</td>
-                <td>@ticket.ContactId</td>
-                <td>@ticket.ScheduleId</td>
+                <td>@ticket.Contact?.FullName</td>
+                <td>@ticket.Schedule?.Name</td>
                 <td>
-                    <a href="@Url.Action("Modify", "Ticket", new { id = ticket.TicketId })" class="btn btn-warning btn-sm">Edit</a>
-                    <a href="@Url.Action("Detail", "Ticket", new { id = ticket.TicketId })" class="btn btn-info btn-sm">Details</a>
-                    <a href="@Url.Action("Delete", "Ticket", new { id = ticket.TicketId })" class="btn btn-danger btn-sm">Delete</a>
+                    <div class="btn-group" role="group">
+                        <a href="@Url.Action("Modify", "Ticket", new { id = ticket.TicketId })" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="@Url.Action("Detail", "Ticket", new { id = ticket.TicketId })" class="btn btn-info btn-sm">Details</a>
+                    </div>
                 </td>
             </tr>
+
         }
     </tbody>
 </table>
 
-<p>
-    <a href="@Url.Action("Create", "Ticket")" class="btn btn-primary">Create New Ticket</a>
-</p>

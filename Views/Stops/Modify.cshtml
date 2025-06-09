@@ -8,6 +8,9 @@
 
 <div class="card shadow p-4">
     <form asp-action="Modify" method="post">
+
+        <input type="hidden" asp-for="StopId" />
+
         <div class="mb-3">
             <label asp-for="StopName" class="form-label">Stop Name</label>
             <input asp-for="StopName" class="form-control" required />

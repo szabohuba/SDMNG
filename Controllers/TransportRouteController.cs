@@ -60,34 +60,45 @@ namespace SDMNG.Controllers
         }
 
         // GET: TransportRoute/Modify/5
+        [HttpGet]
         public async Task<IActionResult> Modify(string id)
         {
-            if (id == null) return NotFound();
+            if (string.IsNullOrEmpty(id))
+                return NotFound();
 
             var route = await _context.TransportRoutes.FindAsync(id);
-            if (route == null) return NotFound();
+            if (route == null)
+                return NotFound();
 
             return View(route);
         }
 
-        // POST: TransportRoute/Modify/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Modify(string id, TransportRoute route)
         {
-            if (id != route.TransportRoutesId) return NotFound();
+            if (id != route.TransportRoutesId)
+                return NotFound();
 
-            if (ModelState.IsValid)
+            try
             {
                 _context.Update(route);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-
-            return View(route);
+            catch (DbUpdateException ex)
+            {
+                // Log error
+                ModelState.AddModelError("", "Unable to save changes.");
+                return View(route);
+            }
         }
 
+
+
+
         // GET: TransportRoute/Delete/5
+        [HttpGet]
         public async Task<IActionResult> Delete(string id)
         {
             var route = await _context.TransportRoutes
@@ -102,36 +113,32 @@ namespace SDMNG.Controllers
             return View(route);
         }
 
-        // POST: TransportRoute/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
             var route = await _context.TransportRoutes
-                .Include(r => r.RouteStop)  // Include RouteStops for deletion
+                .Include(r => r.Schedule) 
                 .FirstOrDefaultAsync(r => r.TransportRoutesId == id);
 
-            if (route != null)
+            if (route == null)
+                return NotFound();
+
+            if (route.Schedule != null)
             {
-                // First delete the associated RouteStops
-                _context.RouteStops.RemoveRange(route.RouteStop);
-
-                // Then delete the TransportRoute
-                _context.TransportRoutes.Remove(route);
-
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = "Transport route and associated stops deleted successfully!";
+                TempData["ErrorMessage"] = "Az útvonal nem törölhető, mert egy menetrendhez van hozzárendelve. Először törölje a menetrendet.";
+                return RedirectToAction("DetailUser", "Schedule", new { id = route.Schedule.Id });
             }
-            else
-            {
-                TempData["ErrorMessage"] = "Transport route not found.";
-            }
+
+            var routeStops = _context.RouteStops.Where(rs => rs.TransportRouteId == route.TransportRoutesId);
+            if (routeStops.Any())
+                _context.RouteStops.RemoveRange(routeStops);
+
+            _context.TransportRoutes.Remove(route);
+            await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
-
-
 
 
         // GET: TransportRoute/Detail/5

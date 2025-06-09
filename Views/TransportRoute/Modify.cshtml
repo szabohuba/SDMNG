@@ -8,12 +8,14 @@
 
 <div class="card shadow p-4">
     <form asp-action="Modify" method="post">
+
+        <input type="hidden" asp-for="TransportRoutesId" />
+
         <div class="mb-3">
             <label asp-for="TransportRoutesName" class="form-label">Route Name</label>
             <input asp-for="TransportRoutesName" class="form-control" required />
         </div>
 
-        
 
         <div class="d-flex justify-content-between">
             <a asp-action="Index" class="btn btn-secondary">Cancel</a>

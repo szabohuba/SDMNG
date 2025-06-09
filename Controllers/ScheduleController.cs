@@ -44,24 +44,24 @@ namespace SpeedDiesel.Controllers
 
         public async Task<IActionResult> Create()
         {
-            // Get IDs of buses already used in any schedule
+            
             var usedBusIds = await _context.Schedules
                                            .Where(s => s.BusId != null)
                                            .Select(s => s.BusId)
                                            .ToListAsync();
 
-            // Get IDs of transport routes already used in any schedule
+            
             var usedRouteIds = await _context.Schedules
                                              .Where(s => s.TransportRouteId != null)
                                              .Select(s => s.TransportRouteId)
                                              .ToListAsync();
 
-            // Only buses NOT in usedBusIds
+            
             ViewBag.Buses = await _context.Buses
                                           .Where(b => !usedBusIds.Contains(b.BusId))
                                           .ToListAsync();
 
-            // Only routes NOT in usedRouteIds
+            
             ViewBag.TransportRoutes = await _context.TransportRoutes
                                                     .Where(r => !usedRouteIds.Contains(r.TransportRoutesId))
                                                     .ToListAsync();
@@ -76,17 +76,17 @@ namespace SpeedDiesel.Controllers
         {
             schedule.Id = Guid.NewGuid().ToString();
 
-            // Fetch the selected bus to get its capacity
+            
             var bus = await _context.Buses
                 .FirstOrDefaultAsync(b => b.BusId == schedule.BusId);
 
             if (bus == null)
             {
                 ModelState.AddModelError("BusId", "Invalid bus selected.");
-                return View(schedule); // Return view with validation message
+                return View(schedule); 
             }
 
-            // Set TicketLeft to the capacity of the bus
+            
             schedule.TicketLeft = bus.Capacity;
 
             _context.Schedules.Add(schedule);
@@ -95,12 +95,53 @@ namespace SpeedDiesel.Controllers
             return RedirectToAction("Index", "Schedule");
         }
 
-
-        public IActionResult Modify()
+        // GET: Schedule/Modify/{id}
+        [HttpGet]
+        public async Task<IActionResult> Modify(string id)
         {
+            if (string.IsNullOrEmpty(id))
+                return NotFound();
 
-            return View();
+            var schedule = await _context.Schedules.FindAsync(id);
+            if (schedule == null)
+                return NotFound();
+
+            return View(schedule);
         }
+
+        // POST: Schedule/Modify/{id}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Modify(string id, [Bind("Id,Name,DepartureTime,ArrivalTime")] Schedule schedule)
+        {
+            if (id != schedule.Id)
+                return NotFound();
+
+            try
+            {
+                var existing = await _context.Schedules.FindAsync(id);
+                if (existing == null)
+                    return NotFound();
+
+                
+                existing.Name = schedule.Name;
+                existing.DepartureTime = schedule.DepartureTime;
+                existing.ArrivalTime = schedule.ArrivalTime;
+
+                _context.Update(existing);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Failed to update schedule: " + ex.Message;
+                return View(schedule);
+            }
+        }
+
+
+
 
         public async Task<IActionResult> Detail(string id)
         {
@@ -143,10 +184,52 @@ namespace SpeedDiesel.Controllers
         }
 
 
-        public IActionResult Delete()
+        // GET: Schedule/Delete/{id}
+        [HttpGet]
+        public async Task<IActionResult> Delete(string id)
         {
+            if (string.IsNullOrEmpty(id))
+                return NotFound();
 
-            return View();
+            var schedule = await _context.Schedules
+                .Include(s => s.TransportRoute)
+                .Include(s => s.Bus)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (schedule == null)
+                return NotFound();
+
+            return View(schedule); 
         }
+
+
+        //Post method for deleting schedule
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(string id)
+        {
+            var schedule = await _context.Schedules
+                .Include(s => s.Tickets)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (schedule == null)
+                return NotFound();
+
+            if (schedule.Tickets != null && schedule.Tickets.Any())
+            {
+                _context.Tickets.RemoveRange(schedule.Tickets);
+            }
+
+            // Optional: unlink foreign keys (only if nullable)
+            schedule.TransportRouteId = null;
+            schedule.BusId = null;
+
+            _context.Schedules.Remove(schedule);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+
     }
 }

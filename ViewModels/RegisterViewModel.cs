@@ -6,7 +6,6 @@ namespace SDMNG.ViewModels
     {
 
         [Required(ErrorMessage = "Name is required.")]
-        [EmailAddress]
         public string Name { get; set; }
         [Required(ErrorMessage = "Email is required.")]
         [EmailAddress]

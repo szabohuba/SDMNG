@@ -1,13 +1,14 @@
 ﻿@model IEnumerable<SDMNG.Models.Contact>
 
 @{
-    ViewData["Title"] = "Active Contact List";
+    ViewData["Title"] = "All Contact List";
 }
 
 <h2>@ViewData["Title"]</h2>
 
-<a href="@Url.Action("Allcontacts", "Contact")" class="btn btn-secondary">All Contacts</a>
-
+<div>
+    <a href="@Url.Action("Index", "Contact")" class="btn btn-secondary">Back To Active Contacts</a>
+</div>
 
 <table class="table table-striped">
     <thead>
@@ -39,5 +40,7 @@
         }
     </tbody>
 </table>
+
+
 
 

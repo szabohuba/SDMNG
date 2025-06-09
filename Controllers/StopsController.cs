@@ -34,7 +34,7 @@ namespace SpeedDiesel.Controllers
 
         public async Task<IActionResult> UserDetail(string id)
         {
-            // Fetch the Stop object from the database using the provided id
+           
             var stop = await _context.Stops
                 .FirstOrDefaultAsync(s => s.StopId.ToString() == id); 
 
@@ -64,7 +64,7 @@ namespace SpeedDiesel.Controllers
         
         }
 
-
+        [HttpGet]
         public async Task<IActionResult> Modify(string id)
         {
             if (string.IsNullOrEmpty(id)) return NotFound();
@@ -102,6 +102,11 @@ namespace SpeedDiesel.Controllers
 
             return View(stop);
         }
+
+
+
+
+
 
         public async Task<IActionResult> Detail(string id)
         {

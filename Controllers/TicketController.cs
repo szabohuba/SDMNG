@@ -29,11 +29,16 @@ namespace SpeedDiesel.Controllers
           
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var allTicket = _context.Tickets.ToList();
-            return View(allTicket);
+            var tickets = await _context.Tickets
+                .Include(t => t.Contact)
+                .Include(t => t.Schedule)
+                .ToListAsync();
+
+            return View(tickets);
         }
+
 
         public async Task<IActionResult> UserTickets()
         {
@@ -132,10 +137,10 @@ namespace SpeedDiesel.Controllers
                 return RedirectToAction("DetailUser", "Schedule", new { id = ticket.ScheduleId });
             }
 
-            // Decrease ticket count
+            
             schedule.TicketLeft -= 1;
 
-            // Generate seat number if not set
+            
             if (string.IsNullOrEmpty(ticket.SeatNumber))
             {
                 ticket.SeatNumber = GenerateSeatNumber();
@@ -152,7 +157,7 @@ namespace SpeedDiesel.Controllers
             var username = emailSettings["Username"];
             var password = emailSettings["Password"];
 
-            // Build absolute URL for QR code that works on Azure or local
+            // Build absolute URL for QR code that works on Azure
             var baseUrl = $"{Request.Scheme}://{Request.Host}";
             var ticketUrl = $"{baseUrl}/Ticket/Detail/{ticket.TicketId}";
 
@@ -199,17 +204,12 @@ namespace SpeedDiesel.Controllers
         }
 
 
-
-
-
-
-
         //Generating seat number
         private string GenerateSeatNumber()
         {
             var random = new Random();
-            int seat = random.Next(1, 100); // 1 to 99
-            return $"S{seat:D2}"; // e.g., S01, S12, S99
+            int seat = random.Next(1, 52); // 1 to 99
+            return $"A{seat:D2}"; // e.g., S01, S12, S99
         }
 
         //Generating QR code
@@ -220,6 +220,78 @@ namespace SpeedDiesel.Controllers
             var qrCode = new QRCoder.PngByteQRCode(qrData);
             return qrCode.GetGraphic(20); // 20 = pixel size
         }
+
+
+        // GET: Tickets/Modify/5
+        [HttpGet]
+        public async Task<IActionResult> Modify(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return NotFound();
+
+            var ticket = await _context.Tickets
+                .Include(t => t.Schedule)
+                .Include(t => t.Contact)
+                .FirstOrDefaultAsync(t => t.TicketId == id);
+
+            if (ticket == null)
+                return NotFound();
+
+            // Populate Schedules dropdown
+            ViewBag.Schedules = new SelectList(
+                await _context.Schedules.ToListAsync(),
+                "Id",               
+                "Name",             
+                ticket.ScheduleId   
+            );
+
+            // Populate Contacts dropdown
+            ViewBag.Contacts = new SelectList(
+                await _context.Contacts.ToListAsync(),
+                "Id",               
+                "FullName",         
+                ticket.ContactId    
+            );
+
+            return View(ticket);
+        }
+
+
+
+        // POST: Tickets/Modify/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Modify(string id, [Bind("TicketId,PurchaseDate,SeatNumber,ContactId,ScheduleId")] Ticket updatedTicket)
+        {
+            if (id != updatedTicket.TicketId)
+                return NotFound();
+
+            
+               _context.Update(updatedTicket);
+               await _context.SaveChangesAsync();
+               return RedirectToAction(nameof(Index));
+               
+
+            // Repopulate dropdowns if the form is invalid
+            ViewBag.Schedules = new SelectList(
+                await _context.Schedules.ToListAsync(),
+                "Id",
+                "Name",
+                updatedTicket.ScheduleId
+            );
+
+            ViewBag.Contacts = new SelectList(
+                await _context.Contacts.ToListAsync(),
+                "Id",
+                "FullName",
+                updatedTicket.ContactId
+            );
+
+            return View(updatedTicket);
+        }
+
+
+
 
 
 

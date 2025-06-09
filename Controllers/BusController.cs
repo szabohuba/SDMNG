@@ -115,51 +115,85 @@ namespace SpeedDiesel.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             
+        }
 
+        [HttpGet]
+        public IActionResult Modify(string id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var bus = _context.Buses
+                              .Include(b => b.Contact)
+                              .FirstOrDefault(b => b.BusId == id);
+
+            if (bus == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.DriverName = bus.Contact?.FullName ?? "No driver assigned";
+            return View(bus);
         }
 
 
 
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Modify(Bus bus, IFormFile BusImage)
+        {
+            
+            var existingBus = await _context.Buses.FindAsync(bus.BusId);
 
-        // GET: Bus/Modify/{id}
-        public async Task<IActionResult> Modify(string id)
+            if (existingBus == null)
             {
-                if (string.IsNullOrEmpty(id)) return NotFound();
-
-                var bus = await _context.Buses
-                    .FirstOrDefaultAsync(b => b.BusId == id);
-
-                if (bus == null) return NotFound();
-
-                return View(bus);
+                return NotFound();
             }
 
-            [HttpPost]
-            [ValidateAntiForgeryToken]
-            public async Task<IActionResult> Modify(string id, [Bind("BusId,BusNumber,Capacity,BusType,ImageUrl,ContactId")] Bus bus)
-            {   
+            
+            existingBus.BusNumber = bus.BusNumber;
+            existingBus.Capacity = bus.Capacity;
+            existingBus.BusType = bus.BusType;
 
-                if (id != bus.BusId) return NotFound();
-
-                if (ModelState.IsValid)
+            
+            if (BusImage != null && BusImage.Length > 0)
+            {
+                string basePath;
+                if (_webHostEnvironment.IsDevelopment())
                 {
-                    try
-                    {
-                        _context.Update(bus);
-                        await _context.SaveChangesAsync();
-                    }
-                    catch (DbUpdateConcurrencyException)
-                    {
-                        if (!_context.Buses.Any(e => e.BusId == bus.BusId)) return NotFound();
-                        throw;
-                    }
-
-                    return RedirectToAction(nameof(Index));
+                    basePath = _webHostEnvironment.WebRootPath;
+                }
+                else
+                {
+                    basePath = Path.Combine(Environment.GetEnvironmentVariable("HOME") ?? "", "site", "wwwroot");
                 }
 
-                return View(bus);
+                var uploadsFolder = Path.Combine(basePath, "images", "bus_images");
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(BusImage.FileName);
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await BusImage.CopyToAsync(stream);
+                }
+
+                
+                existingBus.ImageUrl = $"/images/bus_images/{uniqueFileName}";
             }
+
+            _context.Update(existingBus);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+
 
 
 
@@ -190,47 +224,69 @@ namespace SpeedDiesel.Controllers
 
 
 
+        // GET: Bus/Delete/{id}
+        [HttpGet]
         public async Task<IActionResult> Delete(string id)
         {
-            if (id == null)
+            if (string.IsNullOrEmpty(id))
                 return NotFound();
 
-            var bus = await _context.Buses.FindAsync(id);
-            if (bus == null)
-                return NotFound();
-
-            var driverName = await _context.Contacts
-                .Where(c => c.Id == bus.ContactId)
-                .Select(c => c.FullName)
-                .FirstOrDefaultAsync();
-
-            ViewBag.DriverName = driverName ?? "Unassigned";
-
-            return View(bus);
-        }
-
-
-
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
-        {
             var bus = await _context.Buses
-                .Include(b => b.Schedules) // Assuming navigation property
+                .Include(b => b.Contact)
+                .Include(b => b.Schedules)
+                .Include(b => b.Attachments)
                 .FirstOrDefaultAsync(b => b.BusId == id);
 
             if (bus == null)
                 return NotFound();
 
+            // Bus is scheduled-> Go to schedule detail view
             if (bus.Schedules != null && bus.Schedules.Any())
             {
-                ModelState.AddModelError("", "Cannot delete this bus because it has associated schedules.");
-                var driverName = await _context.Contacts
-                    .Where(c => c.Id == bus.ContactId)
-                    .Select(c => c.FullName)
-                    .FirstOrDefaultAsync();
-                ViewBag.DriverName = driverName ?? "Unassigned";
-                return View(bus);
+                var firstSchedule = bus.Schedules.FirstOrDefault();
+                if (firstSchedule != null)
+                {
+                    TempData["ErrorMessage"] = "This bus is linked to a schedule. Please delete the schedule before deleting the bus.";
+                    return RedirectToAction("Detail", "Schedule", new { id = firstSchedule.Id });
+                }
+            }
+
+
+            return View(bus); 
+        }
+
+
+
+
+        // POST: Bus/Delete/{id}
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(string id)
+        {
+            var bus = await _context.Buses
+                .Include(b => b.Attachments)
+                .FirstOrDefaultAsync(b => b.BusId == id);
+
+            if (bus == null)
+                return NotFound();
+
+            // Unassign driver (if desired and ContactId is nullable)
+            bus.ContactId = null;
+            _context.Buses.Update(bus); // Needed to save null assignment
+
+            // Delete attachments from file system
+            if (bus.Attachments != null && bus.Attachments.Any())
+            {
+                foreach (var attachment in bus.Attachments)
+                {
+                    var fullPath = Path.Combine(_webHostEnvironment.WebRootPath, attachment.FilePath.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
+                    if (System.IO.File.Exists(fullPath))
+                    {
+                        System.IO.File.Delete(fullPath);
+                    }
+                }
+
+                _context.Attachments.RemoveRange(bus.Attachments);
             }
 
             _context.Buses.Remove(bus);
@@ -238,5 +294,8 @@ namespace SpeedDiesel.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+
+
     }
 }
