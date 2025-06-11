@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35919.96 d17.13
+VisualStudioVersion = 17.13.35919.96
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDMNG", "SDMNG.csproj", "{1C9DF4B7-8807-45D3-9788-7B5A420D589B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSDMNG", "..\TestSDMNG\TestSDMNG.csproj", "{C4AF1424-3A87-48C0-9167-30F196300656}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{1C9DF4B7-8807-45D3-9788-7B5A420D589B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1C9DF4B7-8807-45D3-9788-7B5A420D589B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1C9DF4B7-8807-45D3-9788-7B5A420D589B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4AF1424-3A87-48C0-9167-30F196300656}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4AF1424-3A87-48C0-9167-30F196300656}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4AF1424-3A87-48C0-9167-30F196300656}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4AF1424-3A87-48C0-9167-30F196300656}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -21,7 +21,7 @@ A \texttt{Models} könyvtár tartalmazza azokat az osztályokat, amelyek az adat
 
 \subsection{Adatmodell és adatbázis felépítése}
 
-Miután a projektet létrehoztuk, elsőként az alkalmazás alapját képező osztályokat, azaz a modelleket kellett létrehozni. Ezek az osztályok az adatbázisban tárolt adattáblákat írják le, és tartalmazzák a hozzájuk tartozó tulajdonságokat, valamint az egymással kialakított relációkat. Az előzetesen elkészített adatbázis-terv alapján hoztam létre a \texttt{AdminMessage}, \texttt{AdminTask}, \texttt{Attachment}, \texttt{Bus}, \texttt{Contact}, \texttt{RouteStop}, \texttt{Schedule}, \texttt{Stop}, \texttt{Ticket}, valamint \texttt{TransportRoute} osztályokat. Fontos kritérium volt, hogy az entitások közötti relációkat pontosan és figyelmesen implementáljuk. Itt az elsődleges kulcsok (Primary Key), illetve az idegen kulcsok (Foreign Key) helyes használatára kellett különös figyelmet fordítani.
+Miután a projektet létrehoztam, elsőként az alkalmazás alapját képező osztályokat, azaz a modelleket kellett létrehozni. Ezek az osztályok az adatbázisban tárolt adattáblákat írják le, és tartalmazzák a hozzájuk tartozó tulajdonságokat, valamint az egymással kialakított relációkat. Az előzetesen elkészített adatbázis-terv alapján hoztam létre az \texttt{AdminMessage}, \texttt{AdminTask}, \texttt{Attachment}, \texttt{Bus}, \texttt{Contact}, \texttt{RouteStop}, \texttt{Schedule}, \texttt{Stop}, \texttt{Ticket}, valamint \texttt{TransportRoute} osztályokat. Fontos kritérium volt, hogy az entitások közötti relációkat pontosan és figyelmesen implementáljuk. Itt az elsődleges kulcsok (Primary Key), illetve az idegen kulcsok (Foreign Key) helyes használatára kellett különös figyelmet fordítani.
 
 A \texttt{Contact} osztályt az ASP.NET Identity komponens \texttt{IdentityUser} ősosztályából származtattam, amely beépített megoldást kínál a felhasználók szerepkörének zökkenőmentes implementálására és kezelésére.
 
@@ -137,8 +137,6 @@ Az adatok frissítésére a POST metódus szolgál, általában két lépésben.
 \paragraph{Törlés (Delete):}
 A törléshez szükség van az adott entitás egyedi azonosítójára. Ezt általában GET vagy POST metódussal kapjuk meg a kliensoldalról. A lekérdezett objektumot ezután eltávolítjuk az adatbázisból a Remove() vagy RemoveRange() metódus segítségével. A TicketController például ezt használja jegyek törléséhez, míg a ContactController a beérkezett üzenetek kezelésénél.
 
-\paragraph{Egységesítés előnyei:}
-Azáltal, hogy minden controllerben hasonló logikát követtem a CRUD műveletek megvalósításánál, az alkalmazás könnyebben bővíthetővé és tesztelhetővé vált. A fejlesztés során a DbContext központosítása, valamint az aszinkron metódusok \texttt{await \_context.SaveChangesAsync()} következetes használata biztosította a gyors és megbízható adatkezelést.
 
 \subsection{Nézetek (View) felépítése}
 
@@ -154,18 +152,15 @@ Az alkalmazás nézeteiben újrahasznosítható elemet alkalmaztam, mint példá
 
 \subsection{Főbb Nézetek}
 \subsubsection{Navigációs sáv és legördülő menü }
-Az alkalmazás főbb vizuális elemei közé tartozik a navigációs sáv, amely a felhasználók számára elérhető oldalakat sorolja fel, mint például az állomások (Stations), útvonalak (Routes), saját jegyek (MyTickets), menetrendek (Schedule) és az elérhetőségek (Contact Me). 
+A webalkalmazás felhasználói felületének egyik központi eleme a navigációs sáv, amelynek megjelenése dinamikusan igazodik a felhasználó jogosultsági szintjéhez. A sáv alapértelmezetten tartalmazza azokat a menüpontokat, amelyek minden látogató – akár be nem jelentkezett felhasználó – számára elérhetők. Ilyen például a megállók (Stations), az útvonalak (Routes), a menetrendek (Schedules), a saját jegyek (My Tickets), valamint az ügyfélszolgálati kapcsolatfelvétel (Contact us) lehetősége. Ezek a funkciók elsősorban információs célokat szolgálnak, és biztosítják, hogy az alkalmazás alapvető szolgáltatásai mindenki számára hozzáférhetőek legyenek.
 
-Ezen felül a navigáció része egy olyan legördülő menü is, amely kizárólag az adminisztrátorok számára látható, az ő szerepkörükhöz igazodva. Ebben a menüben olyan adminisztratív oldalak találhatók, mint a teendők listája (ToDo List), csatolmányok (Attachments), megállók (Stops), buszok (Buses), útvonalak (Routes), menetrendek (Schedules), felhaszálók (Contacts) és jogosultságok (Roles). Minden egyes menüpont egy olyan listanézetre vezet, ahol az adminisztrátor az adott entitás összes adatát áttekintheti és kezelheti, mivel teljes körű jogosultságokkal rendelkezik.
+A rendszer ezen felül támogatja a szerepkör-alapú hozzáférést is, amelynek eredményeként bizonyos menüpontok kizárólag az adminisztrátori jogosultsággal rendelkező felhasználók számára válnak láthatóvá. Amennyiben a rendszer érzékeli, hogy a bejelentkezett felhasználó az „Admin” szerepkörhöz tartozik, egy további legördülő menü is megjelenik a navigációs sávban. Ez a menü – „Management” néven – olyan adminisztratív funkciókat tartalmaz, amelyek segítségével az adminisztrátor kezelheti a buszokat, megállókat, jegyeket, útvonalakat, menetrendeket, felhasználói kapcsolatokat, csatolmányokat, jogosultságokat, valamint a rendszerben beérkezett üzeneteket és a belső teendőlistát is. Minden egyes menüpont mögött egy adott kontrollerhez és akciómetódushoz tartozó hivatkozás található, amelyek az ASP.NET MVC keretrendszer segítségével biztosítják a navigációt az adminisztratív oldalak felé.
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=1\textwidth]{Szakdolgozat/Mellekletek/navsavlogin0.PNG}
-\caption{A navigációs sáv megjelenése bejelentkezés nélküli állapotban.}
-\label{fig:navsav}
-\end{figure}
+A menüelemek megjelenését a rendszer a User.IsInRole("Admin") feltétel alapján szabályozza, így a jogosultsággal nem rendelkező felhasználók számára ezek az elemek teljes mértékben rejtve maradnak. Ez nemcsak a biztonság szempontjából előnyös, hanem a felhasználói felület letisztultságát is biztosítja.
 
-A \ref{fig:navsav}. ábra a webalkalmazás fő navigációs sávját mutatja be abban az esetben, amikor a felhasználó még nem jelentkezett be. Ilyenkor a látogató kizárólag a nyilvános funkciókat érheti el, például a menetrendek, megállók vagy kapcsolatfelvételi űrlap megtekintését. A felső menüsor jobb szélén megjelennek a bejelentkezés „Login” és Regisztráció „Register” gombok, amelyek lehetőséget biztosítanak az azonosításra vagy új fiók létrehozására. Ebben az állapotban az adminisztrációs és egyéb jogosultsághoz kötött elemek nem láthatók, biztosítva ezzel a rendszer biztonságos és szerepkör-alapú elérhetőségét.
+A navigációs sáv jobb oldalán helyezkedik el az azonosítási rész, amely be nem jelentkezett állapotban a bejelentkezés („Login”) és a regisztráció („Register”) lehetőségét kínálja, míg bejelentkezett felhasználók esetén a felhasználó nevét és a kijelentkezési („Logout”) opciót jeleníti meg. Ez a megoldás lehetővé teszi, hogy az alkalmazás mindig az aktuális felhasználó státuszának megfelelő kezelőfelületet biztosítson.
+
+Összességében elmondható, hogy a navigációs sáv nem csupán az oldalstruktúra leképezésére szolgál, hanem intelligensen alkalmazkodik a felhasználói szerepkörökhöz, ezzel is támogatva a könnyű kezelhetőséget, az átláthatóságot és a biztonságos működést.
 
 
 \begin{figure}[H]
@@ -177,7 +172,6 @@ A \ref{fig:navsav}. ábra a webalkalmazás fő navigációs sávját mutatja be 
 
 A \ref{fig:navsavlogged}. ábrán a navigációs sáv bejelentkezett állapotban látható, adminisztrátori jogosultság mellett. Ebben az esetben a felhasználó számára elérhetővé válik egy további, legördülő menü, amely az adminisztrációs funkciókat csoportosítja. A menü tartalmazza többek között a megállók (Stops), buszok (Buses), útvonalak (Routes), menetrendek (Schedules), csatolmányok (Attachments), felhasználók (Contacts), jogosultságok (Roles), valamint teendők (ToDo List) kezelésére szolgáló linkeket. Ezek a nézetek csak az adminisztrátor szerepkörrel rendelkező felhasználók számára jelennek meg, és lehetőséget biztosítanak az alkalmazás teljes körű adatkezelésére és adminisztrálására. A menüsáv jobb oldalán továbbra is elérhető a kijelentkezési lehetőség, amely biztosítja a munkamenet megfelelő lezárását.
 
-
 \vspace{\baselineskip}
 \subsubsection{Lista oldalak}
 A listanézetek felépítése egységes, ahol az adott entitáshoz tartozó legfontosabb adatokat oszlopokban mutatjuk be. Minden ilyen nézet tartalmaz egy „Actions” nevű oszlopot is, amelyben három alapvető művelet található: a részletek megtekintése (Detail), az adat módosítása (Modify/Edit), valamint az elem törlése (Delete). Ezek a gombok minden egyes listaelem mellett megjelennek, és mindegyikhez az adott elem egyedi azonosítója (ID) van hozzárendelve. Ennek köszönhetően, amikor egy felhasználó rákattint valamelyik művelet gombra, a sornak vagy elemnek megfelelő oldalt nyitja meg, így biztosítva a pontos és gyors navigációt az funkciókat megvalósító oldalak között.
@@ -186,3 +180,104 @@ Azokon az oldalakon, ahol az adatbevitel nem automatikusan történik — mint p
 
 Minden oldal továbbá tartalmaz egy „Back” gombot, ami megkönnyíti a felhasználók számára a gördülékeny visszalépést az előző nézetekhez, ezzel is támogatva az intuitív és zökkenőmentes navigációt az alkalmazásban.
 
+\subsubsection{Térképes megjelenítés a Stop részletező nézetben}
+A megállók részletező nézete a felhasználói felület egyik kulcseleme, amely nemcsak szöveges információt nyújt a kiválasztott megállóról, hanem vizuálisan is segíti a tájékozódást egy interaktív térkép segítségével. A felület célja, hogy a felhasználó könnyen és gyorsan át tudja tekinteni egy adott megálló legfontosabb adatait, illetve annak pontos földrajzi elhelyezkedését.
+
+A nézet az adott megálló objektum adatait jeleníti meg, amely a rendszerben egy Stop típusú modellként van definiálva. A megjelenített mezők közé tartozik a megálló neve, valamint annak szélességi és hosszúsági koordinátái. Ezek az értékek olvasható, de nem szerkeszthető formában jelennek meg, hogy a felhasználó ne tudjon véletlenül módosítani rajtuk.
+
+A nézet különlegessége a térképes megjelenítés, amely a Leaflet nevű JavaScript-alapú térképkönyvtárra épül. Ez a könyvtár lehetővé teszi, hogy egy egyszerű, mégis interaktív térképet helyezzünk el az oldalon. A térkép automatikusan a kiválasztott megálló koordinátáira fókuszál, és egy jelölőt (marker) is elhelyez rajta, amely rámutat a pontos helyszínre. A jelölő fölé egy információs ablak is megnyílik, amelyben a megálló neve szerepel.
+
+A megálló adatlap nézetében egy JavaScript-alapú megoldás jeleníti meg a megálló földrajzi elhelyezkedését térképen. Ennek célja, hogy a felhasználó pontosan lássa, hol található az adott megálló. A megvalósítás alapja az, hogy az adatmodellből (`Stop`) származó földrajzi koordináták (szélesség és hosszúság) JavaScript változókba kerülnek:
+
+\begin{lstlisting}[language=JavaScript]
+var lat = @Html.Raw(Model.Latitude.ToString().Replace(',', '.'));
+var lng = @Html.Raw(Model.Longitude.ToString().Replace(',', '.'));
+\end{lstlisting}
+
+Ez a lépés biztosítja, hogy a .NET-ben használt tizedesvesszők megfelelően átalakuljanak tizedespontokká, amelyeket a JavaScript értelmezni tud. Ezt követően egy egyszerű ellenőrzés biztosítja, hogy a koordináták érvényes számok:
+
+\begin{lstlisting}[language=JavaScript]
+if (!isNaN(lat) && !isNaN(lng)) {
+\end{lstlisting}
+
+Ha az értékek helyesek, létrejön a térképobjektum. A térkép a HTML oldalon definiált \texttt{<div>} elemre (`id="stopMap"`) kerül:
+
+\begin{lstlisting}[language=JavaScript]
+var map = L.map('stopMap').setView([lat, lng], 15);
+\end{lstlisting}
+
+Ezután hozzáadjuk a térkép vizuális rétegét, az úgynevezett csemperéteget az OpenStreetMap szolgáltatásból:
+
+\begin{lstlisting}[language=JavaScript]
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18
+}).addTo(map);
+\end{lstlisting}
+
+A megálló pontos helyét egy markerrel jelöljük, amelyhez egy információs buborék is társul, amely automatikusan megnyílik, amint betöltődik a térkép:
+
+\begin{lstlisting}[language=JavaScript]
+L.marker([lat, lng])
+    .addTo(map)
+    .bindPopup("<strong>@Model.StopName</strong>")
+    .openPopup();
+\end{lstlisting}
+
+A megálló adatlapján megjelenő térképes komponens kulcsfontosságú felhasználói élményt nyújt, mivel lehetővé teszi a megálló földrajzi helyének közvetlen, vizuális azonosítását. A rendszer nem csupán a megálló nevét és koordinátáit jeleníti meg szövegesen, hanem automatikusan betölt egy interaktív térképet is, amely a megálló pontos pozíciójára fókuszál. Ezt a térképet automatikusan egy előre definiált nagyítási szinten nyitja meg a rendszer, így a felhasználó azonnal az adott megálló szűk környezetét látja – például az utcát, csomópontot vagy városrészt, ahol az elhelyezkedik.
+
+Ennek a megközelítésnek az egyik legnagyobb előnye, hogy a felhasználónak nem szükséges a megálló nevét külső alkalmazásban, például térképszolgáltatóban újra beírnia vagy külön keresnie. A rendszer tehát nem hagyatkozik arra, hogy a név alapján a felhasználó majd önállóan beazonosítja a megállót, hanem maga szolgáltatja a térképes, hajszálpontos helyadatot. Ez a megoldás jelentősen csökkenti az eltévedés vagy félreértés kockázatát, különösen akkor, ha több hasonló nevű megálló is létezik egy városon belül.
+
+\subsubsection{Útvonal részletező nézet – több megálló vizuális megjelenítése térképen}
+
+Az útvonal nézet működésében több ponton is párhuzamba állítható a megálló részletező felülettel: itt is térképes megjelenítés segíti a felhasználót, viszont a fókusz már nem egyetlen helyszín bemutatásán van, hanem egy egész megállósorozat áttekintésén. A nézet célja, hogy az útvonalhoz tartozó állomásokat sorrendben és valós helyükön mutassa be, azokat a térképen vizuálisan összekötve. Ezáltal a felhasználó nemcsak név szerint keresheti ki az egyes megállókat, hanem egy teljes képet kap arról, hogyan épül fel az adott útvonal.
+
+A rendszer minden megállóhoz egy-egy \texttt{marker} objektumot rendel, amelyet a térképen elhelyez. Ezeket JavaScript segítségével dolgozza fel, a koordináták alapján. Minden pont bekerül egy \texttt{waypoints} nevű tömbbe is, amelyet később a térképútvonal-rajzolás során használunk.
+
+\begin{lstlisting}
+var marker = L.marker([lat, lng]).addTo(map).bindPopup(stopName);
+waypoints.push(L.latLng(lat, lng));
+\end{lstlisting}
+
+Miután az összes megálló feldolgozásra került, az útvonal kirajzolása a Leaflet Routing Machine nevű bővítmény segítségével történik. Ez a könyvtár a megadott pontokat vonalakkal köti össze, sorrendben:
+
+\begin{lstlisting}
+L.Routing.control({
+    waypoints: waypoints,
+    lineOptions: {
+        styles: [
+            { color: '#FF1493', weight: 6, opacity: 0.95 },
+            { color: '#FFFFFF', weight: 2, opacity: 1 }
+        ]
+    },
+    createMarker: function() { return null; },
+    routeWhileDragging: false
+}).addTo(map);
+\end{lstlisting}
+
+A \texttt{lineOptions} szekció a vonal stílusáért felel, így az jól elkülönül más térképi elemektől. A \texttt{createMarker: function() \{ return null; \}} sor azért került be, hogy az útvonal-vezérlő ne helyezzen el újabb alapértelmezett jelölőket, mivel azt már korábban megtettük kézzel.
+
+A térkép végül automatikusan a teljes útvonalra igazítja a nézetet, az összes megállót figyelembe véve:
+
+\begin{lstlisting}
+map.fitBounds(L.latLngBounds(waypoints));
+\end{lstlisting}
+
+Ez a térképes funkció hasonló célt szolgál, mint a megálló nézetben látott statikus marker, ugyanakkor ennél összetettebb élményt nyújt: nem egyetlen pontot, hanem egy útvonal teljes struktúráját jeleníti meg. A felhasználónak így nem kell találgatnia, hogy merre halad az adott járat – a rendszer megmutatja, pontról pontra, vizuálisan is.
+
+
+\subsubsection{Ticket detail page – a projekt kulcspillanata}
+
+A jegyrészletező oldal a projekt szempontjából kiemelt jelentőséggel bír, hiszen ez az a funkció, amely az egész alkalmazás ötletét elindította. A kezdeti elképzelés abból született, hogy a felhasználók számára egy olyan felületet biztosítsunk, ahol a megvásárolt jegyük minden lényeges információja egyetlen, jól átlátható nézetben elérhető.
+
+Az oldal célja, hogy minden olyan információt tartalmazzon, ami az utazás szempontjából fontos lehet. Megjelenik rajta a járat neve, az ahhoz tartozó busz rendszáma, a lefoglalt ülőhely száma, valamint az indulási és érkezési időpontok, illetve azok helyszínei. Ezen adatok strukturált formában kerülnek megjelenítésre, így a felhasználó egy pillantással át tudja tekinteni a foglalás részleteit.
+
+Ami azonban igazán megkülönbözteti ezt a felületet más rendszerektől, az a térképes integráció. A nézet közvetlenül tartalmazza az utazás útvonalát is, amely egy térképen jelenik meg, vizuálisan kirajzolva a megállók közötti kapcsolatokat. Ennek óriási előnye, hogy a felhasználónak nem kell külön oldalakon keresgélnie, vagy új ablakot megnyitnia annak érdekében, hogy földrajzi képet kapjon az útvonalról – az interaktív térkép közvetlenül a jegyadatok mellett helyezkedik el, így a kétféle információ egy helyen, egymást kiegészítve jelenik meg.
+
+Ez a megközelítés nemcsak kényelmi szempontból előnyös, hanem a felhasználói élmény szempontjából is kulcsfontosságú. A rendszer úgy lett kialakítva, hogy a legfontosabb információkat – akár időbeli, akár térbeli adatokról legyen szó – egyetlen oldalon tegye elérhetővé, ezzel is minimalizálva a felesleges navigációt és az információk keresésére fordított időt. Mindez nem csupán praktikus, hanem szemléletformáló is: a projekt középpontjába magát az utazó embert helyezi, és a lehető legkényelmesebb módon szolgáltatja számára a szükséges adatokat.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Szakdolgozat/Mellekletek/ticketdetail.PNG}
+    \caption{Példa: egy Kolozsvár–Torda útvonalra vásárolt jegy részletező nézete. Az oldalon jól látható a járat neve, a busz rendszáma, az ülőhely száma, az indulási és érkezési időpontok és helyszínek, valamint a teljes útvonal térképes megjelenítése.}
+    \label{fig:ticket-detail-kolozsvar-torda}
+\end{figure}
