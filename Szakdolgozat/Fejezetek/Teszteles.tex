@@ -1,0 +1,17 @@
+\section{Az alkalmazás tesztelése}
+
+A fejlesztési folyamat szerves része a különféle tesztelési technikák alkalmazása, hiszen ezek segítségével biztosítható, hogy az elkészült rendszer megbízhatóan működjön a valós felhasználás során is. A tesztelés nem csupán a hibák kiszűrésére szolgál, hanem hozzájárul a kód minőségének növeléséhez és az esetleges regressziók elkerüléséhez is. Az alábbi alfejezetekben bemutatom a különböző tesztelési megközelítéseket, majd konkrét példán keresztül ismertetem, hogyan történt a projektben az automatizált tesztelés, végül pedig a felhasználói tesztelés tapasztalatait is összefoglalom.
+
+\subsection{Tesztelési módszerek áttekintése}
+
+A tesztelési technikák közül a leggyakoribbakat a black-box, white-box és silver-box (gray-box) megközelítések között szokás osztályozni. A black-box tesztelés során a vizsgált modul belső működésétől eltekintve, kizárólag a bemeneti és kimeneti viselkedés alapján történik a validáció. Ez különösen hasznos lehet végfelhasználói szemszögből, hiszen a rendszer viselkedését a „dobozon kívülről” ellenőrzi.
+
+A white-box tesztelés ezzel szemben a belső logikát és programkódot is figyelembe veszi, így hatékonyabb lehet az algoritmusok és logikai elágazások teljes körű lefedésére. A silver-box (vagy gray-box) módszer pedig a két szemlélet kombinációja: a tesztelő rendelkezik bizonyos belső ismeretekkel a rendszer működéséről, de még mindig kívülállóként végzi a vizsgálatot.
+
+Az általam készített ASP.NET MVC webalkalmazásban a tesztelés célterületeként elsősorban a kontroller osztályokat választottam, mivel ezek felelősek az üzleti logika meghatározó részéért és az adatbázis-műveletek vezérléséért. A kontroller szintű tesztek lehetővé teszik annak ellenőrzését, hogy a megfelelő válaszok és státuszkódok keletkeznek-e különféle bemeneti szituációk esetén.
+
+\subsection{xUnit alapú automatizált tesztelés}
+
+Az ASP.NET alkalmazásokhoz jól illeszthető xUnit keretrendszert használtam az egységtesztek megírására, amely egy modern, könnyen kezelhető és széles körben támogatott tesztelési eszköz. A fejlesztőkörnyezeten belül (Visual Studio) egyszerűen integrálható, és támogatja a tesztek paraméterezését, aszinkron függvények kezelését, valamint a mock objektumokkal való tesztelést is.
+
+Az egyik tesztelt kontroller a \texttt{StopController} volt, amely többek között az adatok lekérdezéséért, új rekordok létrehozásáért és módosításáért felel. A tesztelés során különös figyelmet fordítottam arra, hogy a függőségeket – például az adatbázis kontextust – ne közvetlenül használjam, hanem mockolt példányokkal szimuláljam. Ehhez a Moq nevű könyvtárat alkalmaztam, amely lehetővé tette a `DbContext` és `DbSet` műveletek viselkedésének előírását.
