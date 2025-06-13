@@ -6,7 +6,7 @@ Ebben a fejezetben részletesen bemutatásra kerül a rendszer megvalósítása,
 
 A fejlesztés Microsoft Visual Studio 2022 környezetben valósult meg, a .NET 8.0 keretrendszerre építve. A projekt típusa \textit{ASP.NET Core MVC Web Application}, amely a model-view-controller (MVC) architektúra elveit követi, lehetővé téve az üzleti logika, a megjelenítés és az adatkezelés hatékony rendszerezését.
 
-Az adatkezeléshez az Entity Framework Core komponenst használtam, a Code First megközelítés segítségével. Az Entity Framework Core egy modern ORM technológia a .NET alkalmazások számára, amely lehetővé teszi az adatbázis-műveletek magas szintű megvalósítását. Ennek köszönhetően a modellosztályok a programkódban lettek definiálva, majd migrációk létrehozásával az adatbázis-struktúra automatikusan generálódott. Ez a módszer rugalmasságot biztosít a fejlesztés során, és egyszerűsíti az adatbázis módosítását.
+Az adatkezeléshez az Entity Framework Core komponenst használtam, a Code First megközelítés segítségével. Az Entity Framework Core egy modern ORM( Object-Relational Mapping) technológia a .NET alkalmazások számára, amely lehetővé teszi az adatbázis-műveletek magas szintű megvalósítását. Ennek köszönhetően a modellosztályok a programkódban lettek definiálva, majd migrációk létrehozásával az adatbázis-struktúra automatikusan generálódott. Ez a módszer rugalmasságot biztosít a fejlesztés során, és egyszerűsíti az adatbázis módosítását.
 
 Az alkalmazás egy SQL Server Express alapú relációs adatbázist használ, amely helyi környezetben gyors, megbízható és könnyen konfigurálható megoldást biztosít a fejlesztéshez. Az adatbázis kezelése teljesen az Entity Framework migrációs rendszerére épül.
 
@@ -126,17 +126,136 @@ A különbség mindössze az üzenet tartalmában és a címzettben rejlik: míg
 A fejlesztés során az alkalmazás alapját az úgynevezett CRUD műveletek (Create, Read, Update, Delete) képezik, amelyek minden egyes entitás — legyen szó felhasználóról, jegyről, buszjáratról vagy akár kapcsolatfelvételről — kezelésének alapjai. Ezeket a funkciókat minden vezérlő (controller) esetében egységes logika mentén valósítottam meg, hogy átlátható és könnyen karbantartható struktúrát alakítsak ki.
 
 \paragraph{Létrehozás (Create):}
-Ez a művelet lehetővé teszi új adatok felvitelét az adatbázisba. Ez a funkció egy űrlap beküldésével történik, amelyet a frontendről kapott modell alapján dolgoz fel a controller. A POST típusú HTTP kérés során a kapott adatok validálás után bekerülnek az adatbázisba a kontextus objektum Add() vagy AddAsync() metódusával. A legtöbb vezérlőnél — például TicketController, BusController, ContactController — hasonló módon történik ez a feldolgozás.
+Az adatok mentésének első lépése a \textit{Create} művelet, amely lehetővé teszi, hogy a felhasználó új megállót vigyen be a rendszerbe. A folyamat általában két metódusból áll: egy GET típusú lekérdezésből, amely megjeleníti az űrlapot, és egy POST típusú feldolgozásból, amely menti az adatokat.
+
+A GET metódus célja az, hogy megjelenítse a felhasználó számára az üres űrlapot, amelyen keresztül új megálló rögzíthető. Különösen fontos ez abban az esetekben, amikor az űrlapon legördülő listákat alkalmazunk, például más entitásokkal való kapcsolat során. Ilyenkor célszerű nem az idegen kulcsot, hanem a kapcsolódó elem nevét, például az útvonal megnevezését megjeleníteni a felhasználó számára. Ehhez a GET metódus során előre le kell kérdezni a szükséges adatokat továbbítani a nézet felé. Továbbá, a GET metódus lehetőséget biztosít arra is, hogy kiszűrjük azokat az entitásokat, amelyeket már hozzárendeltünk egy másik objektumhoz. Ez különösen fontos például olyan esetekben, amikor egy buszhoz csak egyetlen sofőr rendelhető hozzá. Ebben az esetben az űrlapon csak azok a sofőrök jelennek meg a legördülő listában, akik még nincsenek hozzárendelve egyetlen buszhoz sem. Ezzel elkerülhető a többszörös hozzárendelés, és biztosítható az adatkonzisztencia.
+
+\begin{lstlisting}
+[HttpGet]
+public IActionResult Create()
+{
+return View();
+}
+\end{lstlisting}
+
+A POST metódus pedig a beküldött adatok feldolgozását végzi. A paraméterként érkező modell osztályt validálás után az adatbázisba menti. A rendszer itt egyedi azonosítót is hozzárendel a rekordhoz.
+
+\begin{lstlisting}
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task Create(Stop stop)
+{
+stop.StopId = Guid.NewGuid().ToString();
+_context.Stops.Add(stop);
+await _context.SaveChangesAsync();
+return RedirectToAction(nameof(Index));
+}
+\end{lstlisting}
+
+A \texttt{Guid.NewGuid()} metódus gondoskodik az egyediség biztosításáról. A \texttt{Stops} tábla ezután egy új rekorddal bővül, amelyet a rendszer automatikusan ment az adatbázisba.
+
+A legtöbb vezérlőnél — például \texttt{TicketController}, \texttt{BusController}, \texttt{ContactController} — hasonló módon történik az adatrögzítés folyamata: a GET metódus megjeleníti az űrlapot, míg a POST metódus a kitöltött adatokat dolgozza fel és menti.
+
 
 \paragraph{Lekérdezés (Read):}
-A meglévő adatok megjelenítése történik ezzel a művelettel. Itt főként GET típusú kérésekkel dolgozunk, amelyek során az adatbázisból ToListAsync(), FindAsync(), vagy FirstOrDefaultAsync() metódusokkal kérdezzük le az aktuális adatokat. Ezek az információk például a felhasználó által megvásárolt jegyek, vagy a rendszerben tárolt üzenetek részleteinek megtekintését szolgálják.
+Az adatok megjelenítéséért felelős \textit{Read} művelet az alkalmazásban túlnyomórészt GET típusú HTTP kérések formájában valósul meg. A lekérdezések során az adatokat az Entity Framework metódusain keresztül kérdezzük le, mint például a \texttt{ToListAsync()}, \texttt{FindAsync()}, vagy a \texttt{FirstOrDefaultAsync()}.
+
+Különösen fontos szerepet tölt be ez a művelet az adatok részletes megjelenítésében, például amikor a felhasználó meg szeretné tekinteni egy adott megálló adatait.
+
+\begin{lstlisting}
+public async Task Detail(string id)
+{
+if (string.IsNullOrEmpty(id)) return NotFound();
+
+var stop = await _context.Stops
+    .FirstOrDefaultAsync(s => s.StopId == id);
+
+if (stop == null) return NotFound();
+
+return View(stop);
+
+}
+\end{lstlisting}
+
+Ez a metódus egy adott megálló egyedi azonosítója alapján lekérdezi az entitást az adatbázisból. A \texttt{FirstOrDefaultAsync} biztosítja, hogy vagy egy konkrét elem, vagy nulla (null) érték érkezzen vissza, ha az adott azonosítóval nem létezik megálló. A részletes nézet ezek után megjeleníti az entitás minden fontos attribútumát, például nevét, földrajzi koordinátáit és kapcsolódó elemeket.
+
 
 \paragraph{Módosítás (Update):}
-Az adatok frissítésére a POST metódus szolgál, általában két lépésben. Először lekérdezzük a módosítani kívánt elemet (például egy meglévő busz útvonalát vagy egy kapcsolatfelvétel állapotát), majd az új adatokkal felülírjuk az eredetit, és végül a context.Update(entity) metódus segítségével mentjük el a módosított rekordot.
+Az adatok frissítése általában kétlépcsős folyamatként valósul meg. Az első lépés egy GET típusú HTTP kérés, amelynek során a rendszer lekéri a módosítandó entitást, és azt egy űrlapon megjeleníti a felhasználónak. Ez lehetőséget ad az értékek szerkesztésére.
+
+A második lépésben, POST metódus segítségével történik az új értékek mentése. A felhasználó által módosított adatokat a szerver fogadja, majd validálás után frissíti azokat az adatbázisban.
+
+\begin{lstlisting}
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task Modify(string id, [Bind("StopId,StopName,Latitude,Longitude")] Stop stop)
+{
+if (id != stop.StopId) return NotFound();
+if (ModelState.IsValid)
+{ try
+    {
+        _context.Update(stop);
+        await _context.SaveChangesAsync();
+    }
+    catch (DbUpdateConcurrencyException)
+    {
+        if (!_context.Stops.Any(s => s.StopId == stop.StopId)) return NotFound();
+        throw;
+    }
+    return RedirectToAction(nameof(Index));
+}
+return View(stop);
+}
+\end{lstlisting}
+
+A metódus elsőként ellenőrzi, hogy a paraméterként kapott id megegyezik-e a beküldött modell StopId értékével. Ez szükséges annak érdekében, hogy kizárjuk a tévesen átadott adatokból fakadó hibákat. Ha az azonosítók nem egyeznek, a rendszer azonnal NotFound() választ ad vissza, megszakítva a műveletet.
+
+A ModelState.IsValid ellenőrzés során a rendszer megvizsgálja, hogy a felhasználói űrlapadatok megfelelnek-e az adott modellre vonatkozó adatintegritási és validációs szabályoknak. Csak érvényes állapot esetén hajtódik végre a frissítés.
+
+A módosítás műveletét a context.Update() metódus végzi, amely értesíti az Entity Frameworköt arról, hogy az adott entitás állapota megváltozott. A változások tényleges mentése az adatbázisba az await \_context.SaveChangesAsync() hívással történik, amely aszinkron módon írja vissza az adatokat.
+
+A try-catch blokk biztosítja a konkurens módosítások (concurrency) kezelését: ha például ugyanazt az entitást egy másik felhasználó időközben már frissítette vagy törölte, akkor DbUpdateConcurrencyException kivétel keletkezik. Ekkor a rendszer újraellenőrzi, hogy az adott entitás létezik-e még, és ha nem, NotFound() válasz születik.
 
 \paragraph{Törlés (Delete):}
-A törléshez szükség van az adott entitás egyedi azonosítójára. Ezt általában GET vagy POST metódussal kapjuk meg a kliensoldalról. A lekérdezett objektumot ezután eltávolítjuk az adatbázisból a Remove() vagy RemoveRange() metódus segítségével. A TicketController például ezt használja jegyek törléséhez, míg a ContactController a beérkezett üzenetek kezelésénél.
+A törlés folyamata szintén két lépésből épül fel: egy GET típusú előkészítő műveletből, amely megerősítést kér a felhasználótól, és egy POST metódusból, amely végrehajtja az adat tényleges eltávolítását az adatbázisból.
 
+A GET metódus célja, hogy az azonosító alapján lekérje a törölni kívánt entitást, és annak adatait megjelenítse egy megerősítő nézetben:
+
+\begin{lstlisting}
+public async Task Delete(string id)
+{
+if (string.IsNullOrEmpty(id)) return NotFound();
+
+var stop = await _context.Stops
+    .FirstOrDefaultAsync(s => s.StopId == id);
+
+if (stop == null) return NotFound();
+
+return View(stop);
+
+}
+\end{lstlisting}
+
+A POST metódus, amelyet \texttt{DeleteConfirmed} néven definiáltunk, végzi el ténylegesen a rekord eltávolítását. Az entitást az egyedi azonosító segítségével kinyerjük, majd az Entity Framework \texttt{Remove()} metódusával töröljük.
+
+\begin{lstlisting}
+[HttpPost, ActionName("Delete")]
+[ValidateAntiForgeryToken]
+public async Task DeleteConfirmed(string id)
+{
+var stop = await _context.Stops.FindAsync(id);
+if (stop != null)
+{
+_context.Stops.Remove(stop);
+await _context.SaveChangesAsync();
+}
+
+return RedirectToAction(nameof(Index));
+
+}
+\end{lstlisting}
+
+Ez a megoldás lehetővé teszi a biztonságos és konzisztens törlést, amely során a rendszer ellenőrzi az entitás létezését, majd a mentést követően visszairányítja a felhasználót az entitások listájához. Fontos azonban hangsúlyozni, hogy a törlés művelet implementálása során különös figyelmet kell tulajdonítani, mivel az adatok között gyakran léteznek kapcsolatok. Például ha egy megálló már hozzárendelt útvonalakban vagy menetrendekben szerepel, annak közvetlen törlése megsértheti az adatbázis integritását. Ezért célszerű az ilyen műveletek előtt ellenőrizni, hogy az adott entitás nem áll-e kapcsolatban más entitásokkal. Ha igen, akkor az adminisztrátor feladata, hogy előbb ezeket a kapcsolódó rekordokat törölje, vagy a kapcsolatok megszüntetése után hajtsa végre a törlést. A felhasználói felületen üzenetet kell megjeleníthető, amely egyértelműen jelzi, hogy az adott elem csak akkor törölhető, ha már nem szerepel más adategységekben.
 
 \subsection{Nézetek (View) felépítése}
 
@@ -281,3 +400,5 @@ Ez a megközelítés nemcsak kényelmi szempontból előnyös, hanem a felhaszn�
     \caption{Példa: egy Kolozsvár–Torda útvonalra vásárolt jegy részletező nézete. Az oldalon jól látható a járat neve, a busz rendszáma, az ülőhely száma, az indulási és érkezési időpontok és helyszínek, valamint a teljes útvonal térképes megjelenítése.}
     \label{fig:ticket-detail-kolozsvar-torda}
 \end{figure}
+
+
