@@ -2,16 +2,173 @@
 
 A fejlesztési folyamat szerves része a különféle tesztelési technikák alkalmazása, hiszen ezek segítségével biztosítható, hogy az elkészült rendszer megbízhatóan működjön a valós felhasználás során is. A tesztelés nem csupán a hibák kiszűrésére szolgál, hanem hozzájárul a kód minőségének növeléséhez és az esetleges regressziók elkerüléséhez is. Az alábbi alfejezetekben bemutatom a különböző tesztelési megközelítéseket, majd konkrét példán keresztül ismertetem, hogyan történt a projektben az automatizált tesztelés, végül pedig a felhasználói tesztelés tapasztalatait is összefoglalom.
 
-\subsection{Tesztelési módszerek áttekintése}
+\subsection{Tesztelési módszerek és gyakorlatok a fejlesztés során}
 
-A tesztelési technikák közül a leggyakoribbakat a black-box, white-box és silver-box (gray-box) megközelítések között szokás osztályozni. A black-box tesztelés során a vizsgált modul belső működésétől eltekintve, kizárólag a bemeneti és kimeneti viselkedés alapján történik a validáció. Ez különösen hasznos lehet végfelhasználói szemszögből, hiszen a rendszer viselkedését a „dobozon kívülről” ellenőrzi.
+A webalkalmazás megbízható működésének biztosítása érdekében a fejlesztés során különös figyelmet fordítottam a rendszer több szintű és különböző szemléletű tesztelésére. A szoftvertesztelési technikák alapvetően három fő megközelítés köré csoportosíthatók: black-box, white-box és gray-box (silver-box) tesztelés.
 
-A white-box tesztelés ezzel szemben a belső logikát és programkódot is figyelembe veszi, így hatékonyabb lehet az algoritmusok és logikai elágazások teljes körű lefedésére. A silver-box (vagy gray-box) módszer pedig a két szemlélet kombinációja: a tesztelő rendelkezik bizonyos belső ismeretekkel a rendszer működéséről, de még mindig kívülállóként végzi a vizsgálatot.
+A black-box tesztelés lényege, hogy a rendszer működését kizárólag annak bemenetei és kimenetei alapján vizsgáljuk, anélkül hogy a belső logikát ismernénk. Ez a módszer jól alkalmazható felhasználói szemszögből, mivel az alkalmazás viselkedése alapján értékeli az elvárt működést. Ezzel szemben a white-box tesztelés a fejlesztői nézőpontot képviseli: itt a belső algoritmusok, logikai elágazások és adatszerkezetek ismerete alapján történik az ellenőrzés. A gray-box tesztelés pedig e két megközelítés kombinációját képviseli, részleges rálátással a rendszer szerkezetére, ugyanakkor külső szemlélőként történő értékeléssel.
 
-Az általam készített ASP.NET MVC webalkalmazásban a tesztelés célterületeként elsősorban a kontroller osztályokat választottam, mivel ezek felelősek az üzleti logika meghatározó részéért és az adatbázis-műveletek vezérléséért. A kontroller szintű tesztek lehetővé teszik annak ellenőrzését, hogy a megfelelő válaszok és státuszkódok keletkeznek-e különféle bemeneti szituációk esetén.
+A projekt megvalósítása során mindhárom típusú tesztelést alkalmaztam. A fejlesztési ciklus korai és középső szakaszában manuális, white-box alapú ellenőrzéseket végeztem. Ezek során az újonnan implementált funkciók működését közvetlenül, a kódszintű logikát is figyelembe véve ellenőriztem. Ennek keretében minden egyes funkció kipróbálásra került különböző bemeneti adatokkal és szélssőséges esetekkel, ezzel segítve a korai hibafelismerést.
+
+Ezt követően az alkalmazás kritikus részei – különösen a kontroller osztályok – automatizált egységtesztelésen estek át xUnit keretrendszer segítségével. Ezek a tesztek lehetővé tették, hogy programozott módon ellenőrizzem például azt, hogy a kontroller visszaad-e egy helyes nézetet érvényes vagy érvénytelen azonosító esetén, illetve hogy megfelelő hibaüzenetek keletkeznek-e bizonyos feltételek esetén. Az egységtesztek előnye, hogy gyorsan futtathatók, jól integrálhatók a fejlesztési folyamatba, és az alkalmazás belső működésére koncentrálnak.
+
+A harmadik, és a végső szakaszban alkalmazott tesztelési forma a felhasználói szintű tesztelés volt, amely során valós felhasználók próbálták ki az alkalmazást különböző eszközökön és környezetekben. Ez a fajta black-box megközelítés lehetőséget adott arra, hogy az alkalmazás működését külső szemmel, előzetes technikai tudás nélkül vizsgálják meg. A visszajelzések alapján finomítottam a kezelőfelületet, kijavítottam a használat során felmerülő hibákat, és megerősítést nyert, hogy az alkalmazás az elvárt funkcionalitással rendelkezik.
+
+Összességében a háromféle módszer alkalmazása – fejlesztői manuális tesztelés, automatizált egységtesztek és felhasználói validáció – olyan átfogó tesztelési keretrendszert eredményezett, amely biztosította a rendszer megbízhatóságát, funkcionalitását és használhatóságát egyaránt. Ez a megközelítés hozzájárult ahhoz, hogy az elkészült webalkalmazás éles környezetben is stabilan és hiba nélkül működjön.
 
 \subsection{xUnit alapú automatizált tesztelés}
 
-Az ASP.NET alkalmazásokhoz jól illeszthető xUnit keretrendszert használtam az egységtesztek megírására, amely egy modern, könnyen kezelhető és széles körben támogatott tesztelési eszköz. A fejlesztőkörnyezeten belül (Visual Studio) egyszerűen integrálható, és támogatja a tesztek paraméterezését, aszinkron függvények kezelését, valamint a mock objektumokkal való tesztelést is.
+Az ASP.NET alkalmazásokhoz jól illeszthető xUnit keretrendszert használtam az egységtesztek megírására, amely egy modern, könnyen kezelhető és széles körben támogatott tesztelési eszköz. A fejlesztőkörnyezeten belül egyszerűen integrálható, és támogatja a tesztek paraméterezését, aszinkron függvények kezelését, valamint a mock objektumokkal való tesztelést is.
 
-Az egyik tesztelt kontroller a \texttt{StopController} volt, amely többek között az adatok lekérdezéséért, új rekordok létrehozásáért és módosításáért felel. A tesztelés során különös figyelmet fordítottam arra, hogy a függőségeket – például az adatbázis kontextust – ne közvetlenül használjam, hanem mockolt példányokkal szimuláljam. Ehhez a Moq nevű könyvtárat alkalmaztam, amely lehetővé tette a `DbContext` és `DbSet` műveletek viselkedésének előírását.
+A projekt során külön egységteszt-projektet hoztam létre, ahol minden kontroller osztály külön fájlban szerepel, és a megfelelő metódusok lefedésére külön-külön teszteseteket írtam. A StopController példáján keresztül bemutatom, hogyan valósult meg egy ilyen tesztelés.
+
+Az xUnit keretrendszer lehetővé teszi, hogy minden tesztfüggvényt [Fact] attribútummal lássunk el, amely jelzi, hogy az adott metódus egy önálló tesztesetként futtatható. Az egyes metódusok végén az Assert osztály segítségével ellenőrizzük az elvárt eredményeket. A sikeres működés kritériuma, hogy az alkalmazás a megfelelő típusú válasszal térjen vissza (például ViewResult vagy RedirectToActionResult), és hogy az adatok helyesen kerüljenek a modellbe.
+
+A teszteléshez In-Memory adatbázist használtam, amely lehetővé teszi, hogy az Entity Framework teljes értékűen működjön anélkül, hogy tényleges fizikai adatbázist kellene létrehozni. Ez a módszer gyors, megbízható, és kiválóan alkalmas az izolált, reprodukálható tesztelési környezet biztosítására.
+
+A következő példában a CreateControllerWithData metódus segítségével egy StopsController példányt hozunk létre előre feltöltött adatokkal. Az InMemoryDatabase minden tesztnél új, egyedi adatbázist hoz létre, így az adatok nem keverednek.
+
+\begin{lstlisting}
+private StopsController CreateControllerWithData(List<Stop> seedData)
+{
+var options = new DbContextOptionsBuilder<AppDbContext>()
+.UseInMemoryDatabase(Guid.NewGuid().ToString())
+.Options;
+
+```
+var context = new AppDbContext(options);
+context.Stops.AddRange(seedData);
+context.SaveChanges();
+
+var config = new Mock<IConfiguration>();
+var logger = new Mock<ILogger<AdminMessage>>();
+
+return new StopsController(context, config.Object, logger.Object);
+```
+
+}
+\end{lstlisting}
+
+
+A következő teszteset célja, hogy ellenőrizze a StopsController osztály Index metódusának helyes működését. A teszt során először egy StopsController példány kerül létrehozásra egy segédfüggvényen keresztül, amelyet két előre definiált Stop objektummal inicializálunk. Ez az adatsor egy memóriában létrehozott adatbázisba kerül, amely lehetővé teszi a teszt izolált és reprodukálható végrehajtását, valós adatbázis használata nélkül.
+
+A controller.Index() metódus meghívása után a visszatérési értéket a ViewResult típus ellenőrzésével validáljuk, mivel az Index metódusnak nézetet kell visszaadnia a megállók listájával. A modell típusának vizsgálata során ellenőrizzük, hogy az valóban IEnumerable<Stop> típusú, amely biztosítja, hogy a nézet megkapja a megfelelő adatszerkezetet. Végül a model.Count() metódussal azt is ellenőrizzük, hogy a nézet pontosan két Stop objektumot kapott, ami megegyezik a teszt során inicializált lista elemszámával.
+
+Ez a teszt tehát teljes körűen lefedi az Index metódus működését: vizsgálja a visszatérési típus helyességét, az átadott modell struktúráját, valamint az adatok pontosságát is. A teszt sikeres lefutása garantálja, hogy az Index akció megbízhatóan működik, és hibamentesen biztosítja az összes megálló listázását a felhasználói felület számára.
+
+\begin{lstlisting}
+\[Fact]
+public void Index_ReturnsViewResult_WithAllStops()
+{
+var controller = CreateControllerWithData(new List<Stop>
+{
+new Stop { StopId = "1", StopName = "Stop A" },
+new Stop { StopId = "2", StopName = "Stop B" }
+});
+
+var result = controller.Index();
+
+var viewResult = Assert.IsType<ViewResult>(result);
+var model = Assert.IsAssignableFrom<IEnumerable<Stop>>(viewResult.Model);
+Assert.Equal(2, model.Count());
+}
+\end{lstlisting}
+
+A UserDetail\_ReturnsStop\_WhenValidId nevű teszteset célja annak ellenőrzése, hogy a StopsController osztály UserDetail metódusa helyesen működik-e érvényes azonosító megadása esetén. A teszt során először létrehozunk egy kontrollert, amelyet egy előre definiált, egyetlen Stop entitást tartalmazó memóriabeli adatbázissal inicializálunk. Ez biztosítja, hogy a teszt környezet független legyen az éles adatbázistól, és pontosan kontrollálható legyen a bemeneti adat.
+
+A controller.UserDetail("1") hívás egy aszinkron metódus. A visszaadott eredménynek ViewResult típusúnak kell lennie, mivel a UserDetail metódus egy nézetet ad vissza, amely tartalmazza a lekérdezett megálló adatait. Ezt az Assert.IsType<ViewResult> segítségével ellenőrizzük.
+
+A lekérdezés eredményeként visszakapott modell típusát is validáljuk, megvizsgáljuk, hogy az valóban Stop típusú objektum-e, majd az Assert.Equal segítségével összevetjük a lekérdezett megálló nevét az eredetileg definiált "Stop A" értékkel. Ez biztosítja, hogy az adatok nemcsak a megfelelő típusban, hanem a várt tartalommal is kerülnek visszaadásra a nézet számára.
+
+\begin{lstlisting}
+\[Fact]
+public async Task UserDetail_ReturnsStop_WhenValidId()
+{
+var controller = CreateControllerWithData(new List<Stop>
+{
+new Stop { StopId = "1", StopName = "Stop A" }
+});
+
+var result = await controller.UserDetail("1");
+
+var viewResult = Assert.IsType<ViewResult>(result);
+var stop = Assert.IsType<Stop>(viewResult.Model);
+Assert.Equal("Stop A", stop.StopName);
+}
+\end{lstlisting}
+
+A Create\_AddsStop\_AndRedirects nevű függvény célja annak igazolása, hogy a StopsController Create metódusa helyesen hoz létre új adatbázisrekordot, valamint hogy az adatok mentése után a felhasználót a megfelelő oldalra irányítja vissza.
+
+A teszt során először egy memóriában futó adatbázist hozunk létre az Entity Framework beépített InMemoryDatabase szolgáltatásával.  Az AppDbContext példányosítása után létrehozzuk a StopsController egy példányát, amelyhez mockolt IConfiguration és ILogger objektumokat rendelünk, így minimalizálva a külső függőségeket.
+
+A teszteset fő része az új Stop objektum létrehozása, amelyhez konkrét értékeket adunk meg, például név, szélességi és hosszúsági koordináták. Ezt követően meghívjuk a Create metódust, és await kulcsszóval aszinkron módon megvárjuk a végrehajtását.
+
+A válaszként kapott eredményt RedirectToActionResult típusra ellenőrizzük, ami azt jelzi, hogy az új rekord sikeres mentését követően az alkalmazás átirányítja a felhasználót az Index nézetre. A context.Stops kollekció lekérdezésével validáljuk, hogy pontosan egy rekord került be az adatbázisba, és az új elem neve valóban megegyezik a megadott „New Stop” értékkel.
+
+Ez a teszteset kulcsfontosságú abból a szempontból, hogy megerősíti a Create művelet működését: a kontrolleren belüli logika nemcsak a helyes viselkedést produkálja, hanem az adatok mentése is megbízható módon történik. Az ilyen típusú validáció hozzájárul az alkalmazás robusztusságához és stabil működéséhez különféle felhasználói interakciók során.
+
+\begin{lstlisting}
+\[Fact]
+public async Task Create\_AddsStop\_AndRedirects()
+{
+var options = new DbContextOptionsBuilder<AppDbContext>()
+.UseInMemoryDatabase(Guid.NewGuid().ToString())
+.Options;
+
+using var context = new AppDbContext(options);
+var controller = new StopsController(context, new Mock<IConfiguration>().Object, new Mock<ILogger<AdminMessage>>().Object);
+
+var stop = new Stop { StopName = "New Stop", Latitude = 3, Longitude = 4 };
+
+var result = await controller.Create(stop);
+
+var redirect = Assert.IsType<RedirectToActionResult>(result);
+Assert.Equal("Index", redirect.ActionName);
+Assert.Single(context.Stops);
+Assert.Equal("New Stop", context.Stops.First().StopName);
+}
+\end{lstlisting}
+
+A Modify\_UpdatesStop\_WhenValidData nevű teszteset célja annak biztosítása, hogy a meglévő Stop entitás módosítása megfelelő módon megtörténjen, és a művelet után a rendszer megfelelő átirányítást hajtson végre az Index nézet irányába. A Modify metódus működése szoros párhuzamban áll a Create metódus logikájával.
+
+Míg a Create egy teljesen új rekord hozzáadását végzi el, addig a Modify már létező adatok frissítésére szolgál.A teszt során a StopName mezőt egy új értékre írjuk át, majd meghívjuk a Modify metódust az azonosító és a módosított objektum átadásával. A Modify belső működésében először ellenőrzi, hogy az id egyezik-e az entitás azonosítójával, majd az Update és SaveChangesAsync metódusok segítségével véglegesíti a módosításokat. A sikeres végrehajtás után átirányítja a felhasználót az Index nézetre, amit a tesztben az Assert.IsType<RedirectToActionResult> és Assert.Equal("Index", ...) utasításokkal validálunk.
+
+A Create metódussal szemben itt nem új rekord keletkezik, hanem egy meglévő objektum mezői frissülnek, így a teszt fókusza is más: míg a Create esetén az adat tényleges bekerülése a cél, addig a Modify esetén a meglévő adat sikeres frissítése, és ezzel együtt az esetleges ütközések kezelése válik fontossá.
+
+\begin{lstlisting}
+\[Fact]
+public async Task Modify\_UpdatesStop\_WhenValidData()
+{
+var stopId = Guid.NewGuid().ToString();
+var stop = new Stop { StopId = stopId, StopName = "Old Name" };
+var controller = CreateControllerWithData(new List<Stop> { stop });
+
+```
+stop.StopName = "Updated Name";
+var result = await controller.Modify(stopId, stop);
+
+var redirect = Assert.IsType<RedirectToActionResult>(result);
+Assert.Equal("Index", redirect.ActionName);
+```
+
+}
+\end{lstlisting}
+
+ Végezetül, a törlés tesztelésénél azt figyeljük meg, hogy az adott rekord eltávolításra kerül-e, és hogy a rendszer visszatér-e az entitások listanézetéhez.
+
+A DeleteConfirmed\_RemovesStop\_WhenValidId elnevezésű teszteset elsődleges célja annak validálása, hogy a törlésre szánt Stop entitás valóban eltávolításra kerül az adatbázisból, és a művelet végén a felhasználó a megfelelő nézetre — jelen esetben az Index listanézetre — kerül visszairányításra.
+
+A metódus felépítése hasonló a létrehozási (Create) tesztesethez abban az értelemben, hogy itt is InMemory adatbázist használunk a DbContext példány elkülönítésére. Az eltérés azonban a teszt céljában rejlik: nem új adat hozzáadása történik, hanem egy meglévő entitás eltávolítása.
+
+A tesztben először létrehozunk egy egyedi azonosítóval rendelkező megállót (Stop objektumot), amelyet előzetesen beillesztünk az adatbázisba. Ez biztosítja, hogy a törléshez legyen releváns tesztadat. A DeleteConfirmed metódus meghívásakor átadjuk ezt az azonosítót, és a visszatérési érték típusát ellenőrizzük — ez egy RedirectToActionResult, amely az Index akcióra irányítja vissza a felhasználót.
+
+Ellentétben a Create teszttel, ahol azt vizsgáltuk, hogy az új adat sikeresen hozzáadódott, itt a validáció arra irányul, hogy a rekord valóban eltűnt az adatbázisból. Ez a fajta teszt különösen hasznos olyan esetekben, ahol a törlési művelet érzékeny vagy visszafordíthatatlan hatású lehet — például ha az adott entitás kapcsolatban áll más rekordokkal is. A törlés során alkalmazott ellenőrzések, mint például a meglét validálása (FindAsync) vagy a jogosultságok vizsgálata, külön tesztesetekkel tovább bővíthetők, de az alapművelet helyességének vizsgálatát ez az egység jól reprezentálja.
+
+\subsection{Felhasználói visszajelzéseken alapuló kézi tesztelés}
+
+Az automatizált unit tesztek mellett fontosnak tartottam a kézi tesztelés alkalmazását is, különös tekintettel a valós felhasználói élményre és a felület gyakorlati használhatóságára. Ennek érdekében a projekt egyes fázisainak lezárása után több ismerősömet is bevontam a tesztelési folyamatba, akik eltérő informatikai háttérrel rendelkeznek. A cél az volt, hogy minél szélesebb kört lefedve kapjak visszajelzést arról, hogyan értelmezik és használják az alkalmazást különböző gondolkodásmódú emberek.
+
+A tesztelés minden esetben az én felügyeletem mellett zajlott, rövid szóbeli bevezetőt követően. Ismertettem a rendszer alapvető működését, majd átadtam számukra az irányítást, hogy szabadon kipróbálhassanak bizonyos funkciókat – például megállók megtekintése, jegyvásárlás, bejelentkezés vagy térképes nézetek használata. Fontos szempont volt, hogy ne irányítsam őket aktívan, csupán megfigyeljem, miként boldogulnak önállóan a rendszer használatával.
+
+Ez a fajta manuális tesztelés különösen értékes volt abból a szempontból, hogy az én fejlesztői látásmódom eltérhet a végfelhasználókétól. Míg én ismerem az alkalmazás szerkezetét és logikáját, számomra magától értetődő lehet olyan funkciók használata, amelyek egy új felhasználó számára kevésbé egyértelműek. Éppen ezért ezek a visszacsatolások fontos szerepet töltöttek be a felhasználói élmény optimalizálásában. A továbbiakban pár felhasználó személyes véleményét mutatom be.
+
