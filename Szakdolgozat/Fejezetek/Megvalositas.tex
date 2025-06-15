@@ -23,10 +23,13 @@ A \texttt{Models} könyvtár tartalmazza azokat az osztályokat, amelyek az adat
 
 Miután a projektet létrehoztam, elsőként az alkalmazás alapját képező osztályokat, azaz a modelleket kellett létrehozni. Ezek az osztályok az adatbázisban tárolt adattáblákat írják le, és tartalmazzák a hozzájuk tartozó tulajdonságokat, valamint az egymással kialakított relációkat. Az előzetesen elkészített adatbázis-terv alapján hoztam létre az \texttt{AdminMessage}, \texttt{AdminTask}, \texttt{Attachment}, \texttt{Bus}, \texttt{Contact}, \texttt{RouteStop}, \texttt{Schedule}, \texttt{Stop}, \texttt{Ticket}, valamint \texttt{TransportRoute} osztályokat. Fontos kritérium volt, hogy az entitások közötti relációkat pontosan és figyelmesen implementáljuk. Itt az elsődleges kulcsok (Primary Key), illetve az idegen kulcsok (Foreign Key) helyes használatára kellett különös figyelmet fordítani.
 
-A \texttt{Contact} osztályt az ASP.NET Identity komponens \texttt{IdentityUser} ősosztályából származtattam, amely beépített megoldást kínál a felhasználók szerepkörének zökkenőmentes implementálására és kezelésére.
+\subsubsection{Contact osztály}
+Az alkalmazás felhasználókezelését az ASP.NET Identity keretrendszerre építettem, amely beépített mechanizmusokat biztosít a hitelesítés, az engedélyezés és a szerepkörök kezelésének megvalósításához. A rendszer egyik alapkövét a \texttt{Contact} osztály képezi, amely az \texttt{IdentityUser} osztályból származik, így örökli annak minden alapvető tulajdonságát, például a felhasználónév, e-mail, jelszóhash és biztonsági token mezőket.
 
-A modellek és az adatbázis közötti kapcsolatot az \texttt{AppDbContext} osztály biztosítja, amely az Entity Framework Core egyik központi komponense. Ez az osztály az \texttt{IdentityDbContext} ősosztályból származik, és célja, hogy konfigurálja, kezelje és összekapcsolja a modelleket, sablonként szolgálva. Az \texttt{AppDbContext} osztályban találhatóak a \texttt{DbSet} típusú tulajdonságok, amelyek egy-egy tábla leképezését valósítják meg, például: \texttt{public DbSet Stops { get; set; }}, \texttt{public DbSet Schedules { get; set; }}.
+Ezt az alapstruktúrát a saját igényeim szerint bővítettem ki további tulajdonságokkal, mint például a felhasználó teljes neve (\texttt{FullName}), címe (\texttt{Street}, \texttt{Zipcode}), aktív státusza (\texttt{Active}), illetve a jelszó nyers formában történő ideiglenes tárolása (\texttt{PWString}). Útóbbit a könnyebb tesztelés és használat érdekében adtam hozzá. A modell a relációs adatbázisok világához igazodva navigációs kapcsolatokat is tartalmaz más entitásokkal, például a \texttt{Ticket} vagy \texttt{Attachment} osztályokkal.
 
+
+\subsubsection{AppDbContext}
 Ezen felül az \texttt{AppDbContext} lehetőséget biztosít az entitások viselkedésének testreszabására az \texttt{OnModelCreating} metódusban, ahol külön definiálhatjuk a kulcsokat, kapcsolatokat, korlátozásokat, valamint egyéb konfigurációkat. Különösen hasznos az úgynevezett "vízesés törlés" (cascade delete) viselkedés figyelembe vétele, amely során egy entitás törlése vízesésszerűen magával vonhatja más kapcsolódó entitások törlését is. Az \texttt{OnModelCreating} metódus lehetőséget biztosít ennek felügyelésére, ezáltal elkerülve az adatvesztést okozó nem kívánt láncfolyamatokat.
 
 \begin{figure}[H]
@@ -52,14 +55,9 @@ Az AppDbContext osztály beállítása után szükség volt az adatbázis-fájl 
 A \ref{fig:connectionstring}. ábrán a projektben használt \textit{connection string} látható, amely a lokális SQL Server adatbázishoz való kapcsolódást valósítja meg. Ez tartalmazza az SDMNG adatbázis elérési útvonalát, az adatbázis nevét, valamint a hitelesítési mód beállításait.
 \vspace{\baselineskip}
 
-Miután a konfigurációs fájlokat megfelelően implementáltuk, és a modellosztályaink is a tervek szerint készültek el, elérkezett az idő az első migráció létrehozására. Az adatbázis felépítését az Entity Framework migrációs rendszerével valósítottam meg. Az első migráció elkészítéséhez a terminálban a következő parancsot használtuk: 
-\begin{lstlisting}
-dotnet ef migrations add CreateDatabase
-\end{lstlisting}
-A parancs végrehajtása után a Migrations mappában létrejött a fentebb megadott névvel rendelkező migrációs fájl. Ezen a ponton fontos még egyszer ellenőrizni a generált adatbázis-entitásokat, és különös hangsúlyt kell fektetni a relációk helyességére. Amennyiben minden a terv szerint valósult meg, végrehajtjuk az adatbázis fizikai létrehozására vagy frissítésére szolgáló parancsot: 
-\begin{lstlisting}
-dotnet ef database update
-\end{lstlisting}
+Miután a konfigurációs fájlokat megfelelően implementáltuk, és a modellosztályaink is a tervek szerint készültek el, elérkezett az idő az első migráció létrehozására. Az adatbázis felépítését az Entity Framework migrációs rendszerével valósítottam meg. Az első migráció elkészítéséhez a terminálban a következő parancsot használtuk: dotnet ef migrations add CreateDatabase.
+
+A parancs végrehajtása után a Migrations mappában létrejött a fentebb megadott névvel rendelkező migrációs fájl. Ezen a ponton fontos még egyszer ellenőrizni a generált adatbázis-entitásokat, és különös hangsúlyt kell fektetni a relációk helyességére. Amennyiben minden a terv szerint valósult meg, végrehajtjuk az adatbázis fizikai létrehozására vagy frissítésére szolgáló parancsot: dotnet ef database update.
 
 Ez a parancs a korábban generált migrációs fájlok alapján felépíti vagy kiegészíti az adatbázist a megadott kapcsolati karakterlánc (connection string) segítségével.
 
@@ -72,13 +70,13 @@ A projektben minden jelentősebb funkció – például jegyvásárlás, menetre
 A vezérlők konstruktorában történik meg az úgynevezett függőséginjektálás (dependency injection). Ez azt jelenti, hogy a vezérlő induláskor automatikusan megkapja azokat a szolgáltatásokat vagy komponenseket, amelyekre működése során szüksége lesz – például az adatbázis-kapcsolatot biztosító \texttt{AppDbContext} példányt.
 
 \subsubsection{Aszinkron metódusok (async/await)}
-A vezérlők fejlesztése során aszinkron metódusok használtam. Ennek elsődleges oka, hogy ezek a módszerek hatékonyabb működést tesznek lehetővé, különösen akkor, amikor a rendszer külső erőforráshoz – például adatbázishoz – fordul adatlekérés vagy módosítás céljából. Ilyen esetekben a programnak várnia kell a válaszra, és ha ez a várakozás egy szinkron módon írt metódusban történik, az idő alatt az egész kérés „lefagyhat”, nem képes más feladatokra reagálni.
+A vezérlők fejlesztése során aszinkron metódusok használtam. Ennek elsődleges oka, hogy ezek a metódusok hatékonyabb működést tesznek lehetővé, különösen akkor, amikor a rendszer külső erőforráshoz – például adatbázishoz – fordul adatlekérés vagy módosítás céljából. Ilyen esetekben a programnak várnia kell a válaszra, és ha ez a várakozás egy szinkron módon írt metódusban történik, az idő alatt az egész kérés „lefagyhat”, nem képes más feladatokra reagálni.
 
 Az aszinkron működés lényege, hogy ezek a metódusok nem akadályozzák az alkalmazás többi részének futását, miközben például háttérben adatokat kérnek le vagy dolgoznak fel. Ez különösen fontos egy webalkalmazás esetén, ahol egyszerre több felhasználói kérés is érkezhet – például jegyvásárlás, menetrend megtekintés vagy felhasználói adatok kezelése. Az \texttt{async/await} kulcsszavak használatával ezek a műveletek párhuzamosan, egymást nem akadályozva tudnak végbemenni.
 
 Az aszinkron működés megvalósításában kulcsszerepet játszik két kifejezés: az \texttt{async} és az \texttt{await}. Az \texttt{async} kulcsszóval azt jelezzük a rendszernek, hogy az adott metódus tartalmazhat olyan műveleteket, amelyek végrehajtása hosszabb időt vesz igénybe, és ezeket érdemes nem blokkoló módon kezelni. Ezzel előkészítjük a metódust arra, hogy akár több lépésben, megszakítható módon fusson le.
 
-Az \texttt{await} pedig azt mondja a programnak: itt most egy időigényes művelet következik – például adatbázis-lekérdezés vagy fájl beolvasása –, és a vezérlés addig adódjon vissza a hívó félnek, amíg ez be nem fejeződik. A lényeg az, hogy a várakozás ideje alatt a többi feladat nem áll meg, az alkalmazás közben más kéréseket is képes kiszolgálni.
+Az \texttt{await} pedig azt mondja a programnak, hogy itt most egy időigényes művelet következik – például adatbázis-lekérdezés vagy fájl beolvasása –, és a vezérlés addig adódjon vissza a hívó félnek, amíg ez be nem fejeződik. A lényeg az, hogy a várakozás ideje alatt a többi feladat nem áll meg, az alkalmazás közben más kéréseket is képes kiszolgálni.
 
 Egy-egy metódus így nemcsak hatékonyabb, de a felhasználói élményt is képes pozitívan befolyásolni, mivel csökken a válaszidő, gyorsabban jelennek meg az oldalak, és kevesebb az esély a hibákra vagy „megakadásokra”. A projekt során ezért az adatbázissal kapcsolatos lekérdezések és módosítások szinte minden esetben aszinkron módon lettek megvalósítva.
 
@@ -88,6 +86,21 @@ Az alkalmazás készítése közben nagyon fontos szerepet kapott a naplózás �
 Az \texttt{ILogger} segítségével például a fájlok feltöltésekor vagy e-mail küldéskor felmerülő hibák részletesen naplózhatóak, így visszakövethetővé válik, hogy mikor és milyen körülmények között jelentkezett az adott hiba. Ez különösen hasznos fejlesztési és tesztelési fázisban, amikor az alkalmazás viselkedését pontosan felügyelni kell.
 
 A csatolmányok feltöltésekor az \texttt{IWebHostEnvironment} segítségével meghatároztam a fájlok fizikai tárolási helyét, amely általában a \texttt{wwwroot/} mappában található. Ez a megközelítés lehetővé teszi, hogy a különböző környezetekben eltérő útvonalakat használjunk, megkönnyítve ezzel a fejlesztést és a telepítést. A feltöltött fájlok elérését pedig dinamikusan, az alkalmazás futási környezetétől függően kezeljük.
+\subsubsection{Regisztráció és felhaszálói szerepkör menedzselési komponensek}
+A \texttt{Contact} osztályra épülő hitelesítési és regisztrációs funkciók az \texttt{AccountController} osztályon belül valósítottam meg. Ezen funkciók szétválasztását a Contact controllertől azért láttam fontosnak, mivel itt a kontakt osztály metódusai vannak definiálva a személyes fiókr nézve. A ContactControllerben viszont az admin funkciók kerültek megvalósításra az összes kontact számára. Ez jol strukturált felépítést eredményez, valamint megkönnyíti a kiegészítést, ejlesztést. 
+
+Az \texttt{Account} vezérlő működését két fontos Identity-komponens, a \texttt{UserManager<TUser>} és a \texttt{SignInManager<TUser>} segíti. A \texttt{UserManager} az általános felhasználókezelési műveletekért felelős, mint például új felhasználó létrehozása, jelszó módosítása, szerepkörök kezelése, míg a \texttt{SignInManager} a be- és kijelentkezés lebonyolítását végzi.
+
+A regisztráció során a rendszer egy új \texttt{Contact} példányt hoz létre a megadott adatok alapján, majd a \texttt{UserManager.CreateAsync()} metódussal menti azt az adatbázisba. A sikeres regisztrációt követően a felhasználó automatikusan hozzá van rendelve egy alapértelmezett szerepkörhöz (pl. \texttt{"User"}), amit a \texttt{UserManager.AddToRoleAsync()} metódus hajt végre. Ez lehetővé teszi a későbbi gördülékeny engedélykezelést, például admin jogosultságok bevezetését vagy jogosultságok szűrését nézetek szerint.
+
+A bejelentkezés folyamata a \texttt{SignInManager.PasswordSignInAsync()} metódus segítségével valósul meg, amely ellenőrzi a megadott hitelesítési adatokat és elvégzi a bejelentkeztetést, ha azok helyesek. Hibás adatok esetén a rendszer visszajelzést ad a felhasználónak, ezáltal a folyamat megismétlése vagy ennek változtatásának lépése következik.
+
+A \texttt{ChangePassword} és \texttt{VerifyEmail} akciók külön lehetőséget biztosítanak a felhasználóknak arra, hogy hitelesített módon módosítsák jelszavukat. Az e-mail cím ellenőrzését követően a jelszó eltávolítása és újra beállítása a \texttt{UserManager.RemovePasswordAsync()} és \texttt{AddPasswordAsync()} metódusokkal történik, ezzel biztosítva a jelszavak érvényességének újradefiniálását.
+
+Végezetül a \texttt{Logout} akció gondoskodik a hitelesítési cookie érvénytelenítéséről és a felhasználó kijelentkeztetéséről a \texttt{SignInManager.SignOutAsync()} metódus segítségével, biztosítva ezzel a biztonságos felhasználói munkamenetek lezárását.
+
+Ez a megoldás egyrészt jelentősen leegyszerűsíti a hitelesítési logika implementálását, másrészt rugalmasan bővíthető a jövőbeni funkciók igényei szerint – például kétfaktoros azonosítás, e-mail megerősítés vagy jogosultságszintek kialakítása. A \texttt{Contact} modell és a hozzá tartozó Identity szolgáltatások közösen biztosítják az alkalmazás integrált, skálázható és biztonságos felhasználókezelését.
+
 
 \subsubsection{Biztonság és hitelesítés a vezérlők szintjén}
 A vezérlők kialakításakor különös figyelmet fordítottam a biztonsági elvekre. Az ASP.NET Identity keretrendszer biztosította a hitelesítés és szerepkör-alapú jogosultságkezelés infrastruktúráját. Az alkalmazásban minden vezérlő és metódus, amely érzékeny adatot kezel vagy kizárólag regisztrált felhasználók számára elérhető, az \texttt{[Authorize]} attribútummal van ellátva. Egyes metódusoknál szerepkörhöz kötött elérés is alkalmazásra került, például az adminisztrációs felületek esetében kizárólag az Admin szerepkörrel rendelkező felhasználók végezhetnek műveleteket.
@@ -110,7 +123,6 @@ Ahhoz, hogy a rendszer automatikusan vissza tudjon igazolni egy sikeres jegyvás
 
 A megvalósítás egyik alapköve az, hogy az érzékeny adatokat (például az e-mail címhez tartozó hitelesítési adatokat, a kiszolgáló nevét és portját) ne kódoljuk bele az alkalmazásba, hanem külső konfigurációs fájlba konfiguráljuk, például az appsettings.json állományba. Ez nemcsak tisztább kódot eredményez, de biztonsági és karbantarthatósági szempontból is előnyös.
 
-A következő blokk egy példát mutat arra, hogyan nézhet ki ez a konfigurációs szekció az appsettings.json fájlban:
 
 \subsubsection{Kapcsolatfelvétel a ContactController segítségével}
 
@@ -188,7 +200,8 @@ A második lépésben, POST metódus segítségével történik az új értékek
 \begin{lstlisting}
 [HttpPost]
 [ValidateAntiForgeryToken]
-public async Task Modify(string id, [Bind("StopId,StopName,Latitude,Longitude")] Stop stop)
+public async Task Modify(string id,
+[Bind("StopId,StopName,Latitude,Longitude")] Stop stop)
 {
 if (id != stop.StopId) return NotFound();
 if (ModelState.IsValid)
@@ -199,7 +212,8 @@ if (ModelState.IsValid)
     }
     catch (DbUpdateConcurrencyException)
     {
-        if (!_context.Stops.Any(s => s.StopId == stop.StopId)) return NotFound();
+        if (!_context.Stops.Any(s => s.StopId == stop.StopId))
+        {return NotFound();}
         throw;
     }
     return RedirectToAction(nameof(Index));
@@ -279,8 +293,19 @@ A menüelemek megjelenését a rendszer a User.IsInRole("Admin") feltétel alapj
 
 A navigációs sáv jobb oldalán helyezkedik el az azonosítási rész, amely be nem jelentkezett állapotban a bejelentkezés („Login”) és a regisztráció („Register”) lehetőségét kínálja, míg bejelentkezett felhasználók esetén a felhasználó nevét és a kijelentkezési („Logout”) opciót jeleníti meg. Ez a megoldás lehetővé teszi, hogy az alkalmazás mindig az aktuális felhasználó státuszának megfelelő kezelőfelületet biztosítson.
 
-Összességében elmondható, hogy a navigációs sáv nem csupán az oldalstruktúra leképezésére szolgál, hanem intelligensen alkalmazkodik a felhasználói szerepkörökhöz, ezzel is támogatva a könnyű kezelhetőséget, az átláthatóságot és a biztonságos működést.
+A webalkalmazás fejléce egy Bootstrap alapú navigációs sávval valósul meg, amelyet a \texttt{.cshtml} nézetfájlban Razor szintaxissal kombinálva hoztunk létre. A \texttt{<nav>} elem a sáv keretét adja, amely kis képernyőn összehúzható, nagyobb felületen pedig automatikusan szélesedik.
 
+A tartalom a \texttt{<div class="container-fluid">} blokkban helyezkedik el, amely teljes szélességet biztosít az elrendezéshez. A bal oldalon található a \texttt{<a class="navbar-brand">} elem, amely az alkalmazás logójaként szolgál, és a főoldalra navigál a megadott \texttt{asp-controller} és \texttt{asp-action} attribútumok segítségével.
+
+A menüpontokat egy \texttt{<ul class="navbar-nav">} lista tartalmazza, amely rugalmasan kitölti a rendelkezésre álló helyet. Ezen belül a kód egy feltételes blokkot tartalmaz, amely kizárólag akkor hajtódik végre, ha az aktuális felhasználó rendelkezik az „Admin” szerepkörrel. Ezt a Razor \texttt{User.IsInRole("Admin")} feltétele vezérli. Ha a feltétel igaz, megjelenik egy legördülő menü „Management” néven, amely különböző adminisztratív funkciókhoz tartozó hivatkozásokat tartalmaz.
+
+Ezek a hivatkozások a különböző kontrollerek \texttt{Index} metódusaira mutatnak, például a buszok, megállók, jegyek, útvonalak, csatolmányok, menetrendek vagy jogosultságok kezelésére szolgáló oldalakra. Minden menüpont egyedi ikonokkal van ellátva a felhasználói élmény érdekében, amelyet a Bootstrap Icons könyvtár biztosít.
+
+A legördülő menü alatt, az admin jogkörrel nem rendelkező felhasználók számára is elérhető elemek következnek. Ezek között szerepelnek a megállók (\texttt{Stations}), útvonalak (\texttt{Routes}), menetrendek (\texttt{Schedules}), saját jegyek (\texttt{My Tickets}) és az ügyfélszolgálattal való kapcsolatfelvételi lehetőség (\texttt{Contact us}). Ezek a hivatkozások a látogatók számára biztosítanak alapvető funkcionalitást, függetlenül a bejelentkezési állapottól.
+
+A navigációs sáv jobb oldalán egy külön szeparált résznézet, a \texttt{\_LoginPartial}, jelenik meg, amely felelős a felhasználó hitelesítési állapotának megjelenítéséért. Ez a rész automatikusan alkalmazkodik az aktuális felhasználó állapotához: amennyiben a látogató még nem jelentkezett be, a felület a „Login” és „Register” lehetőségeket kínálja. Ezzel szemben bejelentkezett felhasználó esetén megjelenik a felhasználónév, valamint a „Logout” gomb, amely lehetőséget biztosít a kijelentkezésre.
+
+A résznézet (\emph{partial view}) használata itt nemcsak kényelmi szempontból előnyös, hanem fejlesztői szempontból is számos haszonnal jár. Egyrészt elkülöníti a hitelesítéssel kapcsolatos logikát a fő nézettől, így biztosítva a kód átláthatóságát. Másrészt lehetővé teszi, hogy ezt a funkcionalitást újra felhasználjuk több helyen is az alkalmazásban, például különböző elrendezési sablonokban vagy specifikus nézetekben. Így, ha a jövőben módosítani szükséges a bejelentkezéshez vagy kijelentkezéshez kapcsolódó felületet, elegendő csak a \texttt{\_LoginPartial.cshtml} fájlt frissíteni, és az automatikusan érvényesül minden olyan nézetben, ahol ez a résznézet be van ágyazva.
 
 \begin{figure}[H]
 \centering
@@ -291,13 +316,35 @@ A navigációs sáv jobb oldalán helyezkedik el az azonosítási rész, amely b
 
 A \ref{fig:navsavlogged}. ábrán a navigációs sáv bejelentkezett állapotban látható, adminisztrátori jogosultság mellett. Ebben az esetben a felhasználó számára elérhetővé válik egy további, legördülő menü, amely az adminisztrációs funkciókat csoportosítja. A menü tartalmazza többek között a megállók (Stops), buszok (Buses), útvonalak (Routes), menetrendek (Schedules), csatolmányok (Attachments), felhasználók (Contacts), jogosultságok (Roles), valamint teendők (ToDo List) kezelésére szolgáló linkeket. Ezek a nézetek csak az adminisztrátor szerepkörrel rendelkező felhasználók számára jelennek meg, és lehetőséget biztosítanak az alkalmazás teljes körű adatkezelésére és adminisztrálására. A menüsáv jobb oldalán továbbra is elérhető a kijelentkezési lehetőség, amely biztosítja a munkamenet megfelelő lezárását.
 
+\subsubsection{Felhasználókezelési nézetek és résznézetek alkalmazása}
+
+Az alkalmazásban a felhasználói azonosítással kapcsolatos funkciók – például a bejelentkezés, regisztráció, jelszócsere vagy email-ellenőrzés – dedikált nézeteken keresztül valósulnak meg, amelyek az \texttt{AccountController} vezérlőhöz kapcsolódnak. Ezek a nézetek a háttérben, ahogy már fentebb is említettem, a \texttt{Contact} nevű egyedi felhasználói modell adataira épülnek, amely az ASP.NET Identity \texttt{IdentityUser} osztályából származik.
+
+A nézetek mindegyike külön ViewModel-t használ az űrlapadatok átadásához és validálásához. A \texttt{LoginViewModel}, \texttt{RegisterViewModel}, \texttt{VerifyEmailViewModel} és \texttt{ChangePasswordViewModel} mind külön-külön reprezentálják az adott funkcióhoz szükséges adatokat és a mezőkhöz kapcsolódó ellenőrzési szabályokat. A Razor-alapú nézetekben az \texttt{asp-for} és \texttt{asp-action} attribútumok biztosítják az adatkötést, valamint az automatikus hivatkozást a vezérlő megfelelő metódusaihoz.
+
+Minden oldal egységes elrendezést követ, amelyet a \texttt{\_AccountLayout.cshtml} nézet biztosít. Ez a sablon definiálja az általános megjelenést, amelyet az összes hitelesítéssel kapcsolatos nézet örököl. Az űrlapok végén található \texttt{@section Scripts} blokk aszinkron módon betölti a \_ValidationScriptsPartial.cshtml nevű résznézetet, amely a kliensoldali validáláshoz szükséges JavaScript-függvényeket tartalmazza. Ennek köszönhetően a felhasználó azonnali visszajelzést kap a hibásan kitöltött vagy hiányzó mezőkről, még az adatküldés előtt.
+
+Külön figyelmet érdemel a \texttt{\_LoginPartial.cshtml} résznézet szerepe, amely nem a hitelesítési nézeteken belül, hanem a főoldal elrendezésében, a navigációs sáv jobb oldalán jelenik meg. Ez a rész automatikusan lekérdezi a felhasználó hitelesítési állapotát, és dinamikusan változtatja a megjelenített tartalmat, amennyiben a látogató nincs bejelentkezve, megjelennek a „Login” és „Register” hivatkozások; ha viszont a felhasználó azonosítva van, akkor a felhasználónevet, valamint a kijelentkezési lehetőséget jeleníti meg.
+
+
 \vspace{\baselineskip}
 \subsubsection{Lista oldalak}
 A listanézetek felépítése egységes, ahol az adott entitáshoz tartozó legfontosabb adatokat oszlopokban mutatjuk be. Minden ilyen nézet tartalmaz egy „Actions” nevű oszlopot is, amelyben három alapvető művelet található: a részletek megtekintése (Detail), az adat módosítása (Modify/Edit), valamint az elem törlése (Delete). Ezek a gombok minden egyes listaelem mellett megjelennek, és mindegyikhez az adott elem egyedi azonosítója (ID) van hozzárendelve. Ennek köszönhetően, amikor egy felhasználó rákattint valamelyik művelet gombra, a sornak vagy elemnek megfelelő oldalt nyitja meg, így biztosítva a pontos és gyors navigációt az funkciókat megvalósító oldalak között.
 
-Azokon az oldalakon, ahol az adatbevitel nem automatikusan történik — mint például a jegyek vagy az admin üzenetek — rendelkezésre áll egy „Create” gomb, amely új bejegyzések létrehozását teszi lehetővé. Érdemes megemlíteni, hogy a jegyek esetében a listaelemek nem közvetlenül itt jönnek létre, hanem a jegyvásárlási folyamat során, amikor a „Buy Ticket” funkció generál egy új rekordot az adatbázisba, amely aztán automatikusan megjelenik a jegyek listájában. Hasonló módon a „Contact Me” oldalon a felhasználó által elküldött üzenet szintén mentésre kerül az adatbázisba, és ezáltal megjelenik az adminisztrátorok számára készült üzenetlistában.
+Az adminisztrátori feladatok kezelésére szolgáló nézet egy egyszerű táblázatos elrendezést használ, amely a \texttt{List<AdminTask>} típusú modell alapján jeleníti meg a rendszerben rögzített teendőket. A nézet elején a \texttt{@model} direktíva határozza meg, hogy milyen típusú adatot vár a nézet – jelen esetben az \texttt{AdminTask} típusú objektumokat tartalmazó listát.
 
-Minden oldal továbbá tartalmaz egy „Back” gombot, ami megkönnyíti a felhasználók számára a gördülékeny visszalépést az előző nézetekhez, ezzel is támogatva az intuitív és zökkenőmentes navigációt az alkalmazásban.
+A fejlécként szolgáló \texttt{ViewData["Title"]} meghatározza a lap címét, amely az oldal HTML fejlécében is megjelenik. Ezt követi egy főcím, valamint egy gomb a feladatok létrehozására (\texttt{Create}), amely egy \texttt{asp-action} segítségével a létrehozó űrlapra irányítja a felhasználót.
+
+A feladatokat egy Bootstrap-alapú táblázat (\texttt{<table class="table">}) jeleníti meg. A \texttt{<thead>} rész a táblázat oszlopcímeit tartalmazza, amelyek sorrendben a feladat teljesítettségét jelző ikon, a cím, a határidő és a hozzárendelt műveletek.
+
+A \texttt{<tbody>} részben egy \texttt{@foreach} ciklus segítségével iterálunk végig a modell objektumain. Minden egyes \texttt{AdminTask} típusú elem egy táblázatsorban (\texttt{<tr>}) kerül megjelenítésre. Az adott sor háttérszíne dinamikusan módosul: amennyiben a feladat már el van végezve (\texttt{IsResolved = true}), a sor \texttt{table-success} osztályt kap, ami zöld hátteret biztosít.
+
+Az első oszlopban egy ikon jelenik meg, amennyiben a feladat már teljesített. Ez a Bootstrap Icons könyvtárból származik, és vizuálisan is jelzi az állapotot (\texttt{bi-check-circle-fill}). A második oszlop a feladat címét (\texttt{Title}), míg a harmadik a határidőt (\texttt{DueUntil}) jeleníti meg, rövid dátumformátumban.
+
+Az utolsó oszlopban két gomb található: a „Details” gomb egy részletes nézetre navigál az adott feladattal kapcsolatban, míg az „Edit” gomb a módosító űrlaphoz visz. Mindkét hivatkozás dinamikusan kapja meg a feladat azonosítóját (\texttt{Id}) az \texttt{asp-route-id} attribútumon keresztül.
+
+Ez a megközelítés nemcsak az adminisztratív feladatok kezelésére használható, hanem bármely entitástípus (például jegyek, útvonalak, felhasználók, csatolmányok) listázására is alkalmas. 
+
 
 \subsubsection{Térképes megjelenítés a Stop részletező nézetben}
 A megállók részletező nézete a felhasználói felület egyik kulcseleme, amely nemcsak szöveges információt nyújt a kiválasztott megállóról, hanem vizuálisan is segíti a tájékozódást egy interaktív térkép segítségével. A felület célja, hogy a felhasználó könnyen és gyorsan át tudja tekinteni egy adott megálló legfontosabb adatait, illetve annak pontos földrajzi elhelyezkedését.

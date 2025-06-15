@@ -47,7 +47,7 @@ A \texttt{Stop} entitás egy-egy megállóhelyet reprezentál. Az \texttt{StopId
 
 \paragraph{TransportRoute}
 
-A \texttt{TransportRoute} entitás egy közlekedési útvonalat reprezentál. A \texttt{TransportRouteId} mező (\textit{string}) az útvonal egyedi azonosítója, a \texttt{Name} mező (\textit{string}) pedig az útvonal nevét tartalmazza. A \texttt{StartStopId} és \texttt{EndStopId} mezők (\textit{string}) az induló és végállomások azonosítóit rögzítik.
+A \texttt{TransportRoute} entitás egy közlekedési útvonalat reprezentál. A TransportRouteId mező (\textit{string}) az útvonal egyedi azonosítója, a \texttt{Name} mező (\textit{string}) pedig az útvonal nevét tartalmazza. A \texttt{StartStopId} és \texttt{EndStopId} mezők (\textit{string}) az induló és végállomások azonosítóit rögzítik.
 
 \paragraph{RouteStop}
 
@@ -242,7 +242,7 @@ A rendszer adminisztrátori jogosultságokkal rendelkező felhasználói számá
 
 A menüpontok közül a \texttt{Contacts} oldal tartalmazza a rendszerbe regisztrált összes felhasználót – ideértve az adminisztrátorokat, munkatársakat és általános felhasználókat egyaránt. Az oldal megnyitásakor egy táblázatos nézet fogadja a felhasználót, amely a következő adatmezőket jeleníti meg: \texttt{FullName}, \texttt{Email}, \texttt{Street}, \texttt{Zipcode}, \texttt{Active}, \texttt{Bus}, valamint az \texttt{Actions} oszlop. Az \texttt{Actions} oszlopban három gomb kapott helyet, amelyek lehetővé teszik a kiválasztott felhasználó adatainak részletes megtekintését, szerkesztését vagy törlését (\texttt{Detail}, \texttt{Edit}, \texttt{Delete}). A táblázat alatt egy külön gomb is található, amely új felhasználó manuális hozzáadását teszi lehetővé, ezáltal bővítve az adminisztrátor lehetőségeit a rendszer kézi karbantartása során.
 
-A három elérhető műveleti gomb mindegyike hasonló szerkezetű oldalra navigál, azonban az adott funkciónak megfelelően eltérő célokat szolgál. A részletes megtekintés során az adminisztrátor az adott felhasználó összes adatát áttekintheti egy jól strukturált nézetben, míg a szerkesztés során ezen adatok módosítására is lehetőség nyílik. A törlés funkció egy megerősítést kérő felületre irányít, ahol a rendszer rákérdez a művelet véglegességére.
+A három elérhető műveleti gomb mindegyike hasonló szerkezetű oldalra navigál, azonban az adott funkciónak megfelelően eltérő célokat szolgál. A részletes megtekintés során az adminisztrátor az adott felhasználó összes adatát áttekintheti egy jól strukturált nézetben, míg a szerkesztés során ezen adatok módosítására is lehetőség nyílik. A törlés funkció egy deaktivációs müvelet legyen, ne töröljünk felhasználókat, csak ideiglenesen legyenek inaktívak.
 
 Minden nézet tartalmazza azokat az információkat, amelyek az adminisztrációs táblázatban is szerepelnek (név, e-mail, cím stb.), azonban ezeken túl két további mező is megjelenik: a felhasználóhoz rendelt szerepkör (\texttt{Role}), valamint az adott felhasználóhoz társított autóbusz megléte vagy hiánya. Ez utóbbi információ különösen fontos a buszvezetői szerepköröknél, mivel ezek a jogosultságok gyakran kapcsolódnak konkrét járművekhez. Az adminisztrátor így átfogó képet kap a felhasználók státuszáról, jogosultságairól és az esetleges operatív hozzárendelésekről is.
 
