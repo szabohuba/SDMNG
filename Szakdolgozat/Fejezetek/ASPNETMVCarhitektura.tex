@@ -1,5 +1,3 @@
-%% ASP.NET MVC Architecture
-
 \section{ASP.NET MVC architektúra}
 
 \indent Az államvizsga-dolgozatom célja bemutatni egy webalapú alkalmazás fejlesztési folyamatát és technológiai hátterét, amely egy buszvállalat működését támogatja. A fejlesztés során az ASP.NET MVC keretrendszerre építek, amely jól strukturált megközelítést kínál a webes alkalmazások építéséhez, miközben lehetővé teszi az üzleti logika, a megjelenítés és az adatkezelés hatékony szétválasztását.
@@ -26,11 +24,11 @@ Az MVC architektúra egyik legfontosabb előnye az alkalmazás logikájának, ad
 
 \indent Az ASP.NET MVC keretrendszer három jól elkülöníthető rétegre bontja az alkalmazás struktúráját. A Model réteg felelős az üzleti logika és az adatok kezeléséért, a View a felhasználó számára megjelenített tartalmat írja le, míg a Controller a két réteg közötti kommunikációért és az események kezeléséért felel. Ez az elkülönítés elősegíti az egységek külön történő fejlesztését és tesztelését.
 
-Az ASP.NET MVC a REST architektúra alapelveit követi, és szorosan épít az URL-alapú útvonalkezelésre (routing), amely meghatározza, hogy egy adott kérés melyik vezérlőhöz és metódushoz kerüljön.
+Az ASP.NET MVC a REST architektúra alapelveit követi, és szorosan épít az URL-alapú útvonalkezelésre (routing), amely meghatározza, hogy egy adott kérés melyik vezérlőhöz és metódushoz kerüljön. (Forrás: MVC Architektúra – MDN Web Docs)
 
 \subsubsection{A Controller, View és Model szerepe}
 
-\indent A Controller felelős a beérkező HTTP-kérések kezeléséért, az adatok lekérdezéséért vagy módosításáért, és végül az adatok továbbításáért a View felé. A Model tartalmazza az alkalmazás által kezelt adatokat és azok viselkedését, gyakran adatbázissal kapcsolatban álló entitások és azok logikája formájában. A View Razor szintaxisban írt .cshtml fájlokat jelent, amelyek HTML-ben jelenítik meg a Modelből származó adatokat, ezzel biztosítva a dinamikus tartalom megjelenítését.
+\indent A Controller felelős a beérkező HTTP-kérések kezeléséért, az adatok lekérdezéséért vagy módosításáért, és végül az adatok továbbításáért a View felé. A Model tartalmazza az alkalmazás által kezelt adatokat és azok viselkedését, gyakran adatbázissal kapcsolatban álló entitások és azok logikája formájában. A View Razor szintaxisban írt .cshtml fájlokat jelent, amelyek HTML-ben jelenítik meg a Modelből származó adatokat, ezzel biztosítva a dinamikus tartalom megjelenítését.(Forrás: MVC Architektúra – MDN Web Docs)
 
 \subsubsection{Routing és adatátadás}
 
@@ -48,13 +46,13 @@ Az alkalmazás adatbázis-kommunikációja általában Microsoft SQL Serverrel t
 
 A modern ASP.NET alapú alkalmazásokban az EF szorosan együttműködik az ASP.NET Identity keretrendszerrel, amely a felhasználókezelési és hitelesítési feladatokat látja el. Az Identity rendszer szintén az EF-en keresztül valósítja meg a felhasználói adatok (pl. regisztrációs információk, jelszavak hash-elve, jogosultságok, szerepkörök) tartós tárolását és kezelését. A felhasználói entitások a többi modellosztályhoz hasonlóan entitásként jelennek meg az adatbázisban, így az EF által biztosított LINQ-lekérdezések és migrációs eszközök teljes mértékben alkalmazhatók rájuk is.
 
-Ez az integrált megközelítés lehetővé teszi, hogy az alkalmazás egységes módon kezelje mind az üzleti, mind az autentikációs adatokat, miközben biztosítja az adatbázis-struktúra automatikus frissítését és bővítését a fejlesztés során.
+Ez az integrált megközelítés lehetővé teszi, hogy az alkalmazás egységes módon kezelje mind az üzleti, mind az autentikációs adatokat, miközben biztosítja az adatbázis-struktúra automatikus frissítését és bővítését a fejlesztés során.(Forrás: Entity Framework Core – Microsoft Docs)
 
 \subsubsection{Razor nézetek}
 
 \indent A Razor egy modern, egyszerű szintaxisú nézetmotor, amely a HTML és C\# nyelv elemeit ötvözi. Lehetővé teszi, hogy a dinamikus tartalom hatékonyan jelenjen meg a felhasználói felületen, miközben a kód jól olvasható marad. A Razor nézetek általában {.cshtml} kiterjesztésű fájlokban jelennek meg, és az alkalmazás prezentációs rétegének meghatározó elemei.
 
-\indent A megjelenítés esztétikai és felhasználói élménybeli szempontból történő javítása érdekében a Razor nézetekben gyakran alkalmazzák a Bootstrap keretrendszert, amely előre definiált, reszponzív stílusokat és elrendezéseket kínál. Emellett elterjedt a Bootstrap Icons (BI) használata is, amely vektor alapú ikonokat biztosít a vizuális elemek kiegészítésére és gazdagítására. Ezen eszközök integrálása nemcsak a fejlesztési folyamatot gyorsítja fel, hanem hozzájárul a konzisztens és professzionális megjelenés kialakításához is.
+\indent A megjelenítés esztétikai és felhasználói élménybeli szempontból történő javítása érdekében a Razor nézetekben gyakran alkalmazzák a Bootstrap keretrendszert, amely előre definiált, reszponzív stílusokat és elrendezéseket kínál. Emellett elterjedt a Bootstrap Icons (BI) használata is, amely vektor alapú ikonokat biztosít a vizuális elemek kiegészítésére és gazdagítására. Ezen eszközök integrálása nemcsak a fejlesztési folyamatot gyorsítja fel, hanem hozzájárul a konzisztens és professzionális megjelenés kialakításához is.(Forrás: Razor View Engine (ASP.NET Core 8.0) – Microsoft Docs)
 
 
 
@@ -64,14 +62,12 @@ Ez az integrált megközelítés lehetővé teszi, hogy az alkalmazás egységes
 
 \subsubsection{Leaflet}
 
-\indent A Leaflet egy könnyű, nyílt forráskódú JavaScript könyvtár, amely interaktív térképek megjelenítését teszi lehetővé. A könyvtár különösen alkalmas útvonalak, megállók és helymeghatározások vizualizálására, így jól illeszkedik logisztikai vagy közlekedési célú alkalmazásokba.
+\indent A Leaflet egy könnyű, nyílt forráskódú JavaScript könyvtár, amely interaktív térképek megjelenítését teszi lehetővé. A könyvtár különösen alkalmas útvonalak, megállók és helymeghatározások vizualizálására, így jól illeszkedik logisztikai vagy közlekedési célú alkalmazásokba.(Forrás: Leaflet – JavaScript térképkönyvtár)
 
 \subsubsection{E-mailküldés SMTP protokollal}
 
-\indent A levelezési funkciók megvalósításához az ASP.NET alkalmazásokban a .NET beépített System.Net.Mail névtere használható, amely támogatja az SMTP-alapú üzenetküldést. A konfiguráció során megadható a szerver címe, a hitelesítéshez szükséges adatok, valamint biztonságos (SSL/TLS) kapcsolódási lehetőségek. Ez lehetővé teszi automatikus értesítések, regisztrációs visszaigazolások vagy tranzakciós levelek küldését.
+\indent A levelezési funkciók megvalósításához az ASP.NET alkalmazásokban a .NET beépített System.Net.Mail névtere használható, amely támogatja az SMTP-alapú üzenetküldést. A konfiguráció során megadható a szerver címe, a hitelesítéshez szükséges adatok, valamint biztonságos (SSL/TLS) kapcsolódási lehetőségek. Ez lehetővé teszi automatikus értesítések, regisztrációs visszaigazolások vagy tranzakciós levelek küldését. (Forrás: SmtpClient Class – Microsoft Docs)
 
 \subsubsection{QR-kód generálás}
 
-\indent A QR-kódok lehetővé teszik különböző típusú információ gyors és vizuálisan is feldolgozható ábrázolását. ASP.NET MVC alkalmazásokban a QRCoder könyvtár használatával könnyen létrehozhatók ilyen kódok, amelyek tartalmazhatnak URL-eket, azonosítókat vagy bármilyen szöveges adatot, például jegyek, csomagazonosítók vagy belépési információk formájában.
-
-
+\indent A QR-kódok lehetővé teszik különböző típusú információ gyors és vizuálisan is feldolgozható ábrázolását. ASP.NET MVC alkalmazásokban a QRCoder könyvtár használatával könnyen létrehozhatók ilyen kódok, amelyek tartalmazhatnak URL-eket, azonosítókat vagy bármilyen szöveges adatot, például jegyek, csomagazonosítók vagy belépési információk formájában.(Forrás: Creating QR Code in ASP.NET Core – C\# Corner)

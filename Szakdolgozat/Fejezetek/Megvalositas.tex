@@ -30,12 +30,12 @@ Ezt az alapstruktúrát a saját igényeim szerint bővítettem ki további tula
 
 
 \subsubsection{AppDbContext}
-Ezen felül az \texttt{AppDbContext} lehetőséget biztosít az entitások viselkedésének testreszabására az \texttt{OnModelCreating} metódusban, ahol külön definiálhatjuk a kulcsokat, kapcsolatokat, korlátozásokat, valamint egyéb konfigurációkat. Különösen hasznos az úgynevezett "vízesés törlés" (cascade delete) viselkedés figyelembe vétele, amely során egy entitás törlése vízesésszerűen magával vonhatja más kapcsolódó entitások törlését is. Az \texttt{OnModelCreating} metódus lehetőséget biztosít ennek felügyelésére, ezáltal elkerülve az adatvesztést okozó nem kívánt láncfolyamatokat.
+Ezen felül az \texttt{AppDbContext} lehetőséget biztosít az entitások viselkedésének testreszabására az \texttt{OnModelCreating} metódusban, ahol külön definiálhatjuk a kulcsokat, kapcsolatokat, korlátozásokat, valamint egyéb konfigurációkat. Különösen hasznos az úgynevezett "vízesés törlés" (cascade delete) viselkedés figyelembe vétele, amely során egy entitás törlése vízesésszerűen magával vonhatja más kapcsolódó entitások törlését is. Az \texttt{OnModelCreating} metódus lehetőséget biztosít ennek felügyelésére, ezáltal elkerülve az adatvesztést okozó nem kívánt láncfolyamatokat.  (Forrás: DbContext Configuration in EF Core – Microsoft Docs)
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=1\textwidth]{Szakdolgozat/Mellekletek/AppDbContext.PNG}
-\caption{A projektem AppDbContext osztálya látható az általam definiált modellekkel kiegészítve. }
+\caption{A projektem AppDbContext osztálya látható az általam definiált modellekkel kiegészítve.}
 \label{fig:appdbcontext}
 \end{figure}
 
