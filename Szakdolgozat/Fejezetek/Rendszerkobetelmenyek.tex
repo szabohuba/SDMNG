@@ -13,23 +13,6 @@ A funkcionális követelmények azokat az elvárt viselkedéseket és szolgálta
 
 A \textit{Contact} modell az alkalmazás felhasználóit reprezentálja, és lehetővé teszi a regisztráció, bejelentkezés, valamint a felhasználói adatok kezelésének funkcióit. A rendszer támogatja különböző szerepkörök (utas, sofőr, adminisztrátor) hozzárendelését a felhasználókhoz, amely szerepek befolyásolják a hozzáférési jogosultságokat. A felhasználók személyes adatai – beleértve a nevet, lakcímet és irányítószámot – utólag is módosíthatók a profilkezelő felületen keresztül. Az adminisztrátor jogosult egyes felhasználók inaktiválására is, amely funkció különösen hasznos a visszaélések vagy szabálytalanságok esetén történő fiókletiltás során.
 
-
-
-\subsubsection{Ticket}
-
-A \textit{Ticket} entitás a rendszerben megvásárolt jegyeket írja le, és szoros kapcsolatban áll a menetrendi adatokkal, valamint a felhasználói profillal. Jegyvásárlás során a rendszer automatikusan hozzárendel egy szabad ülőhelyet a kiválasztott járathoz. A tranzakció befejeztével a felhasználó egy automatikusan generált visszaigazoló e-mailt kap, amelyhez mellékletként QR-kód is csatolásra kerül.
-
-Ez a QR-kód hordozza a legfontosabb utazási információkat, például a járatszámot, az indulási és érkezési állomásokat, valamint az útvonal teljes menetidejét. A felhasználó ezenkívül a \textit{Ticket Detail} nézeten keresztül részletesen is megtekintheti a jegyhez kapcsolódó adatokat – ideértve az indulás és érkezés időpontját, az utazási vonalat, valamint a kijelölt ülőhelyet.
-
-A felület egy interaktív térképet is tartalmaz, amely grafikus formában mutatja be az adott utazás útvonalát. Fontos megjegyezni, hogy a QR-kód nem a jegyoldalon jelenik meg, hanem kizárólag a visszaigazoló e-mail mellékleteként kerül továbbításra, biztonsági és technikai okokból, közvetlenül a rendszer által generálva az aktuális jegyadatok alapján.
-
-
-
-
-\subsubsection{Contact}
-
-A \textit{Contact} modell az alkalmazás felhasználóit reprezentálja, és lehetővé teszi a regisztráció, bejelentkezés, valamint a felhasználói adatok kezelésének funkcióit. A rendszer támogatja különböző szerepkörök (utas, sofőr, adminisztrátor) hozzárendelését a felhasználókhoz, amely szerepek befolyásolják a hozzáférési jogosultságokat. A felhasználók személyes adatai – beleértve a nevet, lakcímet és irányítószámot – utólag is módosíthatók a profilkezelő felületen keresztül. Az adminisztrátor jogosult egyes felhasználók inaktiválására is, amely funkció különösen hasznos a visszaélések vagy szabálytalanságok esetén történő fiókletiltás során.
-
 \subsubsection{Ticket}
 
 A \textit{Ticket} entitás a rendszerben megvásárolt jegyeket írja le, és szoros kapcsolatban áll a menetrendi adatokkal, valamint a felhasználói profillal. Jegyvásárlás során a rendszer automatikusan hozzárendel egy szabad ülőhelyet a kiválasztott járathoz. A tranzakció befejeztével a felhasználó egy automatikusan generált visszaigazoló e-mailt kap, amelyhez mellékletként QR-kód is csatolásra kerül.

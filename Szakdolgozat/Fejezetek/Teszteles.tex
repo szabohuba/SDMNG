@@ -135,6 +135,8 @@ Míg a Create egy teljesen új rekord hozzáadását végzi el, addig a Modify m
 
 A Create metódussal szemben itt nem új rekord keletkezik, hanem egy meglévő objektum mezői frissülnek, így a teszt fókusza is más: míg a Create esetén az adat tényleges bekerülése a cél, addig a Modify esetén a meglévő adat sikeres frissítése, és ezzel együtt az esetleges ütközések kezelése válik fontossá.
 
+
+
 \begin{lstlisting}
 \[Fact]
 public async Task Modify\_UpdatesStop\_WhenValidData()

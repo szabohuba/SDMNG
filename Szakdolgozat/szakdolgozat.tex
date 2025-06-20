@@ -1,5 +1,4 @@
 \documentclass{article}
-\usepackage{t1enc}
 
 \usepackage[hungarian]{babel}
 \usepackage[utf8]{inputenc}
@@ -7,20 +6,18 @@
 
 \usepackage{graphicx}
 \usepackage{geometry}
-
 \usepackage{setspace}
 \onehalfspacing
 
 \usepackage{titling}
 \usepackage{indentfirst}
-
 \usepackage{xcolor}
-\usepackage{graphicx} 
 \usepackage{float}
 \usepackage{listings}
 \usepackage{url}
+\usepackage{caption}
 
-
+% JavaScript szintaxiskiemelés
 \lstdefinelanguage{JavaScript}{
   keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof, new, return, switch, this, throw, try, typeof, var, void, while, with, let, const},
   keywordstyle=\color{blue}\bfseries,
@@ -39,50 +36,47 @@
 \lstset{
   backgroundcolor=\color{white!10},
   basicstyle=\ttfamily\small,
-  frame=none
+  frame=none,
   language=JavaScript
 }
 
-
-
+\usepackage{fancyhdr}  
 
 \begin{document}
 
-\pagestyle{plain}
-
-
+% Címlapok oldalszám nélkül
+\pagenumbering{gobble}
 \include{Fejezetek/Cimoldal}
 \include{Fejezetek/CimlapRoman}
 \include{Fejezetek/Kivonat}
 \include{Szakdolgozat/Fejezetek/Abstract}
 
+% Tartalomjegyzék oldalszám nélkül
+\cleardoublepage
+\pagestyle{empty}
 \tableofcontents
-\newpage
+\cleardoublepage
+
+
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\pagestyle{plain}
+
+
 \include{Szakdolgozat/Fejezetek/Bevezetes}
 \newpage
 \include{Szakdolgozat/Fejezetek/ASPNETMVCarhitektura}
-
 \newpage
 \include{Szakdolgozat/Fejezetek/Rendszerkobetelmenyek}
-
 \newpage
 \include{Szakdolgozat/Fejezetek/TervezesEsArchitektura}
-
 \newpage
-\include{Szakdolgozat/Fejezetek/Megvalositas.tex}
-
+\include{Szakdolgozat/Fejezetek/Megvalositas}
 \newpage
-\include{Szakdolgozat/Fejezetek/Teszteles.tex}
-
-\newpage
-\include{Szakdolgozat/Fejezetek/webhosting.tex}
-
+\include{Szakdolgozat/Fejezetek/Teszteles}
 \newpage
 \include{Szakdolgozat/Fejezetek/Osszegzes}
-
 \newpage
-\include{Szakdolgozat/Fejezetek/konyveszet.tex}
-
-
+\include{Szakdolgozat/Fejezetek/FelhasználtIrodalom}
 
 \end{document}
