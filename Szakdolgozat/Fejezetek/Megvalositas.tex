@@ -97,7 +97,7 @@ A csatolmányok feltöltésekor az \texttt{IWebHostEnvironment} segítségével 
 \subsubsection{Regisztráció és felhaszálói szerepkör menedzselési komponensek}
 A \texttt{Contact} osztályra épülő hitelesítési és regisztrációs funkciók az \texttt{AccountController} osztályon belül valósítottam meg. Ezen funkciók szétválasztását a Contact controllertől azért láttam fontosnak, mivel itt a kontakt osztály metódusai vannak definiálva a személyes fiókr nézve. A ContactControllerben viszont az admin funkciók kerültek megvalósításra az összes kontact számára. Ez jol strukturált felépítést eredményez, valamint megkönnyíti a kiegészítést, ejlesztést. 
 
-Az \texttt{Account} vezérlő működését két fontos Identity-komponens, a \texttt{UserManager<TUser>} és a \texttt{SignInManager<TUser>} segíti. A \texttt{UserManager} az általános felhasználókezelési műveletekért felelős, mint például új felhasználó létrehozása, jelszó módosítása, szerepkörök kezelése, míg a \texttt{SignInManager} a be- és kijelentkezés lebonyolítását végzi.
+Az \texttt{Account} vezérlő működését két fontos Identity-komponens, a UserManager<TUser> és a \texttt{SignInManager<TUser>} segíti. A \texttt{UserManager} az általános felhasználókezelési műveletekért felelős, mint például új felhasználó létrehozása, jelszó módosítása, szerepkörök kezelése, míg a \texttt{SignInManager} a be- és kijelentkezés lebonyolítását végzi.
 
 A regisztráció során a rendszer egy új \texttt{Contact} példányt hoz létre a megadott adatok alapján, majd a \texttt{UserManager.CreateAsync()} metódussal menti azt az adatbázisba. A sikeres regisztrációt követően a felhasználó automatikusan hozzá van rendelve egy alapértelmezett szerepkörhöz (pl. \texttt{"User"}), amit a \texttt{UserManager.AddToRoleAsync()} metódus hajt végre. Ez lehetővé teszi a későbbi gördülékeny engedélykezelést, például admin jogosultságok bevezetését vagy jogosultságok szűrését nézetek szerint.
 
@@ -148,29 +148,41 @@ A fejlesztés során az alkalmazás alapját az úgynevezett CRUD műveletek (Cr
 \paragraph{Létrehozás (Create):}
 Az adatok mentésének első lépése a \textit{Create} művelet, amely lehetővé teszi, hogy a felhasználó új megállót vigyen be a rendszerbe. A folyamat általában két metódusból áll: egy GET típusú lekérdezésből, amely megjeleníti az űrlapot, és egy POST típusú feldolgozásból, amely menti az adatokat.
 
-A GET metódus célja az, hogy megjelenítse a felhasználó számára az üres űrlapot, amelyen keresztül új megálló rögzíthető. Különösen fontos ez abban az esetekben, amikor az űrlapon legördülő listákat alkalmazunk, például más entitásokkal való kapcsolat során. Ilyenkor célszerű nem az idegen kulcsot, hanem a kapcsolódó elem nevét, például az útvonal megnevezését megjeleníteni a felhasználó számára. Ehhez a GET metódus során előre le kell kérdezni a szükséges adatokat továbbítani a nézet felé. Továbbá, a GET metódus lehetőséget biztosít arra is, hogy kiszűrjük azokat az entitásokat, amelyeket már hozzárendeltünk egy másik objektumhoz. Ez különösen fontos például olyan esetekben, amikor egy buszhoz csak egyetlen sofőr rendelhető hozzá. Ebben az esetben az űrlapon csak azok a sofőrök jelennek meg a legördülő listában, akik még nincsenek hozzárendelve egyetlen buszhoz sem. Ezzel elkerülhető a többszörös hozzárendelés, és biztosítható az adatkonzisztencia.
+A GET metódus célja az, hogy megjelenítse a felhasználó számára az üres űrlapot, amelyen keresztül új megálló rögzíthető. Különösen fontos ez abban az esetekben, amikor az űrlapon legördülő listákat alkalmazunk, például más entitásokkal való kapcsolat során. Ilyenkor célszerű nem az idegen kulcsot, hanem a kapcsolódó elem nevét, például az útvonal megnevezését megjeleníteni a felhasználó számára. Ehhez a GET metódus során előre le kell kérdezni a szükséges adatokat továbbítani a nézet felé. Továbbá, a GET metódus lehetőséget biztosít arra is, hogy kiszűrjük azokat az entitásokat, amelyeket már hozzárendeltünk egy másik objektumhoz. Ez különösen fontos például olyan esetekben, amikor egy buszhoz csak egyetlen sofőr rendelhető hozzá. Ebben az esetben az űrlapon csak azok a sofőrök jelennek meg a legördülő listában, akik még nincsenek hozzárendelve egyetlen buszhoz sem. Ezzel elkerülhető a többszörös hozzárendelés, és biztosítható az adatkonzisztencia. A \ref{fig:get-create-stop}. ábra a fentiekben tárgyalt követelmények megvalóítását vizualizálja.
 
-\begin{lstlisting}
+\begin{figure}[H]
+\caption{A megálló létrehozásához tartozó HTTP GET metódus}
+\label{fig:get-create-stop}
+\begin{minipage}{\textwidth}
+\begin{BVerbatim}
 [HttpGet]
 public IActionResult Create()
 {
-return View();
+    return View();
 }
-\end{lstlisting}
+\end{BVerbatim}
+\end{minipage}
+\end{figure}
 
-A POST metódus pedig a beküldött adatok feldolgozását végzi. A paraméterként érkező modell osztályt validálás után az adatbázisba menti. A rendszer itt egyedi azonosítót is hozzárendel a rekordhoz.
+A \ref{fig:create-stop}. ábrán bemutatott POST metódus kódrészlet az új megállók adatbázisba való mentését mutatja be. A metódus először új azonosítót generál a megállónak, majd hozzáadja azt az adatbáziskontextus objektumhoz, végül elmenti a módosításokat, és visszairányítja a felhasználót a megállók listájához.
 
-\begin{lstlisting}
+\begin{figure}[H]
+\caption{Új megálló létrehozása a \texttt{StopController} osztályban}
+\label{fig:create-stop}
+\begin{minipage}{\textwidth}
+\begin{BVerbatim}
 [HttpPost]
 [ValidateAntiForgeryToken]
-public async Task Create(Stop stop)
+public async Task<IActionResult> Create(Stop stop)
 {
-stop.StopId = Guid.NewGuid().ToString();
-_context.Stops.Add(stop);
-await _context.SaveChangesAsync();
-return RedirectToAction(nameof(Index));
+    stop.StopId = Guid.NewGuid().ToString();
+    _context.Stops.Add(stop);
+    await _context.SaveChangesAsync();
+    return RedirectToAction(nameof(Index));
 }
-\end{lstlisting}
+\end{BVerbatim}
+\end{minipage}
+\end{figure}
 
 A \texttt{Guid.NewGuid()} metódus gondoskodik az egyediség biztosításáról. A \texttt{Stops} tábla ezután egy új rekorddal bővül, amelyet a rendszer automatikusan ment az adatbázisba.
 
@@ -182,22 +194,25 @@ Az adatok megjelenítéséért felelős \textit{Read} művelet az alkalmazásban
 
 Különösen fontos szerepet tölt be ez a művelet az adatok részletes megjelenítésében, például amikor a felhasználó meg szeretné tekinteni egy adott megálló adatait.
 
-\begin{lstlisting}
-public async Task Detail(string id)
+\begin{figure}[H]
+\caption{Egy megálló részletes adatainak lekérdezése azonosító alapján}
+\label{fig:detail-stop-method}
+\begin{minipage}{\textwidth}
+\begin{BVerbatim}
+public async Task<IActionResult> Detail(string id)
 {
-if (string.IsNullOrEmpty(id)) return NotFound();
+    if (string.IsNullOrEmpty(id)) return NotFound();
+    var stop = await _context.Stops
+        .FirstOrDefaultAsync(s => s.StopId == id);
 
-var stop = await _context.Stops
-    .FirstOrDefaultAsync(s => s.StopId == id);
-
-if (stop == null) return NotFound();
-
-return View(stop);
-
+    if (stop == null) return NotFound();
+    return View(stop);
 }
-\end{lstlisting}
+\end{BVerbatim}
+\end{minipage}
+\end{figure}
 
-Ez a metódus egy adott megálló egyedi azonosítója alapján lekérdezi az entitást az adatbázisból. A \texttt{FirstOrDefaultAsync} biztosítja, hogy vagy egy konkrét elem, vagy nulla (null) érték érkezzen vissza, ha az adott azonosítóval nem létezik megálló. A részletes nézet ezek után megjeleníti az entitás minden fontos attribútumát, például nevét, földrajzi koordinátáit és kapcsolódó elemeket.
+A \ref{fig:detail-stop-method}. ábra azt a metódust szemlélteti, amely egy konkrét megálló részletes adatainak lekérdezéséért felel. Ez a metódus egy adott megálló egyedi azonosítója alapján lekérdezi az entitást az adatbázisból. A \texttt{FirstOrDefaultAsync} biztosítja, hogy vagy egy konkrét elem, vagy nulla (null) érték érkezzen vissza, ha az adott azonosítóval nem létezik megálló. A részletes nézet ezek után megjeleníti az entitás minden fontos attribútumát, például nevét, földrajzi koordinátáit és kapcsolódó elemeket.
 
 
 \paragraph{Módosítás (Update):}
@@ -205,32 +220,36 @@ Az adatok frissítése általában kétlépcsős folyamatként valósul meg. Az 
 
 A második lépésben, POST metódus segítségével történik az új értékek mentése. A felhasználó által módosított adatokat a szerver fogadja, majd validálás után frissíti azokat az adatbázisban.
 
-\begin{lstlisting}
+\begin{figure}[H]
+\caption{Megálló adatainak módosítása azonosító alapján}
+\label{fig:modify-stop-method}
+\begin{minipage}{\textwidth}
+\begin{BVerbatim}
 [HttpPost]
 [ValidateAntiForgeryToken]
-public async Task Modify(string id,
+public async Task<IActionResult> Modify(string id,
 [Bind("StopId,StopName,Latitude,Longitude")] Stop stop)
-{
-if (id != stop.StopId) return NotFound();
-if (ModelState.IsValid)
-{ try
-    {
-        _context.Update(stop);
-        await _context.SaveChangesAsync();
+{   if (id != stop.StopId) return NotFound();
+    if (ModelState.IsValid)
+    { try
+        { _context.Update(stop);
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!_context.Stops.Any(s => s.StopId == stop.StopId))
+                {return NotFound();}
+            throw;
+        }
+        return RedirectToAction(nameof(Index));
     }
-    catch (DbUpdateConcurrencyException)
-    {
-        if (!_context.Stops.Any(s => s.StopId == stop.StopId))
-        {return NotFound();}
-        throw;
-    }
-    return RedirectToAction(nameof(Index));
+    return View(stop);
 }
-return View(stop);
-}
-\end{lstlisting}
+\end{BVerbatim}
+\end{minipage}
+\end{figure}
 
-A metódus elsőként ellenőrzi, hogy a paraméterként kapott id megegyezik-e a beküldött modell StopId értékével. Ez szükséges annak érdekében, hogy kizárjuk a tévesen átadott adatokból fakadó hibákat. Ha az azonosítók nem egyeznek, a rendszer azonnal NotFound() választ ad vissza, megszakítva a műveletet.
+A \ref{fig:modify-stop-method}. ábrán bemutatott metódus egy megálló adatainak frissítését hajtja végre. A metódus elsőként ellenőrzi, hogy a paraméterként kapott id megegyezik-e a beküldött modell StopId értékével. Ez szükséges annak érdekében, hogy kizárjuk a tévesen átadott adatokból fakadó hibákat. Ha az azonosítók nem egyeznek, a rendszer azonnal NotFound() választ ad vissza, megszakítva a műveletet.
 
 A ModelState.IsValid ellenőrzés során a rendszer megvizsgálja, hogy a felhasználói űrlapadatok megfelelnek-e az adott modellre vonatkozó adatintegritási és validációs szabályoknak. Csak érvényes állapot esetén hajtódik végre a frissítés.
 
@@ -241,43 +260,55 @@ A try-catch blokk biztosítja a konkurens módosítások (concurrency) kezelés�
 \paragraph{Törlés (Delete):}
 A törlés folyamata szintén két lépésből épül fel: egy GET típusú előkészítő műveletből, amely megerősítést kér a felhasználótól, és egy POST metódusból, amely végrehajtja az adat tényleges eltávolítását az adatbázisból.
 
-A GET metódus célja, hogy az azonosító alapján lekérje a törölni kívánt entitást, és annak adatait megjelenítse egy megerősítő nézetben:
+A GET metódus célja, hogy az azonosító alapján lekérje a törölni kívánt entitást, és annak adatait megjelenítse egy megerősítő nézetben.
 
-\begin{lstlisting}
+\begin{figure}[H]
+\caption{Megálló törlésének előkészítése azonosító alapján}
+\label{fig:delete-stop-method}
+\begin{minipage}{\textwidth}
+\begin{BVerbatim}
 public async Task Delete(string id)
 {
-if (string.IsNullOrEmpty(id)) return NotFound();
+    if (string.IsNullOrEmpty(id)) return NotFound();
+    var stop = await _context.Stops
+        .FirstOrDefaultAsync(s => s.StopId == id);
 
-var stop = await _context.Stops
-    .FirstOrDefaultAsync(s => s.StopId == id);
-
-if (stop == null) return NotFound();
-
-return View(stop);
-
+    if (stop == null) return NotFound();
+    return View(stop);
 }
-\end{lstlisting}
+\end{BVerbatim}
+\end{minipage}
+\end{figure}
+
+A \ref{fig:delete-stop-method}. ábra a törlés előkészítését végző metódust mutatja be. A logika első lépésben megvizsgálja, hogy az átadott azonosító nem üres-e, majd megkísérli lekérni a megállót az adatbázisból. Ha a megálló nem található, `NotFound()` válasz jön vissza, különben a rendszer betölti azt a nézetet, amelyben a törlés megerősítése történik. Ez az előkészítő lépés segít megelőzni a véletlen vagy hibás adatvesztést, és egyben megbízható felhasználói élményt biztosít.
+
 
 A POST metódus, amelyet \texttt{DeleteConfirmed} néven definiáltunk, végzi el ténylegesen a rekord eltávolítását. Az entitást az egyedi azonosító segítségével kinyerjük, majd az Entity Framework \texttt{Remove()} metódusával töröljük.
 
-\begin{lstlisting}
+\begin{figure}[H]
+\caption{Megálló végleges törlése adatbázisból}
+\label{fig:delete-confirmed-method}
+\begin{minipage}{\textwidth}
+\begin{BVerbatim}
 [HttpPost, ActionName("Delete")]
 [ValidateAntiForgeryToken]
 public async Task DeleteConfirmed(string id)
 {
-var stop = await _context.Stops.FindAsync(id);
-if (stop != null)
-{
-_context.Stops.Remove(stop);
-await _context.SaveChangesAsync();
+    var stop = await _context.Stops.FindAsync(id);
+    if (stop != null)
+    {
+        _context.Stops.Remove(stop);
+        await _context.SaveChangesAsync();
+    }
+    return RedirectToAction(nameof(Index));
 }
+\end{BVerbatim}
+\end{minipage}
+\end{figure}
 
-return RedirectToAction(nameof(Index));
+A \ref{fig:delete-confirmed-method}. ábrán szereplő metódus a törlés végrehajtásáért felelős. Miután a felhasználó megerősítette a törlési szándékát, az alkalmazás megkeresi az adott azonosítóval rendelkező megállót az adatbázisban. Ha az létezik, akkor eltávolítja, majd elmenti a változásokat. A művelet végén az adminisztrátort visszairányítja a megállók listájára. A `ValidateAntiForgeryToken` attribútum gondoskodik a kérések biztonságos hitelesítéséről.
 
-}
-\end{lstlisting}
-
-Ez a megoldás lehetővé teszi a biztonságos és konzisztens törlést, amely során a rendszer ellenőrzi az entitás létezését, majd a mentést követően visszairányítja a felhasználót az entitások listájához. Fontos azonban hangsúlyozni, hogy a törlés művelet implementálása során különös figyelmet kell tulajdonítani, mivel az adatok között gyakran léteznek kapcsolatok. Például ha egy megálló már hozzárendelt útvonalakban vagy menetrendekben szerepel, annak közvetlen törlése megsértheti az adatbázis integritását. Ezért célszerű az ilyen műveletek előtt ellenőrizni, hogy az adott entitás nem áll-e kapcsolatban más entitásokkal. Ha igen, akkor az adminisztrátor feladata, hogy előbb ezeket a kapcsolódó rekordokat törölje, vagy a kapcsolatok megszüntetése után hajtsa végre a törlést. A felhasználói felületen üzenetet kell megjeleníthető, amely egyértelműen jelzi, hogy az adott elem csak akkor törölhető, ha már nem szerepel más adategységekben.
+Ez a megoldás lehetővé teszi a biztonságos törlést, amely során a rendszer ellenőrzi az entitás létezését, majd a mentést követően visszairányítja a felhasználót az entitások listájához. Fontos azonban hangsúlyozni, hogy a törlés művelet implementálása során különös figyelmet kell tulajdonítani, mivel az adatok között gyakran léteznek kapcsolatok. Például ha egy megálló már hozzárendelt útvonalakban vagy menetrendekben szerepel, annak közvetlen törlése megsértheti az adatbázis integritását. Ezért célszerű az ilyen műveletek előtt ellenőrizni, hogy az adott entitás nem áll-e kapcsolatban más entitásokkal. Ha igen, akkor az adminisztrátor feladata, hogy előbb ezeket a kapcsolódó rekordokat törölje, vagy a kapcsolatok megszüntetése után hajtsa végre a törlést. A felhasználói felületen üzenetet kell megjeleníthető, amely egyértelműen jelzi, hogy az adott elem csak akkor törölhető, ha már nem szerepel más adategységekben.
 
 \subsection{Nézetek (View) felépítése}
 
@@ -355,7 +386,7 @@ Ez a megközelítés nemcsak az adminisztratív feladatok kezelésére használh
 
 
 \subsubsection{Térképes megjelenítés a Stop részletező nézetben}
-A megállók részletező nézete a felhasználói felület egyik kulcseleme, amely nemcsak szöveges információt nyújt a kiválasztott megállóról, hanem vizuálisan is segíti a tájékozódást egy interaktív térkép segítségével. A felület célja, hogy a felhasználó könnyen és gyorsan át tudja tekinteni egy adott megálló legfontosabb adatait, illetve annak pontos földrajzi elhelyezkedését.
+A megállók részletező nézete a felhasználói felület egyik fontos eleme, amely nemcsak szöveges információt nyújt a kiválasztott megállóról, hanem vizuálisan is segíti a tájékozódást egy interaktív térkép segítségével. A felület célja, hogy a felhasználó könnyen és gyorsan át tudja tekinteni egy adott megálló legfontosabb adatait, illetve annak pontos földrajzi elhelyezkedését.
 
 A nézet az adott megálló objektum adatait jeleníti meg, amely a rendszerben egy Stop típusú modellként van definiálva. A megjelenített mezők közé tartozik a megálló neve, valamint annak szélességi és hosszúsági koordinátái. Ezek az értékek olvasható, de nem szerkeszthető formában jelennek meg, hogy a felhasználó ne tudjon véletlenül módosítani rajtuk.
 
@@ -363,96 +394,116 @@ A nézet különlegessége a térképes megjelenítés, amely a Leaflet nevű Ja
 
 A megálló adatlap nézetében egy JavaScript-alapú megoldás jeleníti meg a megálló földrajzi elhelyezkedését térképen. Ennek célja, hogy a felhasználó pontosan lássa, hol található az adott megálló. A megvalósítás alapja az, hogy az adatmodellből (`Stop`) származó földrajzi koordináták (szélesség és hosszúság) JavaScript változókba kerülnek:
 
-\begin{lstlisting}[language=JavaScript]
+\begin{figure}[H]
+\caption{Megálló helyének megjelenítése Leaflet térképen}
+\label{fig:leaflet-stop-map}
+\begin{minipage}{\textwidth}
+\begin{BVerbatim}
 var lat = @Html.Raw(Model.Latitude.ToString().Replace(',', '.'));
 var lng = @Html.Raw(Model.Longitude.ToString().Replace(',', '.'));
-\end{lstlisting}
 
-Ez a lépés biztosítja, hogy a .NET-ben használt tizedesvesszők megfelelően átalakuljanak tizedespontokká, amelyeket a JavaScript értelmezni tud. Ezt követően egy egyszerű ellenőrzés biztosítja, hogy a koordináták érvényes számok:
-
-\begin{lstlisting}[language=JavaScript]
 if (!isNaN(lat) && !isNaN(lng)) {
-\end{lstlisting}
+    var map = L.map('stopMap').setView([lat, lng], 15);
 
-Ha az értékek helyesek, létrejön a térképobjektum. A térkép a HTML oldalon definiált \texttt{<div>} elemre (`id="stopMap"`) kerül:
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18
+    }).addTo(map);
 
-\begin{lstlisting}[language=JavaScript]
-var map = L.map('stopMap').setView([lat, lng], 15);
-\end{lstlisting}
+    L.marker([lat, lng])
+        .addTo(map)
+        .bindPopup("<strong>@Model.StopName</strong>")
+        .openPopup();
+}
+\end{BVerbatim}
+\end{minipage}
+\end{figure}
 
-Ezután hozzáadjuk a térkép vizuális rétegét, az úgynevezett csemperéteget az OpenStreetMap szolgáltatásból:
+\ref{fig:leaflet-stop-map}. ábrában szereplő JavaScript kódrészlet részletesen vázolja azt, hogyan épül fel a térképes megjelenítés. Az első két sor célja a Model.Latitude és Model.Longitude C\#-ban tárolt értékek JavaScript kompatibilis formátumra hozása. Mivel a magyar lokalizációban a tizedesjegy-leválasztó a vessző (','), ezeket előbb pontokra ('.') cseréljük le, hogy a Leaflet könyvtár által elvárt formátumot kapjuk meg.
 
-\begin{lstlisting}[language=JavaScript]
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 18
-}).addTo(map);
-\end{lstlisting}
+Ezt követően egy ellenőrzés történik az isNaN() függvénnyel, amely megbizonyosodik arról, hogy a lat és lng változók valóban számértékek. Ha ez a feltétel teljesül, akkor a L.map() függvény inicializál egy új térképet a HTML oldalon elhelyezett stopMap azonosítójú <div> elemben. A setView() metódus beállítja a térkép középpontját a megadott koordinátákra, valamint egy nagyítási szintet, amely egy városi szintű részletességnek felel meg.
 
-A megálló pontos helyét egy markerrel jelöljük, amelyhez egy információs buborék is társul, amely automatikusan megnyílik, amint betöltődik a térkép:
+Ezután a L.tileLayer() függvény segítségével betöltjük az OpenStreetMap  térképelemet. Ez biztosítja az alapvető vizuális térképet, amelyre a marker rákerül. A betöltött réteg legnagyobb nagyítása maxZoom: 18, amely szintén a részletesség maximalizálását szolgálja.
 
-\begin{lstlisting}[language=JavaScript]
-L.marker([lat, lng])
-    .addTo(map)
-    .bindPopup("<strong>@Model.StopName</strong>")
-    .openPopup();
-\end{lstlisting}
+Végül a L.marker() hívással létrehozunk egy új jelölőt a megálló pozíciójában. Az .addTo(map) metódus hozzáadja ezt a markert a térképhez. A .bindPopup() függvénnyel egy szöveges mezőt kapcsolunk hozzá, amely az aktuális megálló nevét jeleníti meg. Az .openPopup() metódus gondoskodik arról, hogy az információs buborék automatikusan megjelenjen a térképen, nem szükséges a felhasználónak rákattintania.
 
-A megálló adatlapján megjelenő térképes komponens kulcsfontosságú felhasználói élményt nyújt, mivel lehetővé teszi a megálló földrajzi helyének közvetlen, vizuális azonosítását. A rendszer nem csupán a megálló nevét és koordinátáit jeleníti meg szövegesen, hanem automatikusan betölt egy interaktív térképet is, amely a megálló pontos pozíciójára fókuszál. Ezt a térképet automatikusan egy előre definiált nagyítási szinten nyitja meg a rendszer, így a felhasználó azonnal az adott megálló szűk környezetét látja – például az utcát, csomópontot vagy városrészt, ahol az elhelyezkedik.
-
-Ennek a megközelítésnek az egyik legnagyobb előnye, hogy a felhasználónak nem szükséges a megálló nevét külső alkalmazásban, például térképszolgáltatóban újra beírnia vagy külön keresnie. A rendszer tehát nem hagyatkozik arra, hogy a név alapján a felhasználó majd önállóan beazonosítja a megállót, hanem maga szolgáltatja a térképes, hajszálpontos helyadatot. Ez a megoldás jelentősen csökkenti az eltévedés vagy félreértés kockázatát, különösen akkor, ha több hasonló nevű megálló is létezik egy városon belül.
+Ez az interaktív komponens tehát nem csupán egy vizuális kiegészítő, hanem jelentős mértékben hozzájárul a rendszer használhatóságához és felhasználóbarát jellegéhez. A JavaScript és a Leaflet könyvtár ilyen típusú alkalmazása egy modern, reszponzív felhasználói élményt eredményez, amely különösen hasznos lehet mobil vagy érintőképernyős eszközökön történő használat során is.
 
 \subsubsection{Útvonal részletező nézet – több megálló vizuális megjelenítése térképen}
 
 Az útvonal nézet működésében több ponton is párhuzamba állítható a megálló részletező felülettel: itt is térképes megjelenítés segíti a felhasználót, viszont a fókusz már nem egyetlen helyszín bemutatásán van, hanem egy egész megállósorozat áttekintésén. A nézet célja, hogy az útvonalhoz tartozó állomásokat sorrendben és valós helyükön mutassa be, azokat a térképen vizuálisan összekötve. Ezáltal a felhasználó nemcsak név szerint keresheti ki az egyes megállókat, hanem egy teljes képet kap arról, hogyan épül fel az adott útvonal.
 
-A rendszer minden megállóhoz egy-egy \texttt{marker} objektumot rendel, amelyet a térképen elhelyez. Ezeket JavaScript segítségével dolgozza fel, a koordináták alapján. Minden pont bekerül egy \texttt{waypoints} nevű tömbbe is, amelyet később a térképútvonal-rajzolás során használunk.
+Az útvonal nézet célja, hogy a felhasználó számára vizuálisan is értelmezhető módon mutassa be, hogyan épül fel egy adott járat – azaz milyen megállókat érint, és milyen sorrendben. A megvalósítás során a Leaflet könyvtárhoz kapcsolódó Routing Machine bővítményt használjuk, amely lehetővé teszi több pont összekötését és útvonal kirajzolását a térképen.
 
-\begin{lstlisting}
+Minden megállóhoz először létrehozunk egy jelölőt (marker), amely az adott állomás koordinátáit használja, és egy rövid információs szöveget – jellemzően a megálló nevét – rendel hozzá. Ezek a jelölők segítik a felhasználót abban, hogy pontosan beazonosítsa az állomásokat:
+
+\begin{figure}[H]
+\caption{Jelölők és útvonalpontok elhelyezése a térképen}
+\label{fig:route-markers}
+\begin{minipage}{\textwidth}
+\begin{BVerbatim}
 var marker = L.marker([lat, lng]).addTo(map).bindPopup(stopName);
 waypoints.push(L.latLng(lat, lng));
-\end{lstlisting}
+\end{BVerbatim}
+\end{minipage}
+\end{figure}
 
-Miután az összes megálló feldolgozásra került, az útvonal kirajzolása a Leaflet Routing Machine nevű bővítmény segítségével történik. Ez a könyvtár a megadott pontokat vonalakkal köti össze, sorrendben:
+A \ref{fig:route-markers}. ábra kódrészlete azt mutatja, hogyan kerül fel egy új megálló a térképre, valamint hogyan tároljuk el az útvonal kirajzolásához szükséges koordinátákat egy waypoints nevű tömbbe. Ez a tömb minden egyes megállót reprezentál egy L.latLng() objektummal.
 
-\begin{lstlisting}
+Miután az összes megálló bekerült ebbe a struktúrába, az útvonal grafikus megjelenítését a Leaflet Routing Machine végzi. A következő ábra szemlélteti a konfigurációs lehetőségeket:
+
+\begin{figure}[H]
+\caption{Útvonal kirajzolása Leaflet Routing Machine segítségével}
+\label{fig:routing-control}
+\begin{minipage}{\textwidth}
+\begin{BVerbatim}
 L.Routing.control({
-    waypoints: waypoints,
-    lineOptions: {
-        styles: [
-            { color: '#FF1493', weight: 6, opacity: 0.95 },
-            { color: '#FFFFFF', weight: 2, opacity: 1 }
-        ]
-    },
-    createMarker: function() { return null; },
-    routeWhileDragging: false
+waypoints: waypoints,
+lineOptions: {
+styles: [
+{ color: '#FF1493', weight: 6, opacity: 0.95 },
+{ color: '#FFFFFF', weight: 2, opacity: 1 }
+]
+},
+createMarker: function() { return null; },
+routeWhileDragging: false
 }).addTo(map);
-\end{lstlisting}
+\end{BVerbatim}
+\end{minipage}
+\end{figure}
 
-A \texttt{lineOptions} szekció a vonal stílusáért felel, így az jól elkülönül más térképi elemektől. A \texttt{createMarker: function() \{ return null; \}} sor azért került be, hogy az útvonal-vezérlő ne helyezzen el újabb alapértelmezett jelölőket, mivel azt már korábban megtettük kézzel.
+A \ref{fig:routing-control}. ábrában látható konfigurációs blokk részletezi az útvonal megjelenítésének beállításait. A lineOptions szekcióban több színt és vastagságot rendelhetünk a kirajzolt útvonalhoz, ezzel vizuálisan is kiemelve azt. A createMarker opció null értékre van állítva, mivel a marker-ek már korábban, kézzel kerültek felhelyezésre, és itt nem kívánunk duplikációt.
 
-A térkép végül automatikusan a teljes útvonalra igazítja a nézetet, az összes megállót figyelembe véve:
+Az utolsó lépés a térkép automatikus igazítása az útvonal teljes hosszára. Ezt a fitBounds() függvénnyel érjük el.
 
-\begin{lstlisting}
+\begin{figure}[H]
+\caption{Térkép igazítása az összes megálló alapján}
+\label{fig:fit-bounds}
+\begin{minipage}{\textwidth}
+\begin{BVerbatim}
 map.fitBounds(L.latLngBounds(waypoints));
-\end{lstlisting}
+\end{BVerbatim}
+\end{minipage}
+\end{figure}
 
-Ez a térképes funkció hasonló célt szolgál, mint a megálló nézetben látott statikus marker, ugyanakkor ennél összetettebb élményt nyújt: nem egyetlen pontot, hanem egy útvonal teljes struktúráját jeleníti meg. A felhasználónak így nem kell találgatnia, hogy merre halad az adott járat – a rendszer megmutatja, pontról pontra, vizuálisan is.
+A \ref{fig:fit-bounds}. kódrészlet garantálja, hogy a térkép minden megállót megjelenítsen, anélkül, hogy a felhasználónak manuálisan kellene mozgatnia vagy nagyítania a nézetet. Ez különösen akkor hasznos, ha az útvonal hosszú és több városrészt érint.
+
+Összességében ez a funkció nem csupán egy hasznos kiegészítő, hanem egy olyan kulcsfontosságú elem, amely a vizualizáció erejével támogatja a közlekedési információk gyors és intuitív értelmezését. A felhasználó egy pillantással áttekintheti az útvonal struktúráját, így biztosabban dönthet az utazási lehetőségekről.
 
 
 \subsubsection{Ticket detail page }
 
-A jegyrészletező oldal a projekt szempontjából kiemelt jelentőséggel bír, hiszen ez az a funkció, amely az egész alkalmazás ötletét elindította. A kezdeti elképzelés abból született, hogy a felhasználók számára egy olyan felületet biztosítsunk, ahol a megvásárolt jegyük minden lényeges információja egyetlen, jól átlátható nézetben elérhető.
+A  \ref{fig:ticket-detail-kolozsvar-torda}. ábrán látható jegyrészletező oldal, a projekt szempontjából kiemelt jelentőséggel bír, hiszen ez az a funkció, amely az egész alkalmazás ötletét elindította. A kezdeti elképzelés abból született, hogy a felhasználók számára egy olyan felületet biztosítsunk, ahol a megvásárolt jegyük minden lényeges információja egyetlen, jól átlátható nézetben elérhető.
 
-Az oldal célja, hogy minden olyan információt tartalmazzon, ami az utazás szempontjából fontos lehet. Megjelenik rajta a járat neve, az ahhoz tartozó busz rendszáma, a lefoglalt ülőhely száma, valamint az indulási és érkezési időpontok, illetve azok helyszínei. Ezen adatok strukturált formában kerülnek megjelenítésre, így a felhasználó egy pillantással át tudja tekinteni a foglalás részleteit.
+Az oldal szere, hogy minden olyan információt tartalmazzon, ami az utazás szempontjából fontos lehet. Megjelenik rajta a járat neve, az ahhoz tartozó busz rendszáma, a lefoglalt ülőhely száma, valamint az indulási és érkezési időpontok, illetve azok helyszínei. Ezen adatok strukturált formában kerülnek megjelenítésre, így a felhasználó egy pillantással át tudja tekinteni a foglalás részleteit.
 
-Ami azonban igazán megkülönbözteti ezt a felületet más rendszerektől, az a térképes integráció. A nézet közvetlenül tartalmazza az utazás útvonalát is, amely egy térképen jelenik meg, vizuálisan kirajzolva a megállók közötti kapcsolatokat. Ennek óriási előnye, hogy a felhasználónak nem kell külön oldalakon keresgélnie, vagy új ablakot megnyitnia annak érdekében, hogy földrajzi képet kapjon az útvonalról – az interaktív térkép közvetlenül a jegyadatok mellett helyezkedik el, így a kétféle információ egy helyen, egymást kiegészítve jelenik meg.
+Ami azonban igazán megkülönbözteti ezt a felületet más rendszerektől, az a térképes integráció. A nézet közvetlenül tartalmazza az utazás útvonalát is, amely egy térképen jelenik meg, vizuálisan kirajzolva a megállók közötti kapcsolatokat. Ennek óriási előnye, hogy a felhasználónak nem kell külön oldalakon keresgélnie, vagy új ablakot megnyitnia annak érdekében, hogy földrajzi képet kapjon az útvonalról – az interaktív térkép közvetlenül a jegyadatok mellett helyezkedik el, így a kétféle információ egy helyen, egymást kiegészítve jelenik meg. A megvalósítása teljes mértékben megegyezik az útvonal nézet alfejezetben leírt lépésekkel, amint a megállókat a feldolgoztam, majd későbbiekben kirajzoltam az interaktív térképes felületen.
 
 Ez a megközelítés nemcsak kényelmi szempontból előnyös, hanem a felhasználói élmény szempontjából is kulcsfontosságú. A rendszer úgy lett kialakítva, hogy a legfontosabb információkat – akár időbeli, akár térbeli adatokról legyen szó – egyetlen oldalon tegye elérhetővé, ezzel is minimalizálva a felesleges navigációt és az információk keresésére fordított időt. Mindez nem csupán praktikus, hanem szemléletformáló is: a projekt középpontjába magát az utazó embert helyezi, és a lehető legkényelmesebb módon szolgáltatja számára a szükséges adatokat.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{Szakdolgozat/Mellekletek/ticketdetail.PNG}
-    \caption{Példa: egy Kolozsvár–Torda útvonalra vásárolt jegy részletező nézete. Az oldalon jól látható a járat neve, a busz rendszáma, az ülőhely száma, az indulási és érkezési időpontok és helyszínek, valamint a teljes útvonal térképes megjelenítése.}
+    \caption{Kolozsvár–Torda útvonalra vásárolt jegy részletező nézete. Az oldalon jól látható a járat neve, a busz rendszáma, az ülőhely száma, az indulási és érkezési időpontok és helyszínek, valamint a teljes útvonal térképes megjelenítése.}
     \label{fig:ticket-detail-kolozsvar-torda}
 \end{figure}
 

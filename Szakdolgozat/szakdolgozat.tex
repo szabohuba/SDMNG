@@ -13,9 +13,12 @@
 \usepackage{indentfirst}
 \usepackage{xcolor}
 \usepackage{float}
+
 \usepackage{listings}
 \usepackage{url}
 \usepackage{caption}
+\usepackage{fancyhdr}  
+\usepackage{fancyvrb}
 
 % JavaScript szintaxiskiemelés
 \lstdefinelanguage{JavaScript}{
@@ -33,14 +36,20 @@
   morestring=[b]"
 }
 
+
 \lstset{
-  backgroundcolor=\color{white!10},
+  language=C,
   basicstyle=\ttfamily\small,
-  frame=none,
-  language=JavaScript
+  keywordstyle=\color{blue},
+  commentstyle=\color{gray},
+  stringstyle=\color{orange},
+  breaklines=true,
+  showstringspaces=false,
+  captionpos=b,
+  keepspaces=true,
+  escapeinside={(*@}{@*)}
 }
 
-\usepackage{fancyhdr}  
 
 \begin{document}
 

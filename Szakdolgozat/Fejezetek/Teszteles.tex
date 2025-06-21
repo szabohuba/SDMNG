@@ -28,76 +28,88 @@ A teszteléshez In-Memory adatbázist használtam, amely lehetővé teszi, hogy 
 
 A következő példában a CreateControllerWithData metódus segítségével egy StopsController példányt hozunk létre előre feltöltött adatokkal. Az InMemoryDatabase minden tesztnél új, egyedi adatbázist hoz létre, így az adatok nem keverednek.
 
-\begin{lstlisting}
+\begin{figure}[H]
+\caption{Tesztkontroller létrehozása előre feltöltött adatokkal}
+\label{fig:seeded-controller}
+\begin{minipage}{\textwidth}
+\begin{BVerbatim}
 private StopsController CreateControllerWithData(List<Stop> seedData)
 {
-var options = new DbContextOptionsBuilder<AppDbContext>()
-.UseInMemoryDatabase(Guid.NewGuid().ToString())
-.Options;
+    var options = new DbContextOptionsBuilder<AppDbContext>()
+        .UseInMemoryDatabase(Guid.NewGuid().ToString())
+        .Options;
 
-```
-var context = new AppDbContext(options);
-context.Stops.AddRange(seedData);
-context.SaveChanges();
+    var context = new AppDbContext(options);
+    context.Stops.AddRange(seedData);
+    context.SaveChanges();
 
-var config = new Mock<IConfiguration>();
-var logger = new Mock<ILogger<AdminMessage>>();
+    var config = new Mock<IConfiguration>();
+    var logger = new Mock<ILogger<AdminMessage>>();
 
-return new StopsController(context, config.Object, logger.Object);
-```
-
+    return new StopsController(context, config.Object, logger.Object);
 }
-\end{lstlisting}
+\end{BVerbatim}
+\end{minipage}
+\end{figure}
 
-
-A következő teszteset célja, hogy ellenőrizze a StopsController osztály Index metódusának helyes működését. A teszt során először egy StopsController példány kerül létrehozásra egy segédfüggvényen keresztül, amelyet két előre definiált Stop objektummal inicializálunk. Ez az adatsor egy memóriában létrehozott adatbázisba kerül, amely lehetővé teszi a teszt izolált és reprodukálható végrehajtását, valós adatbázis használata nélkül.
+A \ref{fig:seeded-controller}. ábrán látható metódus célja, hogy ellenőrizze a StopsController osztály Index metódusának helyes működését. A teszt során először egy StopsController példány kerül létrehozásra egy segédfüggvényen keresztül, amelyet két előre definiált Stop objektummal inicializálunk. Ez az adatsor egy memóriában létrehozott adatbázisba kerül, amely lehetővé teszi a teszt izolált és reprodukálható végrehajtását, valós adatbázis használata nélkül.
 
 A controller.Index() metódus meghívása után a visszatérési értéket a ViewResult típus ellenőrzésével validáljuk, mivel az Index metódusnak nézetet kell visszaadnia a megállók listájával. A modell típusának vizsgálata során ellenőrizzük, hogy az valóban IEnumerable<Stop> típusú, amely biztosítja, hogy a nézet megkapja a megfelelő adatszerkezetet. Végül a model.Count() metódussal azt is ellenőrizzük, hogy a nézet pontosan két Stop objektumot kapott, ami megegyezik a teszt során inicializált lista elemszámával.
 
 Ez a teszt tehát teljes körűen lefedi az Index metódus működését: vizsgálja a visszatérési típus helyességét, az átadott modell struktúráját, valamint az adatok pontosságát is. A teszt sikeres lefutása garantálja, hogy az Index akció megbízhatóan működik, és hibamentesen biztosítja az összes megálló listázását a felhasználói felület számára.
 
-\begin{lstlisting}
-\[Fact]
+\begin{figure}[H]
+\caption{Index metódus visszatérési értékének tesztelése}
+\label{fig:index-test-method}
+\begin{minipage}{\textwidth}
+\begin{BVerbatim}
+[Fact]
 public void Index_ReturnsViewResult_WithAllStops()
 {
-var controller = CreateControllerWithData(new List<Stop>
-{
-new Stop { StopId = "1", StopName = "Stop A" },
-new Stop { StopId = "2", StopName = "Stop B" }
-});
+    var controller = CreateControllerWithData(new List<Stop>
+    {
+        new Stop { StopId = "1", StopName = "Stop A" },
+        new Stop { StopId = "2", StopName = "Stop B" }
+    });
+    var result = controller.Index();
 
-var result = controller.Index();
-
-var viewResult = Assert.IsType<ViewResult>(result);
-var model = Assert.IsAssignableFrom<IEnumerable<Stop>>(viewResult.Model);
-Assert.Equal(2, model.Count());
+    var viewResult = Assert.IsType<ViewResult>(result);
+    var model = Assert.IsAssignableFrom<IEnumerable<Stop>>(viewResult.Model);
+    Assert.Equal(2, model.Count());
 }
-\end{lstlisting}
+\end{BVerbatim}
+\end{minipage}
+\end{figure}
 
-A UserDetail\_ReturnsStop\_WhenValidId nevű teszteset célja annak ellenőrzése, hogy a StopsController osztály UserDetail metódusa helyesen működik-e érvényes azonosító megadása esetén. A teszt során először létrehozunk egy kontrollert, amelyet egy előre definiált, egyetlen Stop entitást tartalmazó memóriabeli adatbázissal inicializálunk. Ez biztosítja, hogy a teszt környezet független legyen az éles adatbázistól, és pontosan kontrollálható legyen a bemeneti adat.
+A \ref{fig:index-test-method}. ábrában szereplő UserDetail\_ReturnsStop\_WhenValidId nevű teszteset célja annak ellenőrzése, hogy a StopsController osztály UserDetail metódusa helyesen működik-e érvényes azonosító megadása esetén. A teszt során először létrehozunk egy kontrollert, amelyet egy előre definiált, egyetlen Stop entitást tartalmazó memóriabeli adatbázissal inicializálunk. Ez biztosítja, hogy a teszt környezet független legyen az éles adatbázistól, és pontosan kontrollálható legyen a bemeneti adat.
 
 A controller.UserDetail("1") hívás egy aszinkron metódus. A visszaadott eredménynek ViewResult típusúnak kell lennie, mivel a UserDetail metódus egy nézetet ad vissza, amely tartalmazza a lekérdezett megálló adatait. Ezt az Assert.IsType<ViewResult> segítségével ellenőrizzük.
 
 A lekérdezés eredményeként visszakapott modell típusát is validáljuk, megvizsgáljuk, hogy az valóban Stop típusú objektum-e, majd az Assert.Equal segítségével összevetjük a lekérdezett megálló nevét az eredetileg definiált "Stop A" értékkel. Ez biztosítja, hogy az adatok nemcsak a megfelelő típusban, hanem a várt tartalommal is kerülnek visszaadásra a nézet számára.
 
-\begin{lstlisting}
-\[Fact]
+\begin{figure}[H]
+\caption{Felhasználói megállórészletező metódus tesztelése}
+\label{fig:userdetail-test-method}
+\begin{minipage}{\textwidth}
+\begin{BVerbatim}
+[Fact]
 public async Task UserDetail_ReturnsStop_WhenValidId()
 {
-var controller = CreateControllerWithData(new List<Stop>
-{
-new Stop { StopId = "1", StopName = "Stop A" }
-});
+    var controller = CreateControllerWithData(new List<Stop>
+    {
+        new Stop { StopId = "1", StopName = "Stop A" }
+    });
 
-var result = await controller.UserDetail("1");
-
-var viewResult = Assert.IsType<ViewResult>(result);
-var stop = Assert.IsType<Stop>(viewResult.Model);
-Assert.Equal("Stop A", stop.StopName);
+    var result = await controller.UserDetail("1");
+    var viewResult = Assert.IsType<ViewResult>(result);
+    var stop = Assert.IsType<Stop>(viewResult.Model);
+    Assert.Equal("Stop A", stop.StopName);
 }
-\end{lstlisting}
+\end{BVerbatim}
+\end{minipage}
+\end{figure}
 
-A Create\_AddsStop\_AndRedirects nevű függvény célja annak igazolása, hogy a StopsController Create metódusa helyesen hoz létre új adatbázisrekordot, valamint hogy az adatok mentése után a felhasználót a megfelelő oldalra irányítja vissza.
+A \ref{fig:userdetail-test-method}. ábrában ábrázolt függvény célja annak igazolása, hogy a StopsController Create metódusa helyesen hoz létre új adatbázisrekordot, valamint hogy az adatok mentése után a felhasználót a megfelelő oldalra irányítja vissza.
 
 A teszt során először egy memóriában futó adatbázist hozunk létre az Entity Framework beépített InMemoryDatabase szolgáltatásával.  Az AppDbContext példányosítása után létrehozzuk a StopsController egy példányát, amelyhez mockolt IConfiguration és ILogger objektumokat rendelünk, így minimalizálva a külső függőségeket.
 
@@ -107,29 +119,39 @@ A válaszként kapott eredményt RedirectToActionResult típusra ellenőrizzük,
 
 Ez a teszteset kulcsfontosságú abból a szempontból, hogy megerősíti a Create művelet működését: a kontrolleren belüli logika nemcsak a helyes viselkedést produkálja, hanem az adatok mentése is megbízható módon történik. Az ilyen típusú validáció hozzájárul az alkalmazás robusztusságához és stabil működéséhez különféle felhasználói interakciók során.
 
-\begin{lstlisting}
-\[Fact]
-public async Task Create\_AddsStop\_AndRedirects()
+\begin{figure}[H]
+\caption{Új megálló létrehozásának tesztelése és átirányítás ellenőrzése}
+\label{fig:create-stop-test-method}
+\begin{minipage}{\textwidth}
+\begin{BVerbatim}
+[Fact]
+public async Task Create_AddsStop_AndRedirects()
 {
-var options = new DbContextOptionsBuilder<AppDbContext>()
-.UseInMemoryDatabase(Guid.NewGuid().ToString())
-.Options;
+    var options = new DbContextOptionsBuilder<AppDbContext>()
+        .UseInMemoryDatabase(Guid.NewGuid().ToString())
+        .Options;
 
-using var context = new AppDbContext(options);
-var controller = new StopsController(context, new Mock<IConfiguration>().Object, new Mock<ILogger<AdminMessage>>().Object);
+    using var context = new AppDbContext(options);
+    var controller = new StopsController(
+        context,
+        new Mock<IConfiguration>().Object,
+        new Mock<ILogger<AdminMessage>>().Object
+    );
 
-var stop = new Stop { StopName = "New Stop", Latitude = 3, Longitude = 4 };
+    var stop = new Stop { StopName = "New Stop", Latitude = 3, Longitude = 4 };
 
-var result = await controller.Create(stop);
+    var result = await controller.Create(stop);
 
-var redirect = Assert.IsType<RedirectToActionResult>(result);
-Assert.Equal("Index", redirect.ActionName);
-Assert.Single(context.Stops);
-Assert.Equal("New Stop", context.Stops.First().StopName);
+    var redirect = Assert.IsType<RedirectToActionResult>(result);
+    Assert.Equal("Index", redirect.ActionName);
+    Assert.Single(context.Stops);
+    Assert.Equal("New Stop", context.Stops.First().StopName);
 }
-\end{lstlisting}
+\end{BVerbatim}
+\end{minipage}
+\end{figure}
 
-A Modify\_UpdatesStop\_WhenValidData nevű teszteset célja annak biztosítása, hogy a meglévő Stop entitás módosítása megfelelő módon megtörténjen, és a művelet után a rendszer megfelelő átirányítást hajtson végre az Index nézet irányába. A Modify metódus működése szoros párhuzamban áll a Create metódus logikájával.
+A Modify\_UpdatesStop\_WhenValidData nevű teszteset célja (\ref{fig:create-stop-test-method}. ábra) annak biztosítása, hogy a meglévő Stop entitás módosítása megfelelő módon megtörténjen, és a művelet után a rendszer megfelelő átirányítást hajtson végre az Index nézet irányába. A Modify metódus működése szoros párhuzamban áll a Create metódus logikájával.
 
 Míg a Create egy teljesen új rekord hozzáadását végzi el, addig a Modify már létező adatok frissítésére szolgál.A teszt során a StopName mezőt egy új értékre írjuk át, majd meghívjuk a Modify metódust az azonosító és a módosított objektum átadásával. A Modify belső működésében először ellenőrzi, hogy az id egyezik-e az entitás azonosítójával, majd az Update és SaveChangesAsync metódusok segítségével véglegesíti a módosításokat. A sikeres végrehajtás után átirányítja a felhasználót az Index nézetre, amit a tesztben az Assert.IsType<RedirectToActionResult> és Assert.Equal("Index", ...) utasításokkal validálunk.
 
@@ -137,32 +159,34 @@ A Create metódussal szemben itt nem új rekord keletkezik, hanem egy meglévő 
 
 
 
-\begin{lstlisting}
-\[Fact]
-public async Task Modify\_UpdatesStop\_WhenValidData()
+\begin{figure}[H]
+\caption{Megálló adatainak frissítését vizsgáló egységteszt}
+\label{fig:modify-stop-test-method}
+\begin{minipage}{\textwidth}
+\begin{BVerbatim}
+[Fact]
+public async Task Modify_UpdatesStop_WhenValidData()
 {
-var stopId = Guid.NewGuid().ToString();
-var stop = new Stop { StopId = stopId, StopName = "Old Name" };
-var controller = CreateControllerWithData(new List<Stop> { stop });
+    var stopId = Guid.NewGuid().ToString();
+    var stop = new Stop { StopId = stopId, StopName = "Old Name" };
+    var controller = CreateControllerWithData(new List<Stop> { stop });
 
-```
-stop.StopName = "Updated Name";
-var result = await controller.Modify(stopId, stop);
-
-var redirect = Assert.IsType<RedirectToActionResult>(result);
-Assert.Equal("Index", redirect.ActionName);
-```
-
+    stop.StopName = "Updated Name";
+    var result = await controller.Modify(stopId, stop);
+    var redirect = Assert.IsType<RedirectToActionResult>(result);
+    Assert.Equal("Index", redirect.ActionName);
 }
-\end{lstlisting}
+\end{BVerbatim}
+\end{minipage}
+\end{figure}
 
  Végezetül, a törlés tesztelésénél azt figyeljük meg, hogy az adott rekord eltávolításra kerül-e, és hogy a rendszer visszatér-e az entitások listanézetéhez.
 
-A DeleteConfirmed\_RemovesStop\_WhenValidId elnevezésű teszteset elsődleges célja annak validálása, hogy a törlésre szánt Stop entitás valóban eltávolításra kerül az adatbázisból, és a művelet végén a felhasználó a megfelelő nézetre — jelen esetben az Index listanézetre — kerül visszairányításra.
+A \ref{fig:modify-stop-test-method}. ábrán bemutatott DeleteConfirmed\_RemovesStop\_WhenValidId elnevezésű metódus elsődleges célja annak validálása, hogy a törlésre szánt Stop entitás valóban eltávolításra kerül az adatbázisból, és a művelet végén a felhasználó a megfelelő nézetre — jelen esetben az Index listanézetre — kerül visszairányításra.
 
 A metódus felépítése hasonló a létrehozási (Create) tesztesethez abban az értelemben, hogy itt is InMemory adatbázist használunk a DbContext példány elkülönítésére. Az eltérés azonban a teszt céljában rejlik: nem új adat hozzáadása történik, hanem egy meglévő entitás eltávolítása.
 
 A tesztben először létrehozunk egy egyedi azonosítóval rendelkező megállót (Stop objektumot), amelyet előzetesen beillesztünk az adatbázisba. Ez biztosítja, hogy a törléshez legyen releváns tesztadat. A DeleteConfirmed metódus meghívásakor átadjuk ezt az azonosítót, és a visszatérési érték típusát ellenőrizzük — ez egy RedirectToActionResult, amely az Index akcióra irányítja vissza a felhasználót.
 
-Ellentétben a Create teszttel, ahol azt vizsgáltuk, hogy az új adat sikeresen hozzáadódott, itt a validáció arra irányul, hogy a rekord valóban eltűnt az adatbázisból. Ez a fajta teszt különösen hasznos olyan esetekben, ahol a törlési művelet érzékeny vagy visszafordíthatatlan hatású lehet — például ha az adott entitás kapcsolatban áll más rekordokkal is. A törlés során alkalmazott ellenőrzések, mint például a meglét validálása (FindAsync) vagy a jogosultságok vizsgálata, külön tesztesetekkel tovább bővíthetők, de az alapművelet helyességének vizsgálatát ez az egység jól reprezentálja.
+Ellentétben a Create teszttel, ahol azt vizsgáltuk, hogy az új adat sikeresen hozzáadódott, itt a validáció arra irányul, hogy a rekord valóban eltűnt az adatbázisból. Ez a fajta teszt különösen hasznos olyan esetekben, ahol a törlési művelet  visszafordíthatatlan hatású lehet — például ha az adott entitás kapcsolatban áll más rekordokkal is. A törlés során alkalmazott ellenőrzések, mint például a meglét validálása (FindAsync) vagy a jogosultságok vizsgálata, külön tesztesetekkel tovább bővíthetők, de az alapművelet helyességének vizsgálatát ez az egység jól reprezentálja.
 
