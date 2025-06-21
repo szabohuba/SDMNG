@@ -1,0 +1,30 @@
+\section{Jövőbeli munka}
+
+A projekt során sikerült egy jól működő, moduláris felépítésű webes alkalmazást létrehozni, amely egy busztársaság működésének több aspektusát is képes lefedni. Ugyanakkor, mint minden fejlesztésnél, itt is számos lehetőség adódik a további bővítésre és finomításra, amelyek a rendszer funkcionalitásának, skálázhatóságának vagy felhasználói élményének javítását célozzák.
+
+Az egyik lehetséges irány a mobilplatformokra történő adaptáció. A jelenlegi rendszer elsősorban asztali és böngészőalapú környezetre készült, azonban a felhasználói visszajelzések alapján érdemes lenne egy reszponzívabb vagy natív mobilalkalmazás-fejlesztés irányába mozdulni, amely kényelmesebb elérést biztosíthat útközben is. Ez az igény teljes mértékben indokolt, hiszen napjainkban szinte mindenkinek ott lapul a zsebében egy okostelefon, így az információk gyors és egyszerű elérése egyre inkább alapelvárás. A tömegközlekedési eszközökre várva – például egy buszmegállóban – nincs lehetőségünk számítógép vagy laptop használatára, ezért a mobilról történő hozzáférés biztosítása esszenciális lenne a rendszer valódi gyakorlati alkalmazhatóságának növelése szempontjából.
+
+E tekintetben a .NET keretrendszer különösen kedvező lehetőségeket biztosít, hiszen a \texttt{MAUI} (Multi-platform App UI) keretrendszer segítségével egyetlen kódbázisból több platformra – például Androidra, iOS-re és Windowsra – is készíthető natív alkalmazás. Ez lehetővé tenné a jelenlegi rendszer funkcionalitásának átemelését és bővítését mobil környezetbe, miközben a fejlesztési erőforrásokat hatékonyan használhatnánk fel.
+
+
+További fejlesztési lehetőséget kínál a mesterséges intelligencia, illetve a gépi tanulás integrálása, különösen a menetrendek optimalizálásában vagy az utasforgalom előrejelzésében. Egy ilyen rendszer képes lehet a korábbi adatok alapján intelligens javaslatokat tenni a járatsűrűség módosítására, a forgalmas időszakokhoz igazított indulási idők beállítására, illetve a leghatékonyabb útvonalak kialakítására. Ez nemcsak az utasok elégedettségét növelheti, hanem a járműpark kihasználtságát és az üzemeltetési hatékonyságot is javíthatja.
+
+A mesterséges intelligencia másik ígéretes alkalmazási területe a felhasználói támogatás automatizálása. Az utóbbi években a chatbotok jelentős térnyerését figyelhetjük meg, különösen olyan rendszerek esetében, ahol a felhasználók gyakran ismétlődő kérdésekkel fordulnak az üzemeltetőkhöz. Egy jól megtervezett, természetes nyelvi feldolgozást használó chatbot hatékony segítséget tud nyújtani az alkalmazás használatával kapcsolatban, például a jegyvásárlás, menetrendkeresés vagy a hibabejelentés területén. Az ilyen interaktív támogatás nemcsak az ügyfélszolgálati terhek csökkentését segítené elő, hanem a felhasználói élményt is jelentősen javítaná.
+
+
+A jegyvásárlási rendszer kiterjesztése is cél lehet, például online fizetési integrációval (pl. bankkártya vagy mobilfizetés), valamint dinamikus árképzési logika bevezetésével, amely a kereslet és az időpont függvényében változtatná a jegyárakat.
+
+Egy további jelentős fejlesztési irány a rendszer és a járművek közötti közvetlen kapcsolat kiépítése lehet. Ennek egyik megvalósítható módja egy mikrokontroller alapú jeladó elhelyezése minden autóbuszban, amely valós időben küldi a jármű aktuális földrajzi pozícióját a központi rendszer felé. Ezáltal a térképes megjelenítő modul – például a Leaflet-alapú integráció – képes lenne a valós helyzet alapján frissíteni az autóbuszok pozícióját, növelve ezzel az alkalmazás információs értékét és a felhasználói élményt.
+
+További gyakorlati lehetőségként felmerülhet az utasterek terheltségi szintjének figyelése is. Ha az adott jármű szenzoros megfigyelés segítségével adatot tud szolgáltatni az utasok számáról (például súly- vagy mozgásérzékelők révén), a rendszer képes lenne jelezni a túlzsúfoltságot. Ez különösen városi közlekedés esetén lehet előnyös, mivel a felhasználó így még az utazás megkezdése előtt tájékozódhatna az autóbusz aktuális terheltségéről, és szükség esetén választhatna alternatív útvonalat vagy járatot. Ez nemcsak kényelmesebbé, de hatékonyabbá is tenné a tömegközlekedés használatát.
+
+
+Adminisztrátori oldalról egy részletesebb statisztikai modul fejlesztése lenne indokolt, amely naprakész információkat nyújt a járatok telítettségéről, a jegyértékesítési adatokról vagy a felhasználók aktivitásáról. Ez segítené az üzemeltetőket a döntéshozatalban és az erőforrások hatékonyabb elosztásában.
+
+Az adminisztrátori oldal további bővítési lehetőségeket is kínál, amelyek az operatív működés hatékonyságát segítenék elő. Különösen hasznos lenne egy olyan modul bevezetése, amely a munkavállalók munkaidejének nyilvántartását és szabadságigénylésének kezelését biztosítja. Ez lehetővé tenné, hogy az alkalmazottak elektronikus úton, az alkalmazáson keresztül jelezhessék szabadnap igényüket, amelyet az adminisztrátor jóváhagyhat vagy elutasíthat. Ezzel a rendszer csökkentené az adminisztrációs terhet, miközben átláthatóbbá tenné a munkaszervezést.
+
+Egy további praktikus funkció a napi munkaidő-kezelés bevezetése lehetne, amely során a dolgozók a munkanap elején bejelentkeznek, annak végén pedig kijelentkeznek az alkalmazásban. Ez lehetőséget biztosítana a jelenléti ív digitális vezetésére, valamint az egyes munkanapok pontos dokumentálására. Az így gyűjtött adatok a vezetőség számára statisztikai célokra is felhasználhatók lennének, például a munkaidő-kihasználtság vagy túlórák nyomon követésére.
+
+
+A projekt implementálása során számos technikai és logikai kihívással kellett szembenézni, ugyanakkor ezek a problémák gyakran új fejlesztési lehetőségek irányába is elmozdították a figyelmem. A .NET keretrendszer sokoldalúsága, valamint a fejlesztési folyamat során szerzett pozitív tapasztalatok egyértelműen megerősítettek abban, hogy a rendszer továbbfejlesztése nem csupán lehetséges, hanem izgalmas és szakmailag is értékes kihívás lenne. A munka során kirajzolódott ötleteket a jövőben mindenképpen szeretném megvalósítani, mivel a téma rendkívül érdekesnek bizonyult, és szakmai fejlődésem szempontjából is kiemelkedő lehetőségeket kínál.
+

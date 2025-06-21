@@ -1,0 +1,177 @@
+\section{Eredmények}
+
+A fejlesztés során egy olyan webes alkalmazás készült el, amely egy busztársaság működésének különféle aspektusait kezeli, beleértve a megállók, útvonalak, járatok, jegyek és felhasználók nyilvántartását. A célom egy modern, átlátható és könnyen bővíthető rendszer létrehozása volt, amely a gyakorlatban is jól alkalmazható. A projekt megvalósítása során végig arra törekedtem, hogy a rendszer struktúrája és működése mind fejlesztői, mind felhasználói oldalról logikus és kezelhető maradjon.
+
+\subsection{Funkcionális eredmények}
+
+A megvalósított rendszer több egymással összekapcsolódó funkcionális egységből áll, melyek a busztársaság napi működésének különböző részeit fedik le. Az egyik alapvető komponens a megállók és az útvonalak kezelését biztosító modul, amely lehetővé teszi, hogy a rendszergazda különböző megállóhelyeket hozzon létre, és ezeket tetszőleges sorrendben útvonalakhoz rendelje. Ezáltal egy dinamikusan konfigurálható hálózat jön létre, amely könnyen karbantartható és bővíthető.
+
+A második jelentős modul a járatok és a hozzájuk tartozó menetrendek kezelése. Ez a komponens biztosítja a különböző időpontokhoz, útvonalakhoz és járművekhez kapcsolódó járatok regisztrálását. A menetrendek adminisztrációja során megadható az indulás és érkezés ideje, valamint a járatok aktuális állapota és a még elérhető férőhelyek száma, amit egy nagyon fontos funkciónak tartottam.
+
+A rendszer része egy digitális jegyfoglalási felület is, amely a foglalás sikeres lezárását követően automatikusan QR-kódot generál a felhasználó számára. Ez a funkció lehetővé teszi a gyors és egyszerű azonosítást valamint a jegy általános adatainak egyseges vizualizációját.
+
+Külön figyelmet fordítottam a felhasználók és azok jogosultságainak kezelésére. Az \texttt{ASP.NET Identity} beépítése révén lehetővé vált különböző szerepkörök definiálása és elkülönítése, így például az utasok és adminisztrátorok különféle funkciókhoz férhetnek hozzá. Ez növeli a rendszer biztonságát és használhatóságát.
+
+További fontos fejlesztés az adminisztrációs felület, amely belső kommunikációs lehetőséget biztosít az üzenetkezelő alrendszeren keresztül. Emellett egy feladatkövető modul is bevezetésre került, amely révén az adminisztrátorok a karbantartási vagy üzemeltetési feladatokat rendszerezni tudja.
+
+Mindezek a funkciók egy olyan egységes, modulárisan felépített rendszert alkotnak, amely rugalmasan igazítható a változó igényekhez, és hosszú távon is karbantartható. A fejlesztési folyamat során az egyes modulok világosan elkülönültek egymástól, így bővítésük vagy módosításuk nem eredményezett kockázatot a többi modul működésére, bővítésére nézve.
+
+A projekt során nem csupán egy működő alkalmazás létrehozása volt a cél, hanem az is, hogy mélyebb ismereteket szerezzek a .NET technológiai környezetének különböző komponenseiről. A fejlesztés alatt lehetőségem nyílt az \texttt{ASP.NET MVC} architektúra gyakorlati alkalmazására, valamint az ehhez kapcsolódó komponensek – például az \texttt{Entity Framework}, az \texttt{ASP.NET Identity}, az SMTP-alapú emailküldés, illetve a QR-kód generálás – integrációjára. Ezek használata révén nemcsak a rendszer funkcionalitása bővült, hanem a fejlesztői szemléletem is fejlődött, különösen az újrahasznosítható és jól strukturált kódrészek tervezése és implementálása terén. Törekedtem arra, hogy az Identity rendszer által biztosított hitelesítési és jogosultságkezelési megoldások általánosan újrahasznosítható formában legyenek beépítve, így a jövőbeni fejlesztésekhez is könnyedén adaptálhatók.
+
+Különösen fontos eredményként értékelem, hogy a projektet sikerült valós időben, működő állapotban üzembe helyeznem a Microsoft Azure szolgáltatásainak köszönhetően. Ez a lépés nemcsak a fejlesztés lezárásához járult hozzá, hanem lehetőséget biztosított arra is, hogy gyakorlati tapasztalatot szerezzek a felhőalapú környezetek konfigurálásában és a deployment folyamatában. A szolgáltatások integrálása során számos, a valós üzleti működéshez is kapcsolódó kihívást kellett megoldanom, amelyek jelentős mértékben bővítették a szakmai látókörömet, és hozzájárultak az szoftver rendszerek üzemeltetésében való jártasságom elmélyítéséhez.
+
+
+\subsection{Tesztelési eredmények}
+
+A projekt megvalósítása során fontos szerepet kapott a rendszer működésének ellenőrzése, mind technikai, mind felhasználói oldalról. A technikai tesztelés részeként automatikus egységteszteket végeztem, amelyek célja a vezérlőmetódusok helyes működésének igazolása volt. Ezek a tesztek – melyek részletes bemutatását a dolgozat egy másik fejezete tartalmazza – elsősorban annak vizsgálatára szolgáltak, hogy a controllerek a rájuk bízott feladatokat megfelelően végrehajtják, és az elvárt válaszokat adják különböző bemeneti helyzetekre.
+
+A technikai ellenőrzéseket követően a tesztelés további fontos részét a tényleges felhasználók bevonása jelentette. A rendszer kész állapotában több felhasználó is lehetőséget kapott az alkalmazás kipróbálására, melyet egy strukturált tesztelési folyamat keretében végeztek. A felhasználók visszajelzései és tapasztalatai alapján átfogó képet kaphattam arról, hogy az egyes funkciók mennyire könnyen érthetők, mennyire jól használhatók, és hogyan teljesítenek valós interakciók során.
+
+\subsection{Felhasználói visszajelzések}
+
+A fejlesztés lezárultával fontosnak tartottam, hogy a rendszer működését ne csupán technikai szempontból értékeljem, hanem a felhasználói élményt is visszajelzések alapján vizsgáljam. Ennek érdekében több felhasználót is bevontam egy irányított tesztelési folyamatba, ahol az alkalmazás működésének részletes bemutatása után lehetőséget kaptak minden funkció kipróbálására. A cél az volt, hogy valós használat közbeni észrevételeket gyűjtsek, amelyek segíthetnek a rendszer további finomításában, illetve visszajelzést adnak a használhatóságáról.
+
+A tesztelés strukturált formában zajlott: a felhasználók végigmentek a regisztrációs és bejelentkezési folyamaton, kezeltek megállókat és járatokat, kipróbálták a jegyvásárlási felületet, valamint megtekintették az adminisztrátori funkciókat és az útvonalmegjelenítő térképet is. A használat során felmerülő kérdések, hibák vagy értelmezési nehézségek rögzítésre kerültek, majd az interakció végén egy rövid kérdőívben összegezték tapasztalataikat.
+
+A visszajelzések túlnyomó többsége pozitív volt: a felhasználók kiemelték az alkalmazás vizuális átláthatóságát, a funkciók logikus elrendezését, valamint a QR-kód alapú jegykezelést, amely újszerű és kényelmes megoldásként jelent meg számukra. A Leaflet-alapú térképes megjelenítés szintén elnyerte a felhasználók tetszését, mivel vizuálisan is támogatta a megállók és útvonalak megértését. Ezen tesztek végzése során magam is véltem felfedezni rendellenes műkődési aberációkat, melyeket gyorsan órvosoltam.
+
+
+\subsection{Fejlesztési tapasztalatok}
+
+\subsubsection{Szőcs Tamás - Kolozsvár}
+\paragraph*{1. Milyennek látja az aktuális tömegközlekedési applikációkat?} 
+A legtöbb app-nak túlkomplikált a user interface-je, nem elég letisztult, kevés infó van feltűntetve. Az SDMNG-n viszont könnyű volt a navigálás, minden szembe ugrik.
+
+\paragraph*{2. Mi az ami megnehezíti a használatukat, ha van ilyen?} 
+Nem a legpontosabbak, jegyeket nem lehet vásárolni rajtuk keresztül (tudtom szerint), tele vannak reklámokkal.
+
+\paragraph*{3. Milyennek találta az SDMNG webalkalmazást? Könnyű volt használni, navigálni, érthető?} 
+Igen, az interface letisztult, minden ott van ahol lennie kell (logikus).
+
+\paragraph*{4. Miben lehetne kibővíteni?}
+Designosabbá tenni (tudom, állavizsga projekt, de más nem ugrott be)
+
+\paragraph*{5. Milyennek tűnik az alkalmazás felülete, tiszta, átlátható, kedvez a szemnek?}
+Az egyik legjobb, legtisztább és REKLÁM MENTES felület amit valaha használtam, jól össze rakott és logikusan elhelyezett gombokkal.
+
+\subsubsection{Bakó Boglárka - Marosvásárhely, Kolozsvár}
+
+\paragraph*{Milyennek látja az aktuális tömegközlekedési applikációtat?}
+A legtöbb alkalmazás amit használtam ezekben kritizálható:
+\begin{itemize}
+    \item Nincs térképes megjelenítés minden vonalhoz.
+    \item Egy analóg alkalmazás áll rendelkezésre, amely nagyon általánosan tükrözi a valóságot.
+    \item Nincsenek rendszeres frissítések.
+    \item Nem található meg könnyen minden olyan információ, amely a felhasználók számára fontos lehet.
+    \item A felület nem logikus; a funkciók között keresgélni kell.
+    \item Ugyanaz a funkció több, nem releváns helyen is megjelenik – például: más vonalak szerepelnek ugyanazon vonal nézetében, de nem teljeskörűen, csak részlegesen.
+    \item Lassú betöltés, hosszú várakozási idő.
+    \item Túl sok információ jelenik meg egyszerre – a felhasználó könnyen elveszik benne, és nem tudja, mit is kellene keresnie.
+    \item Felesleges adatokat kér az alkalmazás.
+    \item Bizonyos esetekben túl bonyolult a regisztráció vagy a jegyfoglalás folyamata.
+\end{itemize}
+
+\paragraph*{Milyennek találta az SDMAG webalkalmazást? Könnyű volt használni, navigálni, érthető?}
+ A webalkalmazást nagyon könnyű használni, könnyen lehet navigálni, nagyon érthető és átlátható. Nagyon értékes funkciónak tartom azt, hogy üzenni lehet nekik, mert így ha kérdésem van, elakadtam vagy reklamálni szeretnék, akkor van rá lehetőség. Fontosnak tartom azt a funkciót is, hogy meg lehet nézni, hány jegy van még elérhető, mert így tudom, hogy siessek a lefoglalással, vagy várjam meg a következőt.
+
+\paragraph*{Mi az, ami megnehezítheti a használatát, ha van ilyen?}
+\begin{itemize}
+    \item Ha nincs olyan opció, hogy az üzenetem el lett küldve, és x idő alatt választ kapok, az bizonytalanságot kelthet a felhasználóban.
+    \item A mobilapplikáción való megjelenítés vagy áttelepítés.
+\end{itemize}
+
+\paragraph*{Miben lehetne kibővíteni az alkalmazást?}
+
+A rendszer az alábbi funkciókkal bővíthető lenne:
+\begin{itemize}
+    \item Minden járatnál jelenjen meg az ár.
+    \item Legyen lehetőség ülőhely-foglalásra, vizuális választással.
+    \item Valós idejű helymeghatározás: a busz helyzete és késése látható legyen.
+    \item QR-kódos jegy fogadása mobiltelefonra vagy más digitális eszközre.
+    \item Push értesítés vagy e-mail, ha menetrendváltozás vagy késés történik.
+    \item Értesítés a járat indulása előtt 10–15 perccel.
+    \item Értékelési lehetőség 5 csillagos rendszerben.
+    \item Többnyelvű applikáció.
+    \item Kedvencek lista: rendszeres járatok gyors elérése.
+\end{itemize}
+
+\paragraph*{Milyennek tűnik az alkalmazás felülete? Tiszta, átlátható, kedvez a szemnek?}
+Nagyon átlátható és logikus, vizuálisan kellemes és felesleges gombok nélküli felületet nyújt. Ha ránézek az applikációra, azonnal látom a térképet, útvonalakat, és a járatokhoz tartozó szabad jegyek számát – ez gyors döntéshozatalt segít. Minden fő információ könnyen hozzáférhető. Összességében az a
+
+\subsubsection{Szabó Róbert - Kolozsvár}
+
+\paragraph*{Milyennek látja az aktuális tömegközlekedési applikációkat?}
+Útvonaltervezés szempontjából:
+A legtöbb applikációt a mai napig veri a google maps, ez sokkal elérhetőbb, legtöbb nagy városban kíválóan működik, nem kell minden városhoz külön appot letölteni emiatt.
+A google maps hátrányai a városok közötti, romániában privát cégek által biztosított járatok, amelyeket kevésbé ismer ezáltal nehezebb az útvonaltervezés. (alapjáraton a tömegközlekedés egy rakás szar külföldhöz képest)
+
+Városi tömegközlekedés: 
+Sok esetben a helyi vállalat saját applikációi főként a helyieknek szólnak ezért casual utazóként/turista ként nehezebb használni őket.
+Városok közötti tömegközlekedés:
+Az autogari.ro szerintem nagyon jó applikáció, ki lehet simán keresni, hogy honnan hova hánykor indul mikor érkezik stb, ahányszor használtam meg voltam elégedve vele.
+
+\paragraph*{Mi az, ami megnehezítheti a használatát, ha van ilyen?}
+
+Legtöbb esetben amikor ezen applikációkat használtam turista voltam, ezért gondot jelentett, hogy nem ismertem a várost. Páldául napi bérlet esetében van, hogy zónákra van felosztva a város, mint turista ha nem mutatja az applikáció, akkor nincs honnan tudjad, hogy a szállásod az most melyik zónához tartozik.
+Vizuális ember vagyok ezért nekem a legtöbb esetben a város térkép nagyon sokat tudna segíteni, viszont sok esetben csak a megállók sorrendjét tüntetik fel.
+
+\paragraph*{Milyennek találta a az SDMAG webalkalmazást? Könnyű volt használni, navigálni, érthető? }
+
+
+Maga a felhasználói része teljesen user-friendly volt,  magától érhetődő, egyszerű de nagyszerű.
+
+Miben lehetne kibővíteni?
+
+Szerintem önmagában ez az applikáció nagyon jó. Ha ezt egy tömegközlekedési vállalat felvásárolná, akkor ebben az estben szükségesek lennének olyan bővítések amik specifikusak ennek a vállat által nyújtott szolgátatásoknak. Pld átszállási lehetőségek, buszon nyújtott szolgáltatások feltüntetése (wifi, hideg víz stb)
+
+\paragraph*{Milyennek tűnik az alkalmazás felülete, tiszta, átlátható, kedvez a szemnek? }
+
+(9/10) Tiszta és átlátható viszont kis dizájner segítség nem ártana amivel kicsit jobban feldobná. Az egész projekt nagyon szép és vagány, amire kell arra tökéletes.
+
+\subsubsection{Király Zsolt - Felvinc, Kolozsvár}
+
+\paragraph*{Milyennek látja az aktuális tömegközlekedési applikációkat?}
+
+A mai tömegközlekedési rendszerek alapvetően jól átgondolt elvek mentén lettek megtervezve, azonban a gyakorlati kivitelezésük nem minden esetben sikerült megfelelően. Gyakori probléma, hogy az utasok számára releváns információk szétszórva, több különböző felületen érhetők el, és ezek gyakran csak hivatkozásokon keresztül vannak összekötve, ha ezek egyáltalán elérhetők. Ez jelentősen megnehezíti a tájékozódást, különösen új vagy idegen környezetben közlekedő felhasználók számára. Bár egyes alkalmazások átláthatóak és jól használhatók, az információk hiányos vagy nehézkes elérése gyakran csökkenti a felhasználói élményt.
+
+\paragraph*{Milyennek találta az SDMAG webalkalmazást? Könnyű volt használni, navigálni, érthető?}
+
+A webalkalmazást könnyű használni, logikusan van összerakva, könnyen lehet jegyet vásárolni, valós időben lehet követni a jegyek elérhetőségét és az útvonalak változását. Nagyon fontosnak tartom azt is, hogy a buszok megtalálását rendszám információval könnyű azonosítani.
+
+\paragraph*{Mi az, ami megnehezítheti a használatát, ha van ilyen?}
+
+A használatát megnehezítheti az, ha nem lehetne követni az üzeneteimre kapott válaszokat, vagy ha az újabb frissítéseket és információkat nem lehetne reális időben nyomon követni.
+
+\paragraph*{Miben lehetne kibővíteni?}
+
+Kibővíteni véleményem szerint azzal lehetne, ha az ülőhelyet ki lehetne választani a buszon, illetve élő időbeli értesítések jelennének meg, ha változik a menetrend vagy az indulási helyszín.
+
+\paragraph*{Milyennek tűnik az alkalmazás felülete, tiszta, átlátható, kedvez a szemnek?}
+
+Az alkalmazás felülete szerintem könnyen átlátható, nincsenek zavaró tényezők, amelyek elterelhetnék a figyelmet. Véleményem szerint nagy segítség, hogy a menetrend útvonala is fel van tüntetve. Minden fontos információ elérhető a webalkalmazáson.
+
+\subsection{Korlátozások}
+
+A fejlesztés során külső technikai tényezők jelentették a legnagyobb kihívást. Kiemelt nehézséget okozott az alkalmazás éles környezetbe történő telepítése, különösen az Azure felhőplatformon történő üzembe helyezés során. Az Azure biztonsági előírásai – például a hitelesítési szabályok, IP-hozzáférési korlátozások és HTTPS tanúsítványkövetelmények – több alkalommal akadályozták az alkalmazás megfelelő telepítését és futtatását. Ezek a problémák különösen a valós környezetben történő tesztelést nehezítették meg, mivel nem minden funkció működött megbízhatóan a korlátozások miatt.
+
+További korlátozást jelentett az, hogy az alkalmazás csak ingyenes Azure erőforrásokon futott, amelyek kapacitása és funkcionalitása jelentősen szűkebb, mint a fizetős verzióké. Ez többek között korlátozta a párhuzamos kérések számát, az adatbázis méretét és az alkalmazás méretezhetőségét, így egyes funkciókat csak szűk körben lehetett kipróbálni. A telepítések ismételt végrehajtása is problémás volt az ingyenes feltételek gyors kimerülése miatt.
+
+Mivel a környezetet nem tudtam publikusan elérhetővé tenni, biztonsági megfontolásból kizárólag előre létrehozott, belső használatú fiókokkal lehetett bejelentkezni a rendszerbe. Ez azt jelentette, hogy a felhasználói tesztelésekhez előzetesen regisztrált hozzáférést kellett biztosítanom, korlátozva ezzel a szélesebb körű nyilvános kipróbálás lehetőségét.
+
+Ezek a korlátozások ugyan befolyásolták a fejlesztés egyes fázisait, de összességében nem akadályozták meg a projekt céljainak teljesítését. A tapasztalatok ugyanakkor fontos tanulságként szolgáltak a felhőalapú rendszerek éles környezetbe való integrálásának komplexitásáról és az ezzel járó infrastruktúra-beli kihívásokról.
+
+Egy további kezdeti nehézséget jelentett a használt böngésző korlátozott funkcionalitása. A fejlesztési folyamat elején olyan böngésző környezetet használtam, amely bizonyos JavaScript-alapú vagy hálózati funkciókat biztonsági megfontolásokból automatikusan blokkolt. Ez több alkalommal zavarta a rendszer működésének tesztelését, különösen az olyan részeknél, ahol például QR-kód generálás vagy SMTP protokol használata történt. Ez a rendszerbe való csatolmánykezelést is befolyásolta. A probléma megoldására áttértem a Mozilla Firefox használatára, amely környezetben a projekt megbízhatóan és teljes funkcionalitással futtatható. A továbbiakban ezt a böngészőt tekintem ajánlott platformnak az alkalmazás használatához.
+
+
+\subsection{Következtetések}
+
+A projekt során szerzett tapasztalatok egyértelműen hozzájárultak a fejlesztői szemléletem és szakmai tudásom elmélyítéséhez. A gyakorlati munka során nem csupán az ASP.NET MVC architektúra működését, hanem az Azure-alapú üzembe helyezés komplexitását is sikerült megismerni. Különösen hasznos volt az automatikus egységtesztek alkalmazása, melyek révén biztosítani tudtam, hogy a vezérlőmetódusok az elvárt módon működjenek különböző bemeneti feltételek mellett is.
+
+A felhasználók által végzett éles tesztelések kiemelten fontos visszajelzéseket szolgáltattak. Ezek a gyakorlati tapasztalatok megerősítették, hogy a rendszer kezelőfelülete letisztult, funkciói logikusak, és a felhasználói élmény összességében pozitív. A visszajelzések alapján azonban az is világossá vált, hogy bizonyos területeken – például a dizájn továbbfejlesztése vagy a mobilalkalmazás irányába történő elmozdulás – további bővítésekre is szükség lehet.
+
+A fejlesztési folyamat során ugyanakkor több technikai korlát is felszínre került. Az Azure platform használata során előforduló biztonsági korlátozások, valamint az ingyenes erőforrásokból fakadó limitációk jelentősen megnehezítették a rendszer éles környezetbe történő telepítését és valós felhasználói tesztelését. Továbbá, a fejlesztés korai szakaszában használt, korlátozott funkcionalitású böngésző is időszakos fennakadásokat okozott a tesztelésben. Ezek a nehézségek azonban nem csupán kihívást jelentettek, hanem egyúttal hozzájárultak a problémamegoldó készségeim fejlesztéséhez is. Emellett a munka során felszínre kerültek olyan fejlesztési lehetőségek, amelyek a jövőben tovább növelhetik az alkalmazás funkcionalitását és felhasználóbarátságát. A fejlesztés során szerzett tudás, a felmerült problémák kezelése, valamint a felhasználóktól kapott visszajelzések mind hozzájárultak ahhoz, hogy a projekt ne csupán technikai gyakorlat, hanem tanulási folyamat is legyen, amely alapot ad a jövőbeli hasonló munkákhoz.
+
+
+
+
+

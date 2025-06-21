@@ -264,7 +264,7 @@ A táblázat utolsó oszlopában találhatóak az adminisztrációs műveleteket
 
 Az \texttt{User Messages} oldal az adminisztrátorok számára készült, és a felhasználóktól érkező kapcsolatfelvételi üzenetek kezelésére szolgál. Ez az oldal a \texttt{Management} menüpont alól érhető el, és tartalmazza az összes olyan bejegyzést, amely a \texttt{Contact Us} űrlap kitöltésével került rögzítésre a rendszerben. A megjelenített táblázat minden üzenetet listáz, függetlenül attól, hogy azokat már megtekintették-e vagy sem.
 
-A táblázat oszlopai a következő információkat jelenítik meg: \texttt{UserName} (a feladó neve), \texttt{UserEmail} (az e-mail címe), \texttt{Subject} (az üzenet tárgya), \texttt{SentAt} (küldés időpontja), valamint az \texttt{IsRead} mező, amely azt jelzi, hogy az adott üzenetet az admin már megnyitotta-e. A rendszer automatikusan nyomon követi az üzenetek megtekintését: amint az adminisztrátor rákattint a \texttt{Detail} gombra és megnyitja az adott bejegyzést, az \texttt{IsRead} értéke automatikusan \texttt{true}-ra változik, így a későbbiekben is egyértelműen nyomon követhető, mely üzenetek lettek már feldolgozva.
+A táblázat oszlopai a következő információkat jelenítik meg: \texttt{UserName} (feladó neve), \texttt{UserEmail} (az e-mail címe), \texttt{Subject} (az üzenet tárgya), \texttt{SentAt} (küldés időpontja), valamint az \texttt{IsRead} mező, amely azt jelzi, hogy az adott üzenetet az admin már megnyitotta-e. A rendszer automatikusan nyomon követi az üzenetek megtekintését: amint az adminisztrátor rákattint a \texttt{Detail} gombra és megnyitja az adott bejegyzést, az \texttt{IsRead} értéke automatikusan \texttt{true}-ra változik, így a későbbiekben is egyértelműen nyomon követhető, mely üzenetek lettek már feldolgozva.
 
 Az \texttt{Actions} oszlop egyetlen gombot tartalmaz, amely a részletek megtekintésére szolgál. A megnyitott nézetben az admin elolvashatja a felhasználó által küldött teljes üzenetet. A rendszer nem biztosít lehetőséget ezen üzenetek szerkesztésére vagy törlésére, hiszen ezek kizárólag tájékoztatási célból kerülnek be az adatbázisba.
 
@@ -287,3 +287,9 @@ A feladatok vizuálisan is jól elkülöníthetők az állapotuk alapján: a má
 \end{figure}
 
 A \ref{fig:todo-admintask}. ábra az adminisztrátorok számára elérhető \texttt{ToDoList} oldal listanézetét szemlélteti, ahol az aktuális feladatok áttekinthető formában jelennek meg.
+
+\subsubsection{Térképes megjelenítés mellőzése adminisztrátori nézetben}
+
+\indent A \texttt{Tickets}, \texttt{Stations} és \texttt{Routes} oldalakon az adminisztrátori felület kialakításakor tudatos döntés volt, hogy ezek nem tartalmaznak térképes megjelenítést, ellentétben a felhasználói oldallal. Ennek egyik fő oka az volt, hogy a két nézet szerkezete egyébként is nagyon hasonló, és a vizuális egyezés könnyen okozhatott volna zavart abban, hogy az adminisztrátor épp melyik felületen tartózkodik. Az admin- és publikus nézetek közötti világos elkülönítés fontos szempont volt a használhatóság és a rendszeráttekinthetőség megőrzése érdekében.
+
+\indent További érv a térképes modul kihagyása mellett, hogy az adminisztrátor jogosultságai révén bármelyik nézethez hozzáférhet – beleértve a felhasználói oldalt is –, így a térképes vizualizációt nem szükséges kétszer megvalósítani. Az adminoldal funkcionalitása ebben az esetben az adatok hatékony kezelésére és ellenőrzésére koncentrál, nem pedig azok vizuális értelmezésére. A letisztult elrendezés megkönnyíti a karbantartást, csökkenti a kognitív terhelést, és hozzájárul a hatékonyabb munkavégzéshez.

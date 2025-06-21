@@ -63,9 +63,10 @@ A nem-funkcionális követelmények a rendszer minőségi jellemzőit írják le
 
 A rendszer webböngészőn keresztül érhető el, elsősorban laptopokon és asztali számítógépeken való használatra optimalizálva. Mobiltelefonokon és táblagépeken való megjelenítés jelenleg nem támogatott, mivel a felhasználói felület elrendezése és interakciói kifejezetten nagyobb képernyőkre lettek tervezve.
 
-\subsubsection{Teljesítmény}
+\subsubsection{Aszinkron működés szerepe}
 
-A rendszer működésének egyik alapvető elvárása az alacsony válaszidő. A legtöbb interaktív művelet – például űrlapküldés vagy adatlekérdezés – esetében a válaszidő nem haladhatja meg az egy másodpercet. Az adatbázis-műveletek optimalizált lekérdezések alapján történnek, így biztosítva a gyors adathozzáférést. A rendszer több felhasználó egyidejű kiszolgálására képes teljesítménycsökkenés nélkül. Az olyan nagy számítási igényű feladatok, mint például a QR-kód generálása vagy az automatikus e-mail küldés, aszinkron módon kerülnek feldolgozásra, hogy ne terheljék feleslegesen a felhasználói felületet.
+\indent A rendszer működésének optimalizálása érdekében kiemelt figyelmet kapott az aszinkron feldolgozás alkalmazása. Ez a megközelítés lehetővé teszi, hogy a különböző háttérfolyamatok – például adatfeldolgozás vagy külső szolgáltatásokhoz történő kapcsolódás – ne akadályozzák a felhasználói felület zökkenőmentes működését. Azáltal, hogy a műveletek nem blokkolják egymást, biztosítható a gyors válaszidő és a gördülékeny felhasználói élmény. Az aszinkron logika tehát jelentős szerepet játszik abban, hogy a rendszer egyidejűleg több feladatot is képes hatékonyan kezelni, ezáltal növelve az alkalmazás általános teljesítményét és megbízhatóságát.
+
 
 \subsubsection{Biztonság}
 
