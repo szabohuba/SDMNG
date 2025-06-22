@@ -119,12 +119,66 @@ A jelszavak kezelése az ASP.NET Identity rendszer beépített funkcióin keresz
 
 \subsection{Fontosabb kontrollermetódusok megvalósítása}
 \subsubsection{JegyController metódusok (Ticket)}
-A fejlesztés során több olyan vezérlőmetódus készült, amelyek összetettebb funkciókat látnak el, például a jegyvásárlási folyamat kezelését. Ez magában foglalja a vásárlás rögzítését, a QR-kód generálását, valamint a felhasználó számára történő visszaigazolást e-mail formájában.
+A fejlesztés során több olyan vezérlőmetódus valósúlt meg, amelyek összetettebb funkciókat látnak el, például a jegyvásárlási folyamat kezelését. Ez magában foglalja a vásárlás rögzítését, a QR-kód generálását, valamint a felhasználó számára történő visszaigazolást e-mail formájában.
 
-A jegyvásárlási folyamat egyik fontos lépése a QR-kód generálása, amely egy útvonalat tárol, pontosabban egy URL-t tartalmaz, amely a webalkalmazás adott oldalára — például a jegy részleteit bemutató Ticket Detail oldalra — mutat. Ez az URL tartalmazza a jegy egyedi azonosítóját, így a QR-kód beolvasásakor a felhasználó közvetlenül a megfelelő oldalra jut. A QR-kód generálása általában egy erre alkalmas, külső könyvtár vagy csomag segítségével történik, amely az URL-t vizuális, képi formátumba alakítja át (például PNG formátumú képpé), és ezt a képet az alkalmazás vagy az e-mail csatolmányaként használja fel.
+A jegyvásárlási folyamat egyik fontos lépése a QR-kód generálása, a \ref{fig:attach-qr-send-email}. ábrán bemutatott részlet szemlélteti, amely egy útvonalat tárol, pontosabban egy URL-t tartalmaz, amely a webalkalmazás adott oldalára — például a jegy részleteit bemutató Ticket Detail oldalra — mutat. Ez az URL tartalmazza a jegy egyedi azonosítóját, így a QR-kód beolvasásakor a felhasználó közvetlenül a megfelelő oldalra jut. A QR-kód generálása általában egy erre alkalmas, külső könyvtár vagy csomag segítségével történik, amely az URL-t vizuális, képi formátumba alakítja át (például PNG formátumú képpé), és ezt a képet az alkalmazás vagy az e-mail csatolmányaként használja fel.
 
-Az e-mail küldése során az SMTP (Simple Mail Transfer Protocol) protokollt használjuk, amely egy széles körben elterjedt, szabványos megoldás az elektronikus levelek továbbítására. A folyamat során beállítjuk az SMTP szerver adatait, mint például a hosztnevet (pl. smtp.gmail.com), a portszámot, valamint a biztonsági protokollt (SSL vagy TLS). A hitelesítéshez szükséges a felhasználónév és az alkalmazás-specifikus jelszó, különösen ha a Gmail kétlépcsős azonosítását használjuk, mivel ilyenkor a normál jelszó nem használható az SMTP klienshez. Az e-mail összeállítása tartalmazza a címzett, a tárgy, és a levél törzsének megadását, amely akár HTML formátumban is megjelenhet, így lehetőség nyílik például a QR-kód beágyazására vagy mellékletként való csatolására. A levél elküldése aszinkron módon történik, hogy ne akadályozza a webalkalmazás egyéb működését.
+\begin{figure}[H]
+\caption{QR-kód generálása és csatolása e-mailhez }
+\label{fig:attach-qr-send-email}
+\begin{minipage}{\textwidth}
+\begin{BVerbatim}
+// Generate QR code with clickable link to ticket details
+var qrBytes = GenerateQrCode(ticketUrl);
+var qrStream = new MemoryStream(qrBytes);
+var qrAttachment = new System.Net.Mail.Attachment(qrStream,
+                        "ticket_qr.png", "image/png");
+message.Attachments.Add(qrAttachment);
+using var smtpClient = new SmtpClient(smtpServer)
 
+\end{BVerbatim}
+\end{minipage}
+\end{figure}
+
+Az e-mail küldése során az SMTP (Simple Mail Transfer Protocol) protokollt használjuk, amely egy széles körben elterjedt, szabványos megoldás az elektronikus levelek továbbítására. A folyamat során, ahogy a \ref{fig:send-ticket-email}. ábrán látható kódrészlet bemutatja beállítjuk az SMTP szerver adatait, mint például a hosztnevet (pl. smtp.gmail.com), a portszámot, valamint a biztonsági protokollt (SSL vagy TLS). A hitelesítéshez szükséges a felhasználónév és az alkalmazás-specifikus jelszó, különösen ha a Gmail kétlépcsős azonosítását használjuk, mivel ilyenkor a normál jelszó nem használható az SMTP klienshez. Az e-mail összeállítása tartalmazza a címzett, a tárgy, és a levél törzsének megadását, amely akár HTML formátumban is megjelenhet, így lehetőség nyílik például a QR-kód beágyazására vagy mellékletként való csatolására. A levél elküldése aszinkron módon történik, hogy ne akadályozza a webalkalmazás egyéb működését.
+\begin{figure}[H]
+\caption{Visszaigazoló e-mail küldése és QR-kód csatolása}
+\label{fig:send-ticket-email}
+\begin{minipage}{\textwidth}
+\begin{BVerbatim}
+// Email configuration
+var emailSettings = _config.GetSection("EmailSettings");
+var smtpServer = emailSettings["SmtpServer"];
+var port = int.Parse(emailSettings["Port"]);
+var username = emailSettings["Username"];
+var password = emailSettings["Password"];
+
+var baseUrl = $"{Request.Scheme}://{Request.Host}";
+var ticketUrl = $"{baseUrl}/Ticket/Detail/{ticket.TicketId}";
+var message = new MailMessage
+{
+    From = new MailAddress(username),
+    Subject = "Your Ticket Confirmation",
+    Body = $"Thank you for your purchase!
+            Visit our website to check your ticket:" +
+           $"Ticket ID: {ticket.TicketId}" +
+           $"Seat Number: {ticket.SeatNumber}" +
+           $"Date: {ticket.PurchaseDate:yyyy-MM-dd HH:mm}" +
+           $"Ticket details: {ticketUrl}" +
+           $"Thanks for your trust!",
+    IsBodyHtml = false
+};
+message.To.Add(user.Email);
+using var smtpClient = new SmtpClient(smtpServer)
+{
+    Port = port,
+    Credentials = new NetworkCredential(username, password),
+    EnableSsl = true,
+    DeliveryMethod = SmtpDeliveryMethod.Network
+};
+\end{BVerbatim}
+\end{minipage}
+\end{figure}
 A Google-fiókok biztonságos használatához ajánlott a kétfaktoros hitelesítés (2FA) beállítása, amely a jelszó mellett egy további, egyszer használatos kód megadását követeli meg. Ez a kód általában egy mobilalkalmazással, például a Google Authenticatorral generált, időalapú számsorozat, vagy SMS-ben érkező üzenet formájában érkezik. Ha 2FA engedélyezve van, az SMTP szolgáltatásokhoz nem használható a fő jelszó, ezért alkalmazás-specifikus jelszót kell létrehozni a Google fiók biztonsági beállításaiban. Ez a jelszó kizárólag az adott program vagy szolgáltatás számára érvényes, és lehetővé teszi, hogy a rendszer biztonságosan csatlakozzon az SMTP szerverhez anélkül, hogy veszélyeztetné a fiók fő jelszavát.
 
 Ahhoz, hogy a rendszer automatikusan vissza tudjon igazolni egy sikeres jegyvásárlást e-mailben — például egy QR-kódot tartalmazó üzenet formájában — elengedhetetlen, hogy megfelelő módon előkészítsük az SMTP-alapú levélküldés technikai hátterét.

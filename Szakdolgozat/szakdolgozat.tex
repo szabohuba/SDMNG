@@ -19,6 +19,8 @@
 \usepackage{caption}
 \usepackage{fancyhdr}  
 \usepackage{fancyvrb}
+\usepackage{pdfpages}
+
 
 % JavaScript szintaxiskiemelés
 \lstdefinelanguage{JavaScript}{
@@ -57,7 +59,9 @@
 \pagenumbering{gobble}
 \include{Fejezetek/Cimoldal}
 \include{Fejezetek/CimlapRoman}
-\include{Fejezetek/Kivonat}
+\cleardoublepage
+\includepdf[pages=-,pagecommand={},scale=1]{fisaproiectului.pdf}
+\include{Szakdolgozat/Fejezetek/Kivonat}
 \include{Szakdolgozat/Fejezetek/Abstract}
 
 % Tartalomjegyzék oldalszám nélkül

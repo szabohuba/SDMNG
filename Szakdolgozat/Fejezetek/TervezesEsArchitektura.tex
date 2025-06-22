@@ -84,7 +84,7 @@ A \texttt{Schedule} entitás kettős hivatkozással kapcsolódik a \texttt{Bus} 
 
 \subsection{Entitások részletes modellezése}
 
-Az alkalmazás modelljei világosan elkülönítik az egyes üzleti szereplőket és folyamatokat, az elvárt funkcionalitásnak megfelelő struktúrában. A \texttt{Ticket} entitás minden egyes példánya konkrét kapcsolatban áll egy felhasználóval (\texttt{Contact}) és egy menetrendi bejegyzéssel (\texttt{Schedule}), valamint egy rendszer által generált ülőhelyszámmal. Ez biztosítja a tranzakciók egyértelmű követhetőségét.
+Az alkalmazás modelljei világosan elkülönítik az egyes üzleti szereplőket és folyamatokat, az elvárt funkcionalitásnak megfelelő struktúrában(\ref{fig:er-diagram}. ábra). A \texttt{Ticket} entitás minden egyes példánya konkrét kapcsolatban áll egy felhasználóval (\texttt{Contact}) és egy menetrendi bejegyzéssel (\texttt{Schedule}), valamint egy rendszer által generált ülőhelyszámmal. Ez biztosítja a tranzakciók egyértelmű követhetőségét.
 
 Az útvonalakat részletező \texttt{RouteStop} entitás lehetőséget nyújt a megállók sorrendi rendezésére az adott útvonalon belül, amely különösen hasznos a vizuális megjelenítés vagy térképes lekövetés során. A dokumentumok kezelése céljából létrehozott \texttt{Attachment} entitás lehetőséget ad fájlok feltöltésére és rendszerezésére, például adminisztratív vagy ügyfélszolgálati célból. A \texttt{AdminMessage} és \texttt{AdminTask} entitások a háttérrendszert támogató funkciók megvalósítását szolgálják: előbbi az üzemeltetői kommunikációt, utóbbi a feladatok kijelölését és nyomon követését teszi lehetővé.
 
@@ -94,12 +94,11 @@ Az útvonalakat részletező \texttt{RouteStop} entitás lehetőséget nyújt a 
     \centering
     \includegraphics[width=1\textwidth]{Szakdolgozat/Mellekletek/ERfinal.PNG}
     
-
     \caption{Az adatbázis entitás-kapcsolat (E-K) diagramja}
     \label{fig:er-diagram}
 \end{figure}
 
-A \ref{fig:er-diagram}. ábrán látható az adatbázis logikai struktúrája.
+A \ref{fig:er-diagram}. ábrán látható az adatbázis logikai struktúrája, a táblák közötti kapcsolat, valamint a létrhozott entitások adatmzői.
 
 
 \subsection{Felhasználói felület}
@@ -120,7 +119,7 @@ A \ref{fig:er-diagram}. ábrán látható az adatbázis logikai struktúrája.
 
 \paragraph{Adminisztrátori nézet}
 
-\indent Az adminisztrátorok számára elérhető nézet jelentősen kibővített funkcionalitással rendelkezik. A bejelentkezést követően egy speciális \texttt{Adminisztráció} nevű legördülő menüpont válik aktívvá, amely az alkalmazás háttérrendszeréhez biztosít hozzáférést. Ennek segítségével az adminisztrátorok jogosultak új buszmegállók létrehozására, a meglévő megállók módosítására vagy törlésére. Az útvonalak karbantartása során lehetőség van új útvonalak definiálására, illetve a meglévők struktúrájának frissítésére.
+\indent Az adminisztrátorok számára elérhető nézet (\ref{fig:admin-home}. ábra)jelentősen kibővített funkcionalitással rendelkezik. A bejelentkezést követően egy speciális \texttt{Adminisztráció} nevű legördülő menüpont válik aktívvá, amely az alkalmazás háttérrendszeréhez biztosít hozzáférést. Ennek segítségével az adminisztrátorok jogosultak új buszmegállók létrehozására, a meglévő megállók módosítására vagy törlésére. Az útvonalak karbantartása során lehetőség van új útvonalak definiálására, illetve a meglévők struktúrájának frissítésére.
 
 \indent A menetrendek kezelése is része az adminisztrációs felületnek: az indulási időpontokhoz kapcsolódó adatok, valamint a jármű-hozzárendelések módosíthatók. A járműpark menedzselése során az autóbuszok nyilvántartása, adatszerkesztése és bővítése valósítható meg. Az adminisztrátorok hozzáférnek minden felhasználói jegyhez, így átfogó képet kapnak az utazási forgalomról.
 
