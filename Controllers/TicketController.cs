@@ -39,7 +39,7 @@ namespace SpeedDiesel.Controllers
             return View(tickets);
         }
 
-
+        
         public async Task<IActionResult> UserTickets()
         {
             var user = await _userManager.GetUserAsync(User);
