@@ -38,15 +38,14 @@ namespace SpeedDiesel.Controllers
                                              .Select(b => b.ContactId)
                                              .ToList();
 
-            // Only include contacts who are NOT already assigned
             var availableDrivers = _context.Contacts
-                                           .Where(c => !assignedContactIds.Contains(c.Id))
-                                           .Select(c => new SelectListItem
-                                           {
-                                               Value = c.Id,
-                                               Text = c.FullName
-                                           })
-                                           .ToList();
+                               .Where(c => c.Active && !assignedContactIds.Contains(c.Id))
+                               .Select(c => new SelectListItem
+                               {
+                                   Value = c.Id,
+                                   Text = c.FullName
+                               })
+                               .ToList();
 
             ViewBag.Drivers = availableDrivers;
 
@@ -68,7 +67,7 @@ namespace SpeedDiesel.Controllers
 
             bus.BusId = Guid.NewGuid().ToString();
 
-            // Determine base upload path
+           
             string basePath;
             if (_webHostEnvironment.IsDevelopment())
             {
@@ -76,13 +75,13 @@ namespace SpeedDiesel.Controllers
             }
             else
             {
-                // Azure App Service uses this path
+                
                 basePath = Path.Combine(Environment.GetEnvironmentVariable("HOME") ?? "", "site", "wwwroot");
             }
 
 
 
-            // Handle image upload
+            
             if (BusImage != null && BusImage.Length > 0)
             {
                 try
@@ -100,7 +99,7 @@ namespace SpeedDiesel.Controllers
                         await BusImage.CopyToAsync(stream);
                     }
 
-                    // Save relative URL path
+                    
                     bus.ImageUrl = $"/images/bus_images/{uniqueFileName}";
                 }
                 catch (Exception fileEx)
@@ -140,58 +139,40 @@ namespace SpeedDiesel.Controllers
 
 
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Modify(Bus bus, IFormFile BusImage)
+        public async Task<IActionResult> Modify(Contact contact)
         {
-            
-            var existingBus = await _context.Buses.FindAsync(bus.BusId);
+            var existingContact = await _context.Contacts.FindAsync(contact.Id);
 
-            if (existingBus == null)
+            if (existingContact == null)
             {
                 return NotFound();
             }
 
             
-            existingBus.BusNumber = bus.BusNumber;
-            existingBus.Capacity = bus.Capacity;
-            existingBus.BusType = bus.BusType;
-
-            
-            if (BusImage != null && BusImage.Length > 0)
+            if (!contact.Active)
             {
-                string basePath;
-                if (_webHostEnvironment.IsDevelopment())
+                bool hasBus = _context.Buses.Any(b => b.ContactId == contact.Id);
+                if (hasBus)
                 {
-                    basePath = _webHostEnvironment.WebRootPath;
+                    ModelState.AddModelError("Active", "Ez a sofőr jelenleg egy buszhoz van rendelve, ezért nem tehető inaktívvá.");
+                    return View(contact);
                 }
-                else
-                {
-                    basePath = Path.Combine(Environment.GetEnvironmentVariable("HOME") ?? "", "site", "wwwroot");
-                }
-
-                var uploadsFolder = Path.Combine(basePath, "images", "bus_images");
-                if (!Directory.Exists(uploadsFolder))
-                    Directory.CreateDirectory(uploadsFolder);
-
-                var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(BusImage.FileName);
-                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await BusImage.CopyToAsync(stream);
-                }
-
-                
-                existingBus.ImageUrl = $"/images/bus_images/{uniqueFileName}";
             }
 
-            _context.Update(existingBus);
+            // Mezők frissítése
+            existingContact.FullName = contact.FullName;
+            existingContact.Street = contact.Street;
+            existingContact.Zipcode = contact.Zipcode;
+            existingContact.Active = contact.Active;
+           
+            _context.Update(existingContact);
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
+
 
 
 
@@ -211,7 +192,7 @@ namespace SpeedDiesel.Controllers
             if (bus == null)
                 return NotFound();
 
-            // Get driver name from Contacts table
+           
             var driver = await _context.Contacts
                 .Where(c => c.Id == bus.ContactId)
                 .Select(c => c.FullName)
@@ -246,7 +227,7 @@ namespace SpeedDiesel.Controllers
                 var firstSchedule = bus.Schedules.FirstOrDefault();
                 if (firstSchedule != null)
                 {
-                    TempData["ErrorMessage"] = "This bus is linked to a schedule. Please delete the schedule before deleting the bus.";
+                    TempData["ErrorMessage"] = "Eza a busz egy menetrendhez tartozik, elobb azt torolje.";
                     return RedirectToAction("Detail", "Schedule", new { id = firstSchedule.Id });
                 }
             }
@@ -270,11 +251,11 @@ namespace SpeedDiesel.Controllers
             if (bus == null)
                 return NotFound();
 
-            // Unassign driver (if desired and ContactId is nullable)
+            
             bus.ContactId = null;
-            _context.Buses.Update(bus); // Needed to save null assignment
+            _context.Buses.Update(bus); 
 
-            // Delete attachments from file system
+            
             if (bus.Attachments != null && bus.Attachments.Any())
             {
                 foreach (var attachment in bus.Attachments)
@@ -294,8 +275,6 @@ namespace SpeedDiesel.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-
-
 
     }
 }

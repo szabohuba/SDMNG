@@ -11,30 +11,30 @@
 
     <div class="form-group">
         <label asp-for="BusNumber" class="control-label"></label>
-        <input asp-for="BusNumber" class="form-control" />
+        <input asp-for="BusNumber" class="form-control" required />
         <span asp-validation-for="BusNumber" class="text-danger"></span>
     </div>
 
     <div class="form-group">
         <label asp-for="Capacity" class="control-label"></label>
-        <input asp-for="Capacity" class="form-control" type="number" />
+        <input asp-for="Capacity" class="form-control" type="number"  required/>
         <span asp-validation-for="Capacity" class="text-danger"></span>
     </div>
 
     <div class="form-group">
         <label asp-for="BusType" class="control-label"></label>
-        <input asp-for="BusType" class="form-control" />
+        <input asp-for="BusType" class="form-control" required />
     </div>
 
     <div class="form-group">
         <label asp-for="ImageUrl" class="control-label">Bus Image</label>
-        <input type="file" class="form-control" name="BusImage" />
+        <input type="file" class="form-control" name="BusImage" required />
     </div>
 
    
     <div class="mb-3">
         <label asp-for="ContactId" class="form-label">Select Driver</label>
-        <select asp-for="ContactId" class="form-control" asp-items="ViewBag.Drivers">
+        <select asp-for="ContactId" class="form-control" asp-items="ViewBag.Drivers" required>
             <option value="">-- Select Driver --</option>
         </select>
     </div>
