@@ -57,12 +57,17 @@
 
 % Címlapok oldalszám nélkül
 \pagenumbering{gobble}
-\include{Fejezetek/Cimoldal}
 \include{Fejezetek/CimlapRoman}
 \cleardoublepage
 \includepdf[pages=-,pagecommand={},scale=1]{fisaproiectului.pdf}
-\include{Szakdolgozat/Fejezetek/Kivonat}
 \include{Szakdolgozat/Fejezetek/Abstract}
+\include{Fejezetek/Cimoldal}
+
+\include{Szakdolgozat/Fejezetek/CimlapAngol}
+
+\include{Szakdolgozat/Fejezetek/Kivonat}
+
+\include{Szakdolgozat/Fejezetek/KivonatAngol}
 
 % Tartalomjegyzék oldalszám nélkül
 \cleardoublepage
