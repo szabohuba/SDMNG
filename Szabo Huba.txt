@@ -1,0 +1,3 @@
+Github projekt: https://github.com/szabohuba/SDMNG
+Github Test projekt: https://github.com/szabohuba/SDMNG-Test
+https://speeddiesel-eyd3b8amf3ajfdh0.canadacentral-01.azurewebsites.net/
