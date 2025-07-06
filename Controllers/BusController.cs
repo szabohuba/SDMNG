@@ -133,7 +133,14 @@ namespace SpeedDiesel.Controllers
                 return NotFound();
             }
 
-            ViewBag.DriverName = bus.Contact?.FullName ?? "No driver assigned";
+            ViewBag.DriverList = _context.Contacts
+                                         .Where(c => c.Active)
+                                         .Select(c => new SelectListItem
+                                         {
+                                             Value = c.Id,
+                                             Text = c.FullName
+                                         }).ToList();
+
             return View(bus);
         }
 
@@ -141,33 +148,32 @@ namespace SpeedDiesel.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Modify(Contact contact)
+        public async Task<IActionResult> Modify(Bus bus)
         {
-            var existingContact = await _context.Contacts.FindAsync(contact.Id);
-
-            if (existingContact == null)
+            var existingBus = await _context.Buses.FindAsync(bus.BusId);
+            if (existingBus == null)
             {
                 return NotFound();
             }
 
             
-            if (!contact.Active)
+            existingBus.BusNumber = bus.BusNumber;
+            existingBus.BusType = bus.BusType;
+            existingBus.Capacity = bus.Capacity;
+
+            
+            if (!string.IsNullOrEmpty(bus.ImageUrl))
             {
-                bool hasBus = _context.Buses.Any(b => b.ContactId == contact.Id);
-                if (hasBus)
-                {
-                    ModelState.AddModelError("Active", "Ez a sofőr jelenleg egy buszhoz van rendelve, ezért nem tehető inaktívvá.");
-                    return View(contact);
-                }
+                existingBus.ImageUrl = bus.ImageUrl;
             }
 
-            // Mezők frissítése
-            existingContact.FullName = contact.FullName;
-            existingContact.Street = contact.Street;
-            existingContact.Zipcode = contact.Zipcode;
-            existingContact.Active = contact.Active;
-           
-            _context.Update(existingContact);
+            
+            if (!string.IsNullOrEmpty(bus.ContactId))
+            {
+                existingBus.ContactId = bus.ContactId;
+            }
+
+            _context.Update(existingBus);
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
@@ -177,9 +183,6 @@ namespace SpeedDiesel.Controllers
 
 
 
-
-
-        // GET: Bus/Detail/{id}
         public async Task<IActionResult> Detail(string id)
         {
             if (string.IsNullOrEmpty(id))
